@@ -7,6 +7,7 @@
   <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
   <link rel="stylesheet" href="static/css/bulma.min.css">
   <link rel="stylesheet" href="static/css/index.css">
+  <link rel="stylesheet" href="static/css/benchmark.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script defer src="static/js/site-nav.js"></script>
 </head>
@@ -26,10 +27,120 @@
       </div>
     </nav>
   </header>
-  <main class="page-shell">
-    <div class="container is-max-widescreen">
-      <h1 class="page-heading">Tasks</h1>
-    </div>
+  <main class="benchmark-page">
+    <header class="benchmark-page-header">
+      <div class="benchmark-container">
+        <p class="benchmark-page-kicker">Benchmark Catalog</p>
+        <h1 class="benchmark-page-title">Tasks</h1>
+        <div class="benchmark-page-meta" aria-label="Task catalog metadata">
+          <span class="benchmark-meta-item">Tasks: —</span>
+          <span class="benchmark-meta-item">Task Variants: —</span>
+          <span class="benchmark-meta-item">Suites: —</span>
+          <span class="benchmark-meta-item">Scenes: —</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="benchmark-section">
+      <div class="benchmark-container">
+        <div class="benchmark-section-head">
+          <div>
+            <p class="benchmark-section-label">Browse</p>
+            <h2 class="benchmark-section-title">Task Catalog</h2>
+          </div>
+          <div class="benchmark-segmented" aria-label="Task view">
+            <button class="benchmark-segment is-active" type="button" disabled>Table</button>
+            <button class="benchmark-segment" type="button" disabled>Cards</button>
+          </div>
+        </div>
+        <div class="benchmark-toolbar is-wide" aria-label="Task filters">
+          <label>
+            <span class="benchmark-control-label">Search Tasks</span>
+            <input class="benchmark-control" type="search" placeholder="Search by task ID or name" disabled>
+          </label>
+          <label>
+            <span class="benchmark-control-label">Benchmark Suite</span>
+            <select class="benchmark-control" disabled><option>All suites</option></select>
+          </label>
+          <label>
+            <span class="benchmark-control-label">Perturbation Family</span>
+            <select class="benchmark-control" disabled><option>All families</option></select>
+          </label>
+          <label>
+            <span class="benchmark-control-label">Environment</span>
+            <select class="benchmark-control" disabled><option>All environments</option></select>
+          </label>
+          <label>
+            <span class="benchmark-control-label">Status</span>
+            <select class="benchmark-control" disabled><option>All statuses</option></select>
+          </label>
+        </div>
+        <div class="benchmark-table-wrap" style="margin-top: 18px;">
+          <table class="benchmark-table is-wide">
+            <thead>
+              <tr>
+                <th>Task ID</th>
+                <th>Task Name</th>
+                <th>Suite</th>
+                <th>Scene</th>
+                <th>Preview</th>
+                <th>Perturbation Families</th>
+                <th>Variants</th>
+                <th>Success Condition</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="benchmark-table-empty"><td colspan="9">No tasks published</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="benchmark-section is-soft">
+      <div class="benchmark-container">
+        <div class="benchmark-section-head">
+          <div>
+            <p class="benchmark-section-label">Task Detail</p>
+            <h2 class="benchmark-section-title">Task Card</h2>
+          </div>
+          <span class="benchmark-tag">Task ID: —</span>
+        </div>
+        <div class="benchmark-detail-grid">
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Task Description</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Original Instruction</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Objects</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Initial State</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Environment</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Episode Horizon</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Perturbations</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Success Conditions</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Related Findings</span><span class="benchmark-detail-value">—</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="benchmark-section">
+      <div class="benchmark-container">
+        <div class="benchmark-section-head">
+          <div>
+            <p class="benchmark-section-label">Demonstrations</p>
+            <h2 class="benchmark-section-title">Original and Perturbed Variants</h2>
+          </div>
+        </div>
+        <div class="benchmark-media-grid">
+          <div class="benchmark-media-slot">
+            <div class="benchmark-media-label">Original Task</div>
+            <div class="benchmark-media-empty">Image or Video</div>
+          </div>
+          <div class="benchmark-media-slot">
+            <div class="benchmark-media-label">Perturbed Variant</div>
+            <div class="benchmark-media-empty">Image or Video</div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 </body>
 </html>

@@ -1,0 +1,17 @@
+{
+  "name": "LIBERO-PRO",
+  "version": null,
+  "updatedAt": null,
+  "counts": {
+    "tasks": null,
+    "perturbations": null,
+    "models": null,
+    "evaluations": null
+  },
+  "families": [
+    "objects",
+    "initial_states",
+    "instructions",
+    "environments"
+  ]
+}

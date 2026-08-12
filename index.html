@@ -83,6 +83,7 @@
   <!-- Critical CSS - Load synchronously -->
   <link rel="stylesheet" href="static/css/bulma.min.css">
   <link rel="stylesheet" href="static/css/index.css">
+  <link rel="stylesheet" href="static/css/benchmark.css">
   
   <!-- Non-critical CSS - Load asynchronously -->
   <link rel="preload" href="static/css/bulma-carousel.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -325,6 +326,92 @@
   </div>
 </section>
 <!-- End paper abstract -->
+
+
+<!-- Benchmark overview framework -->
+<section class="benchmark-overview-band" aria-labelledby="benchmark-overview-title">
+  <div class="benchmark-container">
+    <div class="benchmark-section-head">
+      <div>
+        <p class="benchmark-section-label">Benchmark Overview</p>
+        <h2 class="benchmark-section-title" id="benchmark-overview-title">Benchmark Scope</h2>
+      </div>
+    </div>
+    <div class="benchmark-empty">Benchmark scope</div>
+    <div class="benchmark-stat-grid" style="margin-top: 24px;">
+      <div class="benchmark-stat"><span class="benchmark-stat-value">—</span><span class="benchmark-stat-label">Tasks</span></div>
+      <div class="benchmark-stat"><span class="benchmark-stat-value">—</span><span class="benchmark-stat-label">Perturbations</span></div>
+      <div class="benchmark-stat"><span class="benchmark-stat-value">—</span><span class="benchmark-stat-label">Models</span></div>
+      <div class="benchmark-stat"><span class="benchmark-stat-value">—</span><span class="benchmark-stat-label">Evaluations</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="benchmark-overview-band" aria-labelledby="benchmark-design-title">
+  <div class="benchmark-container">
+    <div class="benchmark-section-head">
+      <div>
+        <p class="benchmark-section-label">Benchmark Design</p>
+        <h2 class="benchmark-section-title" id="benchmark-design-title">Perturbation Dimensions</h2>
+      </div>
+    </div>
+    <div class="benchmark-dimension-grid">
+      <div class="benchmark-dimension"><span class="benchmark-dimension-index">01</span><p class="benchmark-dimension-name">Manipulated Objects</p></div>
+      <div class="benchmark-dimension"><span class="benchmark-dimension-index">02</span><p class="benchmark-dimension-name">Initial States</p></div>
+      <div class="benchmark-dimension"><span class="benchmark-dimension-index">03</span><p class="benchmark-dimension-name">Task Instructions</p></div>
+      <div class="benchmark-dimension"><span class="benchmark-dimension-index">04</span><p class="benchmark-dimension-name">Environments</p></div>
+    </div>
+
+    <div class="benchmark-section-head" style="margin-top: 38px;">
+      <div>
+        <p class="benchmark-section-label">Protocol</p>
+        <h2 class="benchmark-section-title">Evaluation Pipeline</h2>
+      </div>
+    </div>
+    <div class="benchmark-pipeline">
+      <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">01</span><p class="benchmark-pipeline-name">Original Task</p></div>
+      <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">02</span><p class="benchmark-pipeline-name">Perturbation</p></div>
+      <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">03</span><p class="benchmark-pipeline-name">Policy Rollout</p></div>
+      <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">04</span><p class="benchmark-pipeline-name">Success Evaluation</p></div>
+      <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">05</span><p class="benchmark-pipeline-name">Result Reporting</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="benchmark-overview-band" aria-labelledby="benchmark-explore-title">
+  <div class="benchmark-container">
+    <div class="benchmark-section-head">
+      <div>
+        <p class="benchmark-section-label">Explore</p>
+        <h2 class="benchmark-section-title" id="benchmark-explore-title">Benchmark Modules</h2>
+      </div>
+    </div>
+    <nav class="benchmark-link-grid" aria-label="Benchmark modules">
+      <a class="benchmark-module-link" href="findings.html"><span>Explore Findings</span><span class="benchmark-module-link-icon" aria-hidden="true">&#8594;</span></a>
+      <a class="benchmark-module-link" href="tasks.html"><span>Browse Tasks</span><span class="benchmark-module-link-icon" aria-hidden="true">&#8594;</span></a>
+      <a class="benchmark-module-link" href="leaderboard.html"><span>View Leaderboard</span><span class="benchmark-module-link-icon" aria-hidden="true">&#8594;</span></a>
+      <a class="benchmark-module-link" href="docs.html"><span>Read Docs</span><span class="benchmark-module-link-icon" aria-hidden="true">&#8594;</span></a>
+    </nav>
+  </div>
+</section>
+
+<section class="benchmark-overview-band" aria-labelledby="benchmark-highlights-title">
+  <div class="benchmark-container">
+    <div class="benchmark-section-head">
+      <div>
+        <p class="benchmark-section-label">Highlights</p>
+        <h2 class="benchmark-section-title" id="benchmark-highlights-title">Featured Content</h2>
+      </div>
+    </div>
+    <div class="benchmark-detail-grid">
+      <div class="benchmark-detail-item"><span class="benchmark-detail-label">Featured Findings</span><span class="benchmark-detail-value">—</span></div>
+      <div class="benchmark-detail-item"><span class="benchmark-detail-label">Featured Tasks</span><span class="benchmark-detail-value">—</span></div>
+      <div class="benchmark-detail-item"><span class="benchmark-detail-label">Latest Results</span><span class="benchmark-detail-value">—</span></div>
+      <div class="benchmark-detail-item"><span class="benchmark-detail-label">Release Notes</span><span class="benchmark-detail-value">—</span></div>
+    </div>
+  </div>
+</section>
+<!-- End benchmark overview framework -->
 
 
 <!-- ======= Case Study: OpenVLA in LIBERO-GOAL ======= -->

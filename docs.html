@@ -7,6 +7,7 @@
   <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
   <link rel="stylesheet" href="static/css/bulma.min.css">
   <link rel="stylesheet" href="static/css/index.css">
+  <link rel="stylesheet" href="static/css/benchmark.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script defer src="static/js/site-nav.js"></script>
 </head>
@@ -26,10 +27,134 @@
       </div>
     </nav>
   </header>
-  <main class="page-shell">
-    <div class="container is-max-widescreen">
-      <h1 class="page-heading">Docs</h1>
-    </div>
+  <main class="benchmark-page">
+    <header class="benchmark-page-header">
+      <div class="benchmark-container">
+        <p class="benchmark-page-kicker">Reference</p>
+        <h1 class="benchmark-page-title">Documentation</h1>
+        <div class="benchmark-page-meta" aria-label="Documentation metadata">
+          <span class="benchmark-meta-item">Benchmark Version: —</span>
+          <span class="benchmark-meta-item">Documentation Version: —</span>
+          <span class="benchmark-meta-item">Last Updated: —</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="benchmark-section">
+      <div class="benchmark-container benchmark-doc-layout">
+        <nav class="benchmark-doc-nav" aria-label="Documentation sections">
+          <a href="#benchmark-overview">Overview</a>
+          <a href="#benchmark-design">Benchmark Design</a>
+          <a href="#perturbation-taxonomy">Perturbation Taxonomy</a>
+          <a href="#task-format">Task Format</a>
+          <a href="#evaluation-protocol">Evaluation Protocol</a>
+          <a href="#metrics">Metrics</a>
+          <a href="#result-format">Result Format</a>
+          <a href="#reproduction">Reproduction</a>
+          <a href="#release-notes">Release Notes</a>
+          <a href="#citation">Citation</a>
+        </nav>
+
+        <div>
+          <section class="benchmark-doc-section" id="benchmark-overview">
+            <h2 class="benchmark-doc-title">Overview</h2>
+            <div class="benchmark-empty">Benchmark overview</div>
+          </section>
+
+          <section class="benchmark-doc-section" id="benchmark-design">
+            <h2 class="benchmark-doc-title">Benchmark Design</h2>
+            <div class="benchmark-pipeline">
+              <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">01</span><p class="benchmark-pipeline-name">Original Task</p></div>
+              <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">02</span><p class="benchmark-pipeline-name">Perturbation</p></div>
+              <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">03</span><p class="benchmark-pipeline-name">Policy Rollout</p></div>
+              <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">04</span><p class="benchmark-pipeline-name">Success Evaluation</p></div>
+              <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">05</span><p class="benchmark-pipeline-name">Result Reporting</p></div>
+            </div>
+          </section>
+
+          <section class="benchmark-doc-section" id="perturbation-taxonomy">
+            <h2 class="benchmark-doc-title">Perturbation Taxonomy</h2>
+            <div class="benchmark-dimension-grid" style="margin-bottom: 18px;">
+              <div class="benchmark-dimension"><span class="benchmark-dimension-index">01</span><p class="benchmark-dimension-name">Manipulated Objects</p></div>
+              <div class="benchmark-dimension"><span class="benchmark-dimension-index">02</span><p class="benchmark-dimension-name">Initial States</p></div>
+              <div class="benchmark-dimension"><span class="benchmark-dimension-index">03</span><p class="benchmark-dimension-name">Task Instructions</p></div>
+              <div class="benchmark-dimension"><span class="benchmark-dimension-index">04</span><p class="benchmark-dimension-name">Environments</p></div>
+            </div>
+            <div class="benchmark-table-wrap">
+              <table class="benchmark-table">
+                <thead><tr><th>ID</th><th>Perturbation</th><th>Family</th><th>What Changes</th><th>Applicable Tasks</th><th>Example</th></tr></thead>
+                <tbody><tr class="benchmark-table-empty"><td colspan="6">No perturbations published</td></tr></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="benchmark-doc-section" id="task-format">
+            <h2 class="benchmark-doc-title">Task Format</h2>
+            <div class="benchmark-schema">
+              <div class="benchmark-schema-field">Task ID</div>
+              <div class="benchmark-schema-field">Task Name</div>
+              <div class="benchmark-schema-field">Suite and Scene</div>
+              <div class="benchmark-schema-field">Original Instruction</div>
+              <div class="benchmark-schema-field">Objects and Initial State</div>
+              <div class="benchmark-schema-field">Perturbed Variants</div>
+              <div class="benchmark-schema-field">Success Condition</div>
+              <div class="benchmark-schema-field">Media and Related Findings</div>
+            </div>
+          </section>
+
+          <section class="benchmark-doc-section" id="evaluation-protocol">
+            <h2 class="benchmark-doc-title">Evaluation Protocol</h2>
+            <div class="benchmark-detail-grid">
+              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Task Selection</span><span class="benchmark-detail-value">—</span></div>
+              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Perturbation Sampling</span><span class="benchmark-detail-value">—</span></div>
+              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Trials per Variant</span><span class="benchmark-detail-value">—</span></div>
+              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Episode Horizon</span><span class="benchmark-detail-value">—</span></div>
+              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Success Evaluation</span><span class="benchmark-detail-value">—</span></div>
+              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Aggregation</span><span class="benchmark-detail-value">—</span></div>
+            </div>
+          </section>
+
+          <section class="benchmark-doc-section" id="metrics">
+            <h2 class="benchmark-doc-title">Metrics</h2>
+            <div class="benchmark-schema">
+              <div class="benchmark-schema-field">Original Success Rate</div>
+              <div class="benchmark-schema-field">Perturbed Success Rate</div>
+              <div class="benchmark-schema-field">Robustness Drop</div>
+              <div class="benchmark-schema-field">Family-level Success Rate</div>
+            </div>
+          </section>
+
+          <section class="benchmark-doc-section" id="result-format">
+            <h2 class="benchmark-doc-title">Result and Submission Format</h2>
+            <div class="benchmark-schema">
+              <div class="benchmark-schema-field">Model and Policy</div>
+              <div class="benchmark-schema-field">Benchmark Version</div>
+              <div class="benchmark-schema-field">Code and Commit Hash</div>
+              <div class="benchmark-schema-field">Checkpoint and Paper</div>
+              <div class="benchmark-schema-field">Evaluation Configuration</div>
+              <div class="benchmark-schema-field">Aggregate Scores</div>
+              <div class="benchmark-schema-field">Task-level Results</div>
+              <div class="benchmark-schema-field">Verification Status</div>
+            </div>
+          </section>
+
+          <section class="benchmark-doc-section" id="reproduction">
+            <h2 class="benchmark-doc-title">Reproduction</h2>
+            <div class="benchmark-empty">Installation, evaluation, and result submission workflow</div>
+          </section>
+
+          <section class="benchmark-doc-section" id="release-notes">
+            <h2 class="benchmark-doc-title">Release Notes</h2>
+            <div class="benchmark-empty">No releases published</div>
+          </section>
+
+          <section class="benchmark-doc-section" id="citation">
+            <h2 class="benchmark-doc-title">Citation</h2>
+            <div class="benchmark-empty">Citation</div>
+          </section>
+        </div>
+      </div>
+    </section>
   </main>
 </body>
 </html>

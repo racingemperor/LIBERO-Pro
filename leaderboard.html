@@ -7,6 +7,7 @@
   <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
   <link rel="stylesheet" href="static/css/bulma.min.css">
   <link rel="stylesheet" href="static/css/index.css">
+  <link rel="stylesheet" href="static/css/benchmark.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script defer src="static/js/site-nav.js"></script>
 </head>
@@ -26,10 +27,152 @@
       </div>
     </nav>
   </header>
-  <main class="page-shell">
-    <div class="container is-max-widescreen">
-      <h1 class="page-heading">Leaderboard</h1>
-    </div>
+  <main class="benchmark-page">
+    <header class="benchmark-page-header">
+      <div class="benchmark-container">
+        <p class="benchmark-page-kicker">Evaluation Results</p>
+        <h1 class="benchmark-page-title">Leaderboard</h1>
+        <div class="benchmark-page-meta" aria-label="Leaderboard metadata">
+          <span class="benchmark-meta-item">Benchmark Version: —</span>
+          <span class="benchmark-meta-item">Models: —</span>
+          <span class="benchmark-meta-item">Tasks: —</span>
+          <span class="benchmark-meta-item">Updated: —</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="benchmark-section is-soft">
+      <div class="benchmark-container">
+        <div class="benchmark-section-head">
+          <div>
+            <p class="benchmark-section-label">Protocol</p>
+            <h2 class="benchmark-section-title">Benchmark Setting</h2>
+          </div>
+          <span class="benchmark-tag">Verification: —</span>
+        </div>
+        <div class="benchmark-detail-grid">
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Benchmark Version</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Evaluation Protocol</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Trials per Variant</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Task Coverage</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Aggregation Method</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Primary Sort Metric</span><span class="benchmark-detail-value">Perturbed SR</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="benchmark-section">
+      <div class="benchmark-container">
+        <div class="benchmark-section-head">
+          <div>
+            <p class="benchmark-section-label">Summary</p>
+            <h2 class="benchmark-section-title">Overall Ranking</h2>
+          </div>
+          <div class="benchmark-segmented" aria-label="Ranking metric">
+            <button class="benchmark-segment" type="button" disabled>Original SR</button>
+            <button class="benchmark-segment is-active" type="button" disabled>Perturbed SR</button>
+            <button class="benchmark-segment" type="button" disabled>Robustness Drop</button>
+          </div>
+        </div>
+        <div class="benchmark-table-wrap">
+          <table class="benchmark-table is-wide">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Model</th>
+                <th>Policy</th>
+                <th>Original SR</th>
+                <th>Perturbed SR</th>
+                <th>Robustness Drop</th>
+                <th>Objects</th>
+                <th>Initial States</th>
+                <th>Instructions</th>
+                <th>Environments</th>
+                <th>Evaluation Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="benchmark-table-empty"><td colspan="12">No verified results published</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="benchmark-section is-soft">
+      <div class="benchmark-container">
+        <div class="benchmark-section-head">
+          <div>
+            <p class="benchmark-section-label">Comparison</p>
+            <h2 class="benchmark-section-title">Category Performance</h2>
+          </div>
+        </div>
+        <div class="benchmark-split-layout">
+          <div class="benchmark-tool-surface">
+            <h3 class="benchmark-tool-title">Original vs. Perturbed</h3>
+            <div class="benchmark-chart-shell">Comparison Chart</div>
+          </div>
+          <div class="benchmark-tool-surface">
+            <h3 class="benchmark-tool-title">Perturbation Families</h3>
+            <div class="benchmark-chart-shell">Category Chart</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="benchmark-section">
+      <div class="benchmark-container">
+        <div class="benchmark-section-head">
+          <div>
+            <p class="benchmark-section-label">Breakdown</p>
+            <h2 class="benchmark-section-title">Per-task Results</h2>
+          </div>
+          <div class="benchmark-segmented" aria-label="Result matrix view">
+            <button class="benchmark-segment is-active" type="button" disabled>Task</button>
+            <button class="benchmark-segment" type="button" disabled>Perturbation</button>
+          </div>
+        </div>
+        <div class="benchmark-table-wrap">
+          <table class="benchmark-table is-wide">
+            <thead>
+              <tr>
+                <th>Task ID</th>
+                <th>Task</th>
+                <th>Perturbation</th>
+                <th>Model Results</th>
+                <th>Original SR</th>
+                <th>Perturbed SR</th>
+                <th>Robustness Drop</th>
+                <th>Trials</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="benchmark-table-empty"><td colspan="8">No task-level results published</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="benchmark-section is-soft">
+      <div class="benchmark-container">
+        <div class="benchmark-section-head">
+          <div>
+            <p class="benchmark-section-label">Provenance</p>
+            <h2 class="benchmark-section-title">Submission Details</h2>
+          </div>
+        </div>
+        <div class="benchmark-detail-grid">
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Code URL</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Commit Hash</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Checkpoint URL</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Paper URL</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Open Source</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Verification Notes</span><span class="benchmark-detail-value">—</span></div>
+        </div>
+      </div>
+    </section>
   </main>
 </body>
 </html>
