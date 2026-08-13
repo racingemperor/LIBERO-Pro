@@ -3,12 +3,12 @@
   "evaluationDate": null,
   "protocol": null,
   "scope": {
-    "baseTasks": 4,
-    "perturbationDirections": 42,
+    "baseTasks": null,
+    "perturbationDirections": null,
     "generatedEvaluationTasks": null,
-    "generatedEvaluationTasksDisplay": "100+",
-    "activeDirectionsPerEvaluationTask": 1,
-    "combinedPerturbationSuites": false
+    "generatedEvaluationTasksDisplay": null,
+    "activeDirectionsPerEvaluationTask": null,
+    "combinedPerturbationSuites": null
   },
   "resultLevels": [
     "overall",

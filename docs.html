@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="static/css/benchmark.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script defer src="static/js/site-nav.js"></script>
-  <script defer src="static/js/benchmark-data.js"></script>
 </head>
 <body>
   <header class="site-header">
@@ -34,10 +33,9 @@
         <p class="benchmark-page-kicker">LIBERO-PRO 2.0 Reference</p>
         <h1 class="benchmark-page-title">Documentation</h1>
         <div class="benchmark-page-meta" aria-label="Documentation metadata">
-          <span class="benchmark-meta-item">Perturbation Directions: 42</span>
-          <span class="benchmark-meta-item">Static: 21</span>
-          <span class="benchmark-meta-item">Dynamic: 21</span>
-          <span class="benchmark-meta-item">Active Directions per Task: 1</span>
+          <span class="benchmark-meta-item">Benchmark Version: —</span>
+          <span class="benchmark-meta-item">Documentation Version: —</span>
+          <span class="benchmark-meta-item">Last Updated: —</span>
         </div>
       </div>
     </header>
@@ -61,12 +59,12 @@
         <div>
           <section class="benchmark-doc-section" id="benchmark-overview">
             <h2 class="benchmark-doc-title">Overview</h2>
-            <div class="benchmark-empty">LIBERO-PRO 2.0 defines 42 non-physical perturbation directions. Each generated evaluation task activates exactly one direction.</div>
+            <div class="benchmark-empty">Benchmark overview</div>
             <div class="benchmark-stat-grid" style="margin-top: 18px;">
-              <div class="benchmark-stat"><span class="benchmark-stat-value">42</span><span class="benchmark-stat-label">Directions</span></div>
-              <div class="benchmark-stat"><span class="benchmark-stat-value">21</span><span class="benchmark-stat-label">Static</span></div>
-              <div class="benchmark-stat"><span class="benchmark-stat-value">21</span><span class="benchmark-stat-label">Dynamic</span></div>
-              <div class="benchmark-stat"><span class="benchmark-stat-value">1</span><span class="benchmark-stat-label">Direction per Task</span></div>
+              <div class="benchmark-stat"><span class="benchmark-stat-value">—</span><span class="benchmark-stat-label">Tasks</span></div>
+              <div class="benchmark-stat"><span class="benchmark-stat-value">—</span><span class="benchmark-stat-label">Perturbations</span></div>
+              <div class="benchmark-stat"><span class="benchmark-stat-value">—</span><span class="benchmark-stat-label">Models</span></div>
+              <div class="benchmark-stat"><span class="benchmark-stat-value">—</span><span class="benchmark-stat-label">Evaluations</span></div>
             </div>
           </section>
 
@@ -84,13 +82,13 @@
           <section class="benchmark-doc-section" id="perturbation-taxonomy">
             <h2 class="benchmark-doc-title">Perturbation Taxonomy</h2>
             <div class="benchmark-split-layout" style="margin-bottom: 18px;">
-              <div class="benchmark-dimension"><span class="benchmark-dimension-index">S01-S21</span><p class="benchmark-dimension-name">Static Directions</p><p class="benchmark-dimension-copy">Configured before the episode and held fixed throughout the rollout.</p></div>
-              <div class="benchmark-dimension"><span class="benchmark-dimension-index">D01-D21</span><p class="benchmark-dimension-name">Dynamic Directions</p><p class="benchmark-dimension-copy">Injected after rollout begins at a predefined task phase or time.</p></div>
+              <div class="benchmark-dimension"><span class="benchmark-dimension-index">—</span><p class="benchmark-dimension-name">Static Perturbations</p></div>
+              <div class="benchmark-dimension"><span class="benchmark-dimension-index">—</span><p class="benchmark-dimension-name">Dynamic Perturbations</p></div>
             </div>
             <div class="benchmark-table-wrap">
               <table class="benchmark-table is-wide">
                 <thead><tr><th>ID</th><th>Mode</th><th>Perturbation Direction</th><th>Primary Task</th><th>Validation Task</th><th>Implementation Tier</th></tr></thead>
-                <tbody id="perturbation-rows"><tr class="benchmark-table-empty"><td colspan="6">Loading 42 perturbation directions</td></tr></tbody>
+                <tbody><tr class="benchmark-table-empty"><td colspan="6">No perturbations published</td></tr></tbody>
               </table>
             </div>
           </section>
@@ -126,13 +124,13 @@
           <section class="benchmark-doc-section" id="evaluation-protocol">
             <h2 class="benchmark-doc-title">Evaluation Protocol</h2>
             <div class="benchmark-detail-grid">
-              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Reference Task Set</span><span class="benchmark-detail-value">B1-B4 frozen tasks</span></div>
-              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Perturbation Assignment</span><span class="benchmark-detail-value">Primary task plus validation task</span></div>
-              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Active Directions per Evaluation</span><span class="benchmark-detail-value">One</span></div>
-              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Sampling and Reproduction</span><span class="benchmark-detail-value">Fixed parameter ranges, seeds and accepted manifests</span></div>
+              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Reference Task Set</span><span class="benchmark-detail-value">—</span></div>
+              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Perturbation Assignment</span><span class="benchmark-detail-value">—</span></div>
+              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Active Directions per Evaluation</span><span class="benchmark-detail-value">—</span></div>
+              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Sampling and Reproduction</span><span class="benchmark-detail-value">—</span></div>
               <div class="benchmark-detail-item"><span class="benchmark-detail-label">Trials per Evaluation Task</span><span class="benchmark-detail-value">—</span></div>
-              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Dynamic Injection</span><span class="benchmark-detail-value">Predefined phase, step/time, duration and trigger</span></div>
-              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Success Evaluation</span><span class="benchmark-detail-value">Original BDDL goal plus direction-specific criteria where required</span></div>
+              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Dynamic Injection</span><span class="benchmark-detail-value">—</span></div>
+              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Success Evaluation</span><span class="benchmark-detail-value">—</span></div>
               <div class="benchmark-detail-item"><span class="benchmark-detail-label">Aggregation</span><span class="benchmark-detail-value">—</span></div>
             </div>
           </section>

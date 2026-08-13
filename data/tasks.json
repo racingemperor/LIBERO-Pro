@@ -1,50 +1,5 @@
 {
-  "baseTasks": [
-    {
-      "id": "B1",
-      "suite": "libero_spatial",
-      "name": "Pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate",
-      "taskSlug": "pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
-      "goalSummary": "Black bowl in the open top drawer to the plate",
-      "strengths": "Target disambiguation inside a cavity, constrained approach, extraction, transport, and plate placement",
-      "representativeDirections": ["S05", "S11", "S12"],
-      "bddlPath": "libero_spatial\\pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate.bddl",
-      "sha256": "132ADD01ABD735504AE7AF330E713D002FF0FA9B14E59DEB369B7253C76DDB4B"
-    },
-    {
-      "id": "B2",
-      "suite": "libero_object",
-      "name": "Pick up the alphabet soup and place it in the basket",
-      "taskSlug": "pick_up_the_alphabet_soup_and_place_it_in_the_basket",
-      "goalSummary": "Alphabet soup to basket with five distractor objects",
-      "strengths": "Cluttered search, instance, appearance and scale changes, target and basket pose, and clearance",
-      "representativeDirections": ["S01", "S02", "S06", "S08", "S10", "S13", "S14"],
-      "bddlPath": "libero_object\\pick_up_the_alphabet_soup_and_place_it_in_the_basket.bddl",
-      "sha256": "99B0B2031A41E7A503CB173F063CF8934751027F99830C50B4110832058FD73B"
-    },
-    {
-      "id": "B3",
-      "suite": "libero_goal",
-      "name": "Put the wine bottle on the rack",
-      "taskSlug": "put_the_wine_bottle_on_the_rack",
-      "goalSummary": "Wine bottle to the top region of the wine rack",
-      "strengths": "Long-object orientation, rack approach, and precision placement",
-      "representativeDirections": ["S07", "S08", "S09"],
-      "bddlPath": "libero_goal\\put_the_wine_bottle_on_the_rack.bddl",
-      "sha256": "BFE7B14240A61700419EC2DD99857177F373AA1EAD1F0A991458815A843C5772"
-    },
-    {
-      "id": "B4",
-      "suite": "libero_10",
-      "name": "Put the yellow and white mug in the microwave and close it",
-      "taskSlug": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it",
-      "goalSummary": "Yellow-white mug into the open microwave, then close the door",
-      "strengths": "Object disambiguation, insertion through an opening, hand withdrawal, articulated door operation, and completion recovery",
-      "representativeDirections": ["S05", "S07", "S09", "D20"],
-      "bddlPath": "libero_10\\KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.bddl",
-      "sha256": "EB280AA470C524B7E2671FBAECEB1970A93EB6C48282B2EE998E789C74E0F917"
-    }
-  ],
+  "baseTasks": [],
   "generatedEvaluationTasks": [],
   "evaluationTaskIdFormat": "<base_task_id>-<perturbation_id>-<submode>-<seed_or_index>"
 }

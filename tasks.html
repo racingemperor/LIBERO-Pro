@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="static/css/benchmark.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script defer src="static/js/site-nav.js"></script>
-  <script defer src="static/js/benchmark-data.js"></script>
 </head>
 <body>
   <header class="site-header">
@@ -34,11 +33,10 @@
         <p class="benchmark-page-kicker">LIBERO-PRO 2.0 Catalog</p>
         <h1 class="benchmark-page-title">Tasks</h1>
         <div class="benchmark-page-meta" aria-label="Task catalog metadata">
-          <span class="benchmark-meta-item">Perturbation Directions: 42</span>
-          <span class="benchmark-meta-item">Static: 21</span>
-          <span class="benchmark-meta-item">Dynamic: 21</span>
-          <span class="benchmark-meta-item">Single-direction Tasks: 100+</span>
-          <span class="benchmark-meta-item">Active Directions per Task: 1</span>
+          <span class="benchmark-meta-item">Tasks: —</span>
+          <span class="benchmark-meta-item">Perturbations: —</span>
+          <span class="benchmark-meta-item">Modes: —</span>
+          <span class="benchmark-meta-item">Updated: —</span>
         </div>
       </div>
     </header>
@@ -48,7 +46,7 @@
         <div class="benchmark-section-head">
           <div>
             <p class="benchmark-section-label">Perturbation Space</p>
-            <h2 class="benchmark-section-title">42 Perturbation Directions</h2>
+            <h2 class="benchmark-section-title">Perturbation Catalog</h2>
           </div>
           <div class="benchmark-segmented" aria-label="Task view">
             <button class="benchmark-segment is-active" type="button" disabled>Table</button>
@@ -66,7 +64,7 @@
           </label>
           <label>
             <span class="benchmark-control-label">Reference Task</span>
-            <select class="benchmark-control" disabled><option>All reference tasks</option></select>
+            <select class="benchmark-control" disabled><option>All tasks</option></select>
           </label>
           <label>
             <span class="benchmark-control-label">Implementation Tier</span>
@@ -85,8 +83,8 @@
                 <th>Implementation Tier</th>
               </tr>
             </thead>
-            <tbody id="perturbation-rows">
-              <tr class="benchmark-table-empty"><td colspan="6">Loading 42 perturbation directions</td></tr>
+            <tbody>
+              <tr class="benchmark-table-empty"><td colspan="6">No perturbations published</td></tr>
             </tbody>
           </table>
         </div>
@@ -97,22 +95,22 @@
       <div class="benchmark-container">
         <div class="benchmark-section-head">
           <div>
-            <p class="benchmark-section-label">Single-direction Evaluation Set</p>
+            <p class="benchmark-section-label">Evaluation Set</p>
             <h2 class="benchmark-section-title">Generated Task Registry</h2>
           </div>
-          <span class="benchmark-tag">One Direction per Task</span>
+          <span class="benchmark-tag">Task ID: —</span>
         </div>
         <div class="benchmark-toolbar is-wide" aria-label="Generated evaluation task filters">
           <label><span class="benchmark-control-label">Search Tasks</span><input class="benchmark-control" type="search" placeholder="Search by task ID" disabled></label>
-          <label><span class="benchmark-control-label">Reference Task</span><select class="benchmark-control" disabled><option>All reference tasks</option></select></label>
+          <label><span class="benchmark-control-label">Reference Task</span><select class="benchmark-control" disabled><option>All tasks</option></select></label>
           <label><span class="benchmark-control-label">Mode</span><select class="benchmark-control" disabled><option>Static and dynamic</option></select></label>
-          <label><span class="benchmark-control-label">Direction</span><select class="benchmark-control" disabled><option>All 42 directions</option></select></label>
+          <label><span class="benchmark-control-label">Direction</span><select class="benchmark-control" disabled><option>All directions</option></select></label>
           <label><span class="benchmark-control-label">Status</span><select class="benchmark-control" disabled><option>All statuses</option></select></label>
         </div>
         <div class="benchmark-table-wrap" style="margin-top: 18px;">
           <table class="benchmark-table is-wide">
             <thead><tr><th>Task ID</th><th>Reference Task</th><th>Direction</th><th>Mode</th><th>Submode</th><th>Parameters</th><th>Seed</th><th>Injection Phase</th><th>Manifest</th><th>Status</th></tr></thead>
-            <tbody><tr class="benchmark-table-empty"><td colspan="10">Generated evaluation task manifests will be published here</td></tr></tbody>
+            <tbody><tr class="benchmark-table-empty"><td colspan="10">No tasks published</td></tr></tbody>
           </table>
         </div>
       </div>
