@@ -1,3 +1,10 @@
 {
-  "findings": []
+  "findings": [],
+  "scope": "single_perturbation_direction",
+  "relationKeys": [
+    "baseTaskIds",
+    "perturbationIds",
+    "evaluationTaskIds",
+    "modelIds"
+  ]
 }

@@ -1,17 +1,39 @@
 {
-  "name": "LIBERO-PRO",
+  "name": "LIBERO-PRO 2.0",
   "version": null,
   "updatedAt": null,
   "counts": {
-    "tasks": null,
-    "perturbations": null,
+    "baseTasks": 4,
+    "perturbationDirections": 42,
+    "staticDirections": 21,
+    "dynamicDirections": 21,
+    "generatedEvaluationTasks": null,
+    "generatedEvaluationTasksDisplay": "100+",
     "models": null,
     "evaluations": null
   },
-  "families": [
-    "objects",
-    "initial_states",
-    "instructions",
-    "environments"
+  "scope": {
+    "activeDirectionsPerEvaluationTask": 1,
+    "combinedPerturbationSuites": false
+  },
+  "hierarchy": [
+    "base_task",
+    "perturbation_direction",
+    "generated_evaluation_task",
+    "rollout_result"
+  ],
+  "modes": [
+    {
+      "id": "static",
+      "label": "Static",
+      "count": 21,
+      "definition": "Configured before the episode and held fixed throughout the rollout."
+    },
+    {
+      "id": "dynamic",
+      "label": "Dynamic",
+      "count": 21,
+      "definition": "Injected after rollout begins at a predefined task phase or time."
+    }
   ]
 }

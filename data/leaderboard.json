@@ -2,5 +2,19 @@
   "benchmarkVersion": null,
   "evaluationDate": null,
   "protocol": null,
+  "scope": {
+    "baseTasks": 4,
+    "perturbationDirections": 42,
+    "generatedEvaluationTasks": null,
+    "generatedEvaluationTasksDisplay": "100+",
+    "activeDirectionsPerEvaluationTask": 1,
+    "combinedPerturbationSuites": false
+  },
+  "resultLevels": [
+    "overall",
+    "mode",
+    "perturbation_direction",
+    "generated_evaluation_task"
+  ],
   "results": []
 }

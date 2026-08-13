@@ -333,16 +333,16 @@
   <div class="benchmark-container">
     <div class="benchmark-section-head">
       <div>
-        <p class="benchmark-section-label">Benchmark Overview</p>
+        <p class="benchmark-section-label">LIBERO-PRO 2.0</p>
         <h2 class="benchmark-section-title" id="benchmark-overview-title">Benchmark Scope</h2>
       </div>
     </div>
-    <div class="benchmark-empty">Benchmark scope</div>
+    <div class="benchmark-empty">Four frozen reference tasks are expanded through 42 non-physical perturbation directions into more than 100 evaluation tasks. Each evaluation task activates exactly one direction.</div>
     <div class="benchmark-stat-grid" style="margin-top: 24px;">
-      <div class="benchmark-stat"><span class="benchmark-stat-value">—</span><span class="benchmark-stat-label">Tasks</span></div>
-      <div class="benchmark-stat"><span class="benchmark-stat-value">—</span><span class="benchmark-stat-label">Perturbations</span></div>
-      <div class="benchmark-stat"><span class="benchmark-stat-value">—</span><span class="benchmark-stat-label">Models</span></div>
-      <div class="benchmark-stat"><span class="benchmark-stat-value">—</span><span class="benchmark-stat-label">Evaluations</span></div>
+      <div class="benchmark-stat"><span class="benchmark-stat-value">42</span><span class="benchmark-stat-label">Perturbation Directions</span></div>
+      <div class="benchmark-stat"><span class="benchmark-stat-value">21</span><span class="benchmark-stat-label">Static Directions</span></div>
+      <div class="benchmark-stat"><span class="benchmark-stat-value">21</span><span class="benchmark-stat-label">Dynamic Directions</span></div>
+      <div class="benchmark-stat"><span class="benchmark-stat-value">100+</span><span class="benchmark-stat-label">Single-direction Tasks</span></div>
     </div>
   </div>
 </section>
@@ -352,14 +352,12 @@
     <div class="benchmark-section-head">
       <div>
         <p class="benchmark-section-label">Benchmark Design</p>
-        <h2 class="benchmark-section-title" id="benchmark-design-title">Perturbation Dimensions</h2>
+        <h2 class="benchmark-section-title" id="benchmark-design-title">Perturbation Modes</h2>
       </div>
     </div>
-    <div class="benchmark-dimension-grid">
-      <div class="benchmark-dimension"><span class="benchmark-dimension-index">01</span><p class="benchmark-dimension-name">Manipulated Objects</p></div>
-      <div class="benchmark-dimension"><span class="benchmark-dimension-index">02</span><p class="benchmark-dimension-name">Initial States</p></div>
-      <div class="benchmark-dimension"><span class="benchmark-dimension-index">03</span><p class="benchmark-dimension-name">Task Instructions</p></div>
-      <div class="benchmark-dimension"><span class="benchmark-dimension-index">04</span><p class="benchmark-dimension-name">Environments</p></div>
+    <div class="benchmark-split-layout">
+      <div class="benchmark-dimension"><span class="benchmark-dimension-index">S01-S21</span><p class="benchmark-dimension-name">21 Static Directions</p><p class="benchmark-dimension-copy">Configured before the episode and held fixed throughout the rollout.</p></div>
+      <div class="benchmark-dimension"><span class="benchmark-dimension-index">D01-D21</span><p class="benchmark-dimension-name">21 Dynamic Directions</p><p class="benchmark-dimension-copy">Injected during execution to test state updates, replanning, and recovery.</p></div>
     </div>
 
     <div class="benchmark-section-head" style="margin-top: 38px;">
@@ -369,11 +367,11 @@
       </div>
     </div>
     <div class="benchmark-pipeline">
-      <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">01</span><p class="benchmark-pipeline-name">Original Task</p></div>
-      <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">02</span><p class="benchmark-pipeline-name">Perturbation</p></div>
-      <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">03</span><p class="benchmark-pipeline-name">Policy Rollout</p></div>
-      <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">04</span><p class="benchmark-pipeline-name">Success Evaluation</p></div>
-      <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">05</span><p class="benchmark-pipeline-name">Result Reporting</p></div>
+      <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">01</span><p class="benchmark-pipeline-name">Reference Task</p></div>
+      <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">02</span><p class="benchmark-pipeline-name">One Perturbation Direction</p></div>
+      <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">03</span><p class="benchmark-pipeline-name">Submode, Parameters &amp; Seed</p></div>
+      <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">04</span><p class="benchmark-pipeline-name">Generated Evaluation Task</p></div>
+      <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">05</span><p class="benchmark-pipeline-name">Rollout &amp; Result</p></div>
     </div>
   </div>
 </section>

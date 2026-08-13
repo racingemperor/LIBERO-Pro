@@ -198,6 +198,13 @@
   line-height: 1.25;
 }
 
+.benchmark-dimension-copy {
+  margin: 8px 0 0;
+  color: var(--benchmark-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
 .benchmark-pipeline {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -343,6 +350,24 @@
 
 .benchmark-table tbody tr:last-child td {
   border-bottom: 0;
+}
+
+.benchmark-table .benchmark-wrap-cell {
+  min-width: 220px;
+  white-space: normal;
+  line-height: 1.45;
+}
+
+.benchmark-tag.is-static {
+  color: var(--benchmark-green);
+  background: #eef8f4;
+  border-color: #b9ded1;
+}
+
+.benchmark-tag.is-dynamic {
+  color: var(--benchmark-red);
+  background: #fff4f3;
+  border-color: #ecc8c4;
 }
 
 .benchmark-table-empty td {

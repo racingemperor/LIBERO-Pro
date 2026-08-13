@@ -30,12 +30,14 @@
   <main class="benchmark-page">
     <header class="benchmark-page-header">
       <div class="benchmark-container">
-        <p class="benchmark-page-kicker">Evaluation Results</p>
+        <p class="benchmark-page-kicker">LIBERO-PRO 2.0 Evaluation Results</p>
         <h1 class="benchmark-page-title">Leaderboard</h1>
         <div class="benchmark-page-meta" aria-label="Leaderboard metadata">
           <span class="benchmark-meta-item">Benchmark Version: —</span>
           <span class="benchmark-meta-item">Models: —</span>
-          <span class="benchmark-meta-item">Tasks: —</span>
+          <span class="benchmark-meta-item">Directions: 42</span>
+          <span class="benchmark-meta-item">Static: 21</span>
+          <span class="benchmark-meta-item">Dynamic: 21</span>
           <span class="benchmark-meta-item">Updated: —</span>
         </div>
       </div>
@@ -53,8 +55,10 @@
         <div class="benchmark-detail-grid">
           <div class="benchmark-detail-item"><span class="benchmark-detail-label">Benchmark Version</span><span class="benchmark-detail-value">—</span></div>
           <div class="benchmark-detail-item"><span class="benchmark-detail-label">Evaluation Protocol</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Trials per Variant</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Task Coverage</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Trials per Direction</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Active Directions per Task</span><span class="benchmark-detail-value">1</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Direction Coverage</span><span class="benchmark-detail-value">— / 42</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Direction Composition</span><span class="benchmark-detail-value">One per evaluation task</span></div>
           <div class="benchmark-detail-item"><span class="benchmark-detail-label">Aggregation Method</span><span class="benchmark-detail-value">—</span></div>
           <div class="benchmark-detail-item"><span class="benchmark-detail-label">Primary Sort Metric</span><span class="benchmark-detail-value">Perturbed SR</span></div>
         </div>
@@ -84,10 +88,10 @@
                 <th>Original SR</th>
                 <th>Perturbed SR</th>
                 <th>Robustness Drop</th>
-                <th>Objects</th>
-                <th>Initial States</th>
-                <th>Instructions</th>
-                <th>Environments</th>
+                <th>Static SR</th>
+                <th>Dynamic SR</th>
+                <th>Direction Coverage</th>
+                <th>Evaluation Tasks</th>
                 <th>Evaluation Date</th>
                 <th>Status</th>
               </tr>
@@ -114,8 +118,8 @@
             <div class="benchmark-chart-shell">Comparison Chart</div>
           </div>
           <div class="benchmark-tool-surface">
-            <h3 class="benchmark-tool-title">Perturbation Families</h3>
-            <div class="benchmark-chart-shell">Category Chart</div>
+            <h3 class="benchmark-tool-title">Static vs. Dynamic</h3>
+            <div class="benchmark-chart-shell">Mode Comparison Chart</div>
           </div>
         </div>
       </div>
@@ -126,21 +130,21 @@
         <div class="benchmark-section-head">
           <div>
             <p class="benchmark-section-label">Breakdown</p>
-            <h2 class="benchmark-section-title">Per-task Results</h2>
+            <h2 class="benchmark-section-title">Results Breakdown</h2>
           </div>
           <div class="benchmark-segmented" aria-label="Result matrix view">
-            <button class="benchmark-segment is-active" type="button" disabled>Task</button>
-            <button class="benchmark-segment" type="button" disabled>Perturbation</button>
+            <button class="benchmark-segment is-active" type="button" disabled>Direction</button>
+            <button class="benchmark-segment" type="button" disabled>Mode</button>
           </div>
         </div>
         <div class="benchmark-table-wrap">
           <table class="benchmark-table is-wide">
             <thead>
               <tr>
-                <th>Task ID</th>
-                <th>Task</th>
-                <th>Perturbation</th>
-                <th>Model Results</th>
+                <th>Direction ID</th>
+                <th>Perturbation Direction</th>
+                <th>Mode</th>
+                <th>Model</th>
                 <th>Original SR</th>
                 <th>Perturbed SR</th>
                 <th>Robustness Drop</th>
@@ -148,7 +152,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="benchmark-table-empty"><td colspan="8">No task-level results published</td></tr>
+              <tr class="benchmark-table-empty"><td colspan="8">No direction-level results published</td></tr>
             </tbody>
           </table>
         </div>
