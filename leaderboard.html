@@ -29,11 +29,12 @@
     </nav>
   </header>
 
-  <main class="benchmark-page">
+  <main class="benchmark-page leaderboard-page">
     <header class="benchmark-page-header">
       <div class="benchmark-container">
         <p class="benchmark-page-kicker">LIBERO-PRO Evaluation Results</p>
         <h1 class="benchmark-page-title">Leaderboard</h1>
+        <p class="leaderboard-page-summary">Compare model success rates across 42 static and dynamic perturbation directions, with research-question and combination-suite results excluded.</p>
         <div class="benchmark-page-meta" aria-label="Leaderboard metadata">
           <span class="benchmark-meta-item"><strong id="leaderboard-model-count">—</strong>&nbsp;ranked models</span>
           <span class="benchmark-meta-item"><strong id="leaderboard-suite-count">—</strong>&nbsp;base tasks</span>
@@ -53,20 +54,24 @@
           </div>
           <a class="leaderboard-source-link" href="https://docs.google.com/spreadsheets/d/1Lfu3m6Dmh2nj3JeC9hBio1beL1yAJ6GTqXX7jFNuHaE/edit?gid=893535827#gid=893535827" target="_blank" rel="noopener noreferrer">View source sheet <span aria-hidden="true">↗</span></a>
         </div>
-        <div class="benchmark-stat-grid">
-          <div class="benchmark-stat">
+        <div class="benchmark-stat-grid leaderboard-stat-grid">
+          <div class="benchmark-stat is-perturbed">
+            <span class="leaderboard-stat-accent" aria-hidden="true"></span>
             <span class="benchmark-stat-value" id="leaderboard-best-score">—</span>
             <span class="benchmark-stat-label">Best Perturbed SR</span>
           </div>
-          <div class="benchmark-stat">
+          <div class="benchmark-stat is-base">
+            <span class="leaderboard-stat-accent" aria-hidden="true"></span>
             <span class="benchmark-stat-value" id="leaderboard-mean-score">—</span>
             <span class="benchmark-stat-label">Mean Perturbed SR</span>
           </div>
-          <div class="benchmark-stat">
+          <div class="benchmark-stat is-static">
+            <span class="leaderboard-stat-accent" aria-hidden="true"></span>
             <span class="benchmark-stat-value" id="leaderboard-static-count">—</span>
             <span class="benchmark-stat-label">Applicable Static Scores</span>
           </div>
-          <div class="benchmark-stat">
+          <div class="benchmark-stat is-dynamic">
+            <span class="leaderboard-stat-accent" aria-hidden="true"></span>
             <span class="benchmark-stat-value" id="leaderboard-dynamic-count">—</span>
             <span class="benchmark-stat-label">Applicable Dynamic Scores</span>
           </div>
@@ -78,8 +83,8 @@
       <div class="benchmark-container">
         <div class="benchmark-section-head">
           <div>
-            <p class="benchmark-section-label">Results</p>
-            <h2 class="benchmark-section-title">Overall Ranking</h2>
+            <p class="benchmark-section-label">Performance Explorer</p>
+            <h2 class="benchmark-section-title">Model Success Rate</h2>
           </div>
           <div class="benchmark-segmented leaderboard-sort" aria-label="Sort leaderboard by metric">
             <button class="benchmark-segment is-active" type="button" data-sort-key="perturbed" aria-pressed="true">Perturbed SR</button>
@@ -87,6 +92,45 @@
             <button class="benchmark-segment" type="button" data-sort-key="dynamic" aria-pressed="false">Dynamic SR</button>
             <button class="benchmark-segment" type="button" data-sort-key="base" aria-pressed="false">Base SR</button>
           </div>
+        </div>
+
+        <div class="leaderboard-visual-layout">
+          <section class="leaderboard-ranking-panel" aria-labelledby="leaderboard-chart-title">
+            <div class="leaderboard-panel-head">
+              <div>
+                <h3 class="leaderboard-panel-title" id="leaderboard-chart-title">Perturbed success rate by model</h3>
+                <p class="leaderboard-panel-caption" id="leaderboard-chart-caption">Mean over available non-RQ perturbed evaluations</p>
+              </div>
+              <span class="leaderboard-metric-key" id="leaderboard-metric-key"><span aria-hidden="true"></span>Perturbed SR</span>
+            </div>
+            <div class="leaderboard-chart-axis" aria-hidden="true">
+              <span>0</span><span>25</span><span>50</span><span>75</span><span>100%</span>
+            </div>
+            <div class="leaderboard-ranking-chart" id="leaderboard-ranking-chart" aria-live="polite">
+              <div class="leaderboard-chart-loading">Loading model results...</div>
+            </div>
+            <div class="leaderboard-category-legend" aria-label="Model categories">
+              <span><i class="is-mainstream" aria-hidden="true"></i>Mainstream VLA</span>
+              <span><i class="is-robustness" aria-hidden="true"></i>Robustness-oriented</span>
+              <span><i class="is-world" aria-hidden="true"></i>World Action Models</span>
+            </div>
+          </section>
+
+          <aside class="leaderboard-model-panel" id="leaderboard-model-detail" aria-live="polite" aria-label="Selected model performance">
+            <div class="leaderboard-chart-loading">Loading model profile...</div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="benchmark-section is-soft">
+      <div class="benchmark-container">
+        <div class="benchmark-section-head">
+          <div>
+            <p class="benchmark-section-label">Detailed Results</p>
+            <h2 class="benchmark-section-title">Complete Ranking</h2>
+          </div>
+          <span class="benchmark-tag">Success rate</span>
         </div>
 
         <div class="benchmark-table-wrap" tabindex="0" aria-label="Scrollable model leaderboard">
@@ -117,7 +161,7 @@
       </div>
     </section>
 
-    <section class="benchmark-section is-soft">
+    <section class="benchmark-section">
       <div class="benchmark-container">
         <div class="benchmark-section-head">
           <div>
@@ -129,7 +173,7 @@
       </div>
     </section>
 
-    <section class="benchmark-section">
+    <section class="benchmark-section is-soft">
       <div class="benchmark-container">
         <div class="benchmark-section-head">
           <div>
