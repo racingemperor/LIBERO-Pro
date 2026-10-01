@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="static/css/benchmark.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script defer src="static/js/site-nav.js"></script>
+  <script defer src="static/js/leaderboard.js"></script>
 </head>
 <body>
   <header class="site-header">
@@ -27,17 +28,18 @@
       </div>
     </nav>
   </header>
+
   <main class="benchmark-page">
     <header class="benchmark-page-header">
       <div class="benchmark-container">
-        <p class="benchmark-page-kicker">LIBERO-PRO 2.0 Evaluation Results</p>
+        <p class="benchmark-page-kicker">LIBERO-PRO Evaluation Results</p>
         <h1 class="benchmark-page-title">Leaderboard</h1>
         <div class="benchmark-page-meta" aria-label="Leaderboard metadata">
-          <span class="benchmark-meta-item">Benchmark Version: —</span>
-          <span class="benchmark-meta-item">Models: —</span>
-          <span class="benchmark-meta-item">Tasks: —</span>
-          <span class="benchmark-meta-item">Perturbations: —</span>
-          <span class="benchmark-meta-item">Updated: —</span>
+          <span class="benchmark-meta-item"><strong id="leaderboard-model-count">—</strong>&nbsp;ranked models</span>
+          <span class="benchmark-meta-item"><strong id="leaderboard-suite-count">—</strong>&nbsp;base tasks</span>
+          <span class="benchmark-meta-item"><strong id="leaderboard-direction-count">—</strong>&nbsp;perturbations</span>
+          <span class="benchmark-meta-item"><strong id="leaderboard-cell-count">—</strong>&nbsp;applicable scores per model</span>
+          <span class="benchmark-meta-item">Snapshot&nbsp;<strong id="leaderboard-updated">—</strong></span>
         </div>
       </div>
     </header>
@@ -46,20 +48,28 @@
       <div class="benchmark-container">
         <div class="benchmark-section-head">
           <div>
-            <p class="benchmark-section-label">Protocol</p>
-            <h2 class="benchmark-section-title">Benchmark Setting</h2>
+            <p class="benchmark-section-label">Snapshot</p>
+            <h2 class="benchmark-section-title">Current Evaluation Overview</h2>
           </div>
-          <span class="benchmark-tag">Verification: —</span>
+          <a class="leaderboard-source-link" href="https://docs.google.com/spreadsheets/d/1Lfu3m6Dmh2nj3JeC9hBio1beL1yAJ6GTqXX7jFNuHaE/edit?gid=893535827#gid=893535827" target="_blank" rel="noopener noreferrer">View source sheet <span aria-hidden="true">↗</span></a>
         </div>
-        <div class="benchmark-detail-grid">
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Benchmark Version</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Evaluation Protocol</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Trials per Direction</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Task Coverage</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Direction Coverage</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Direction Composition</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Aggregation Method</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Primary Sort Metric</span><span class="benchmark-detail-value">Perturbed SR</span></div>
+        <div class="benchmark-stat-grid">
+          <div class="benchmark-stat">
+            <span class="benchmark-stat-value" id="leaderboard-best-score">—</span>
+            <span class="benchmark-stat-label">Best Perturbed SR</span>
+          </div>
+          <div class="benchmark-stat">
+            <span class="benchmark-stat-value" id="leaderboard-mean-score">—</span>
+            <span class="benchmark-stat-label">Mean Perturbed SR</span>
+          </div>
+          <div class="benchmark-stat">
+            <span class="benchmark-stat-value" id="leaderboard-static-count">—</span>
+            <span class="benchmark-stat-label">Applicable Static Scores</span>
+          </div>
+          <div class="benchmark-stat">
+            <span class="benchmark-stat-value" id="leaderboard-dynamic-count">—</span>
+            <span class="benchmark-stat-label">Applicable Dynamic Scores</span>
+          </div>
         </div>
       </div>
     </section>
@@ -68,38 +78,42 @@
       <div class="benchmark-container">
         <div class="benchmark-section-head">
           <div>
-            <p class="benchmark-section-label">Summary</p>
+            <p class="benchmark-section-label">Results</p>
             <h2 class="benchmark-section-title">Overall Ranking</h2>
           </div>
-          <div class="benchmark-segmented" aria-label="Ranking metric">
-            <button class="benchmark-segment" type="button" disabled>Original SR</button>
-            <button class="benchmark-segment is-active" type="button" disabled>Perturbed SR</button>
-            <button class="benchmark-segment" type="button" disabled>Robustness Drop</button>
+          <div class="benchmark-segmented leaderboard-sort" aria-label="Sort leaderboard by metric">
+            <button class="benchmark-segment is-active" type="button" data-sort-key="perturbed" aria-pressed="true">Perturbed SR</button>
+            <button class="benchmark-segment" type="button" data-sort-key="static" aria-pressed="false">Static SR</button>
+            <button class="benchmark-segment" type="button" data-sort-key="dynamic" aria-pressed="false">Dynamic SR</button>
+            <button class="benchmark-segment" type="button" data-sort-key="base" aria-pressed="false">Base SR</button>
           </div>
         </div>
-        <div class="benchmark-table-wrap">
-          <table class="benchmark-table is-wide">
+
+        <div class="benchmark-table-wrap" tabindex="0" aria-label="Scrollable model leaderboard">
+          <table class="benchmark-table leaderboard-table">
             <thead>
               <tr>
-                <th>Rank</th>
-                <th>Model</th>
-                <th>Policy</th>
-                <th>Original SR</th>
-                <th>Perturbed SR</th>
-                <th>Robustness Drop</th>
-                <th>Static SR</th>
-                <th>Dynamic SR</th>
-                <th>Direction Coverage</th>
-                <th>Evaluation Tasks</th>
-                <th>Evaluation Date</th>
-                <th>Status</th>
+                <th class="is-sticky-rank">Rank</th>
+                <th class="is-sticky-model">Model</th>
+                <th>Category</th>
+                <th data-score-heading="perturbed">Perturbed SR</th>
+                <th data-score-heading="base">Base SR</th>
+                <th>Drop</th>
+                <th data-score-heading="static">Static SR</th>
+                <th data-score-heading="dynamic">Dynamic SR</th>
+                <th>Goal</th>
+                <th>Object</th>
+                <th>Spatial</th>
+                <th>LIBERO-10</th>
+                <th>Coverage</th>
               </tr>
             </thead>
-            <tbody>
-              <tr class="benchmark-table-empty"><td colspan="12">No verified results published</td></tr>
+            <tbody id="leaderboard-body">
+              <tr class="benchmark-table-empty"><td colspan="13">Loading current results...</td></tr>
             </tbody>
           </table>
         </div>
+        <p class="leaderboard-table-note">Rank follows the selected metric. Coverage counts applicable non-RQ score cells; empty and N/A values are not converted to zero.</p>
       </div>
     </section>
 
@@ -107,20 +121,11 @@
       <div class="benchmark-container">
         <div class="benchmark-section-head">
           <div>
-            <p class="benchmark-section-label">Comparison</p>
-            <h2 class="benchmark-section-title">Category Performance</h2>
+            <p class="benchmark-section-label">Task Breakdown</p>
+            <h2 class="benchmark-section-title">Leaders by Base Task</h2>
           </div>
         </div>
-        <div class="benchmark-split-layout">
-          <div class="benchmark-tool-surface">
-            <h3 class="benchmark-tool-title">Original vs. Perturbed</h3>
-            <div class="benchmark-chart-shell">Comparison Chart</div>
-          </div>
-          <div class="benchmark-tool-surface">
-            <h3 class="benchmark-tool-title">Static vs. Dynamic</h3>
-            <div class="benchmark-chart-shell">Mode Comparison Chart</div>
-          </div>
-        </div>
+        <div class="leaderboard-suite-grid" id="leaderboard-suite-leaders" aria-live="polite"></div>
       </div>
     </section>
 
@@ -128,52 +133,24 @@
       <div class="benchmark-container">
         <div class="benchmark-section-head">
           <div>
-            <p class="benchmark-section-label">Breakdown</p>
-            <h2 class="benchmark-section-title">Results Breakdown</h2>
+            <p class="benchmark-section-label">Methodology</p>
+            <h2 class="benchmark-section-title">Aggregation and Scope</h2>
           </div>
-          <div class="benchmark-segmented" aria-label="Result matrix view">
-            <button class="benchmark-segment is-active" type="button" disabled>Direction</button>
-            <button class="benchmark-segment" type="button" disabled>Mode</button>
-          </div>
-        </div>
-        <div class="benchmark-table-wrap">
-          <table class="benchmark-table is-wide">
-            <thead>
-              <tr>
-                <th>Direction ID</th>
-                <th>Perturbation Direction</th>
-                <th>Mode</th>
-                <th>Model</th>
-                <th>Original SR</th>
-                <th>Perturbed SR</th>
-                <th>Robustness Drop</th>
-                <th>Trials</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="benchmark-table-empty"><td colspan="8">No direction-level results published</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section class="benchmark-section is-soft">
-      <div class="benchmark-container">
-        <div class="benchmark-section-head">
-          <div>
-            <p class="benchmark-section-label">Provenance</p>
-            <h2 class="benchmark-section-title">Submission Details</h2>
-          </div>
+          <span class="benchmark-tag">RQ results excluded</span>
         </div>
         <div class="benchmark-detail-grid">
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Code URL</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Commit Hash</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Checkpoint URL</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Paper URL</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Open Source</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Verification Notes</span><span class="benchmark-detail-value">—</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Primary Ranking Metric</span><span class="benchmark-detail-value">Mean perturbed success rate</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Evaluation Scope</span><span class="benchmark-detail-value">4 base tasks × 42 perturbation directions</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Applicable Score Cells</span><span class="benchmark-detail-value">163 per evaluated model</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Static / Dynamic Directions</span><span class="benchmark-detail-value">21 static / 21 dynamic</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Missing Data Policy</span><span class="benchmark-detail-value">Empty and N/A values are omitted</span></div>
+          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Excluded Results</span><span class="benchmark-detail-value">Out-of-scope directions, all RQ worksheets, and combination suites</span></div>
         </div>
+        <ul class="leaderboard-notes">
+          <li>Overall, mode, and task scores are arithmetic means of the available numeric S01-S21 and D01-D21 success-rate cells in the four <code>libero-*</code> worksheets.</li>
+          <li>Base SR is shown only when all four base-task values are available. Robustness Drop is Base SR minus Perturbed SR.</li>
+          <li>The snapshot records values as published in the source sheet; it does not infer experiment dates, trial counts, or missing scores.</li>
+        </ul>
       </div>
     </section>
   </main>
