@@ -3,16 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e9eff5">
   <title>Leaderboard | LIBERO-PRO</title>
   <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
   <link rel="stylesheet" href="static/css/bulma.min.css">
   <link rel="stylesheet" href="static/css/index.css">
   <link rel="stylesheet" href="static/css/benchmark.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/css/leaderboard.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script defer src="static/js/site-nav.js"></script>
   <script defer src="static/js/leaderboard.js"></script>
 </head>
 <body>
+  <a class="lb-skip-link" href="#leaderboard-main">Skip to leaderboard content</a>
   <header class="site-header">
     <nav class="site-nav container is-max-widescreen" aria-label="Primary navigation">
       <a class="site-brand" href="index.html" aria-label="LIBERO-PRO overview">LIBERO-PRO</a>
@@ -29,172 +34,163 @@
     </nav>
   </header>
 
-  <main class="benchmark-page leaderboard-page">
-    <header class="benchmark-page-header">
-      <div class="benchmark-container">
-        <p class="benchmark-page-kicker">LIBERO-PRO Evaluation Results</p>
-        <h1 class="benchmark-page-title">Leaderboard</h1>
-        <p class="leaderboard-page-summary">Compare model success rates across 42 static and dynamic perturbation directions, with research-question and combination-suite results excluded.</p>
-        <div class="benchmark-page-meta" aria-label="Leaderboard metadata">
-          <span class="benchmark-meta-item"><strong id="leaderboard-model-count">—</strong>&nbsp;ranked models</span>
-          <span class="benchmark-meta-item"><strong id="leaderboard-suite-count">—</strong>&nbsp;base tasks</span>
-          <span class="benchmark-meta-item"><strong id="leaderboard-direction-count">—</strong>&nbsp;perturbations</span>
-          <span class="benchmark-meta-item"><strong id="leaderboard-cell-count">—</strong>&nbsp;applicable scores per model</span>
-          <span class="benchmark-meta-item">Snapshot&nbsp;<strong id="leaderboard-updated">—</strong></span>
+  <main class="benchmark-page leaderboard-page" id="leaderboard-main">
+    <header class="lb-masthead">
+      <div class="benchmark-container lb-masthead-grid">
+        <div class="lb-intro">
+          <h1>Leaderboard</h1>
+          <p>Model robustness across 42 static and dynamic perturbation directions. Research-question results, S22, and combination suites are excluded.</p>
+          <div class="lb-source-line">
+            <span>Snapshot <time id="leaderboard-updated">—</time></span>
+            <a id="leaderboard-source-link" href="https://docs.google.com/spreadsheets/d/1Lfu3m6Dmh2nj3JeC9hBio1beL1yAJ6GTqXX7jFNuHaE/edit?gid=893535827#gid=893535827" target="_blank" rel="noopener noreferrer">Source sheet</a>
+          </div>
         </div>
+        <dl class="lb-scope" aria-label="Benchmark scope">
+          <div>
+            <dt>Models</dt>
+            <dd id="leaderboard-model-count">—</dd>
+          </div>
+          <div>
+            <dt>Base tasks</dt>
+            <dd id="leaderboard-suite-count">—</dd>
+          </div>
+          <div>
+            <dt>Perturbations</dt>
+            <dd id="leaderboard-direction-count">—</dd>
+          </div>
+          <div>
+            <dt>Scores / model</dt>
+            <dd id="leaderboard-cell-count">—</dd>
+          </div>
+        </dl>
       </div>
     </header>
 
-    <section class="benchmark-section is-soft">
+    <section class="lb-section" aria-labelledby="comparison-title">
       <div class="benchmark-container">
-        <div class="benchmark-section-head">
+        <div class="lb-section-head">
           <div>
-            <p class="benchmark-section-label">Snapshot</p>
-            <h2 class="benchmark-section-title">Current Evaluation Overview</h2>
+            <h2 id="comparison-title">Model comparison</h2>
+            <p id="leaderboard-result-summary" aria-live="polite">Loading evaluation results…</p>
           </div>
-          <a class="leaderboard-source-link" href="https://docs.google.com/spreadsheets/d/1Lfu3m6Dmh2nj3JeC9hBio1beL1yAJ6GTqXX7jFNuHaE/edit?gid=893535827#gid=893535827" target="_blank" rel="noopener noreferrer">View source sheet <span aria-hidden="true">↗</span></a>
-        </div>
-        <div class="benchmark-stat-grid leaderboard-stat-grid">
-          <div class="benchmark-stat is-perturbed">
-            <span class="leaderboard-stat-accent" aria-hidden="true"></span>
-            <span class="benchmark-stat-value" id="leaderboard-best-score">—</span>
-            <span class="benchmark-stat-label">Best Perturbed SR</span>
-          </div>
-          <div class="benchmark-stat is-base">
-            <span class="leaderboard-stat-accent" aria-hidden="true"></span>
-            <span class="benchmark-stat-value" id="leaderboard-mean-score">—</span>
-            <span class="benchmark-stat-label">Mean Perturbed SR</span>
-          </div>
-          <div class="benchmark-stat is-static">
-            <span class="leaderboard-stat-accent" aria-hidden="true"></span>
-            <span class="benchmark-stat-value" id="leaderboard-static-count">—</span>
-            <span class="benchmark-stat-label">Applicable Static Scores</span>
-          </div>
-          <div class="benchmark-stat is-dynamic">
-            <span class="leaderboard-stat-accent" aria-hidden="true"></span>
-            <span class="benchmark-stat-value" id="leaderboard-dynamic-count">—</span>
-            <span class="benchmark-stat-label">Applicable Dynamic Scores</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="benchmark-section">
-      <div class="benchmark-container">
-        <div class="benchmark-section-head">
-          <div>
-            <p class="benchmark-section-label">Performance Explorer</p>
-            <h2 class="benchmark-section-title">Model Success Rate</h2>
-          </div>
-          <div class="benchmark-segmented leaderboard-sort" aria-label="Sort leaderboard by metric">
-            <button class="benchmark-segment is-active" type="button" data-sort-key="perturbed" aria-pressed="true">Perturbed SR</button>
-            <button class="benchmark-segment" type="button" data-sort-key="static" aria-pressed="false">Static SR</button>
-            <button class="benchmark-segment" type="button" data-sort-key="dynamic" aria-pressed="false">Dynamic SR</button>
-            <button class="benchmark-segment" type="button" data-sort-key="base" aria-pressed="false">Base SR</button>
-          </div>
+          <button class="lb-clear" id="leaderboard-clear-filters" type="button" hidden>Clear filters</button>
         </div>
 
-        <div class="leaderboard-visual-layout">
-          <section class="leaderboard-ranking-panel" aria-labelledby="leaderboard-chart-title">
-            <div class="leaderboard-panel-head">
-              <div>
-                <h3 class="leaderboard-panel-title" id="leaderboard-chart-title">Perturbed success rate by model</h3>
-                <p class="leaderboard-panel-caption" id="leaderboard-chart-caption">Mean over available non-RQ perturbed evaluations</p>
-              </div>
-              <span class="leaderboard-metric-key" id="leaderboard-metric-key"><span aria-hidden="true"></span>Perturbed SR</span>
+        <form class="lb-toolbar" id="leaderboard-toolbar" role="search">
+          <label class="lb-control lb-search-control" for="leaderboard-search">
+            <span>Find a model</span>
+            <input id="leaderboard-search" name="model" type="search" inputmode="search" autocomplete="off" placeholder="e.g. π0.5…">
+          </label>
+          <label class="lb-control" for="leaderboard-category-filter">
+            <span>Category</span>
+            <select id="leaderboard-category-filter" name="category">
+              <option value="all">All categories</option>
+            </select>
+          </label>
+          <fieldset class="lb-metric-control">
+            <legend>Rank by</legend>
+            <div class="lb-metric-tabs leaderboard-sort">
+              <button type="button" data-sort-key="perturbed" aria-pressed="true">Perturbed</button>
+              <button type="button" data-sort-key="static" aria-pressed="false">Static</button>
+              <button type="button" data-sort-key="dynamic" aria-pressed="false">Dynamic</button>
+              <button type="button" data-sort-key="base" aria-pressed="false">Base</button>
             </div>
-            <div class="leaderboard-chart-axis" aria-hidden="true">
+          </fieldset>
+        </form>
+
+        <div class="lb-workbench">
+          <section class="lb-ranking" aria-labelledby="leaderboard-chart-title">
+            <div class="lb-panel-head">
+              <div>
+                <h3 id="leaderboard-chart-title">Perturbed success rate</h3>
+                <p id="leaderboard-chart-caption">Mean over available non-RQ perturbation scores</p>
+              </div>
+              <span class="lb-metric-name" id="leaderboard-metric-key">Perturbed SR</span>
+            </div>
+            <div class="lb-axis" aria-hidden="true">
               <span>0</span><span>25</span><span>50</span><span>75</span><span>100%</span>
             </div>
-            <div class="leaderboard-ranking-chart" id="leaderboard-ranking-chart" aria-live="polite">
-              <div class="leaderboard-chart-loading">Loading model results...</div>
-            </div>
-            <div class="leaderboard-category-legend" aria-label="Model categories">
-              <span><i class="is-mainstream" aria-hidden="true"></i>Mainstream VLA</span>
-              <span><i class="is-robustness" aria-hidden="true"></i>Robustness-oriented</span>
-              <span><i class="is-world" aria-hidden="true"></i>World Action Models</span>
+            <div class="lb-chart" id="leaderboard-ranking-chart" aria-live="polite" aria-busy="true">
+              <p class="lb-state">Loading model results…</p>
             </div>
           </section>
 
-          <aside class="leaderboard-model-panel" id="leaderboard-model-detail" aria-live="polite" aria-label="Selected model performance">
-            <div class="leaderboard-chart-loading">Loading model profile...</div>
+          <aside class="lb-profile" id="leaderboard-model-detail" aria-live="polite" aria-label="Selected model performance">
+            <p class="lb-state">Loading model profile…</p>
           </aside>
         </div>
       </div>
     </section>
 
-    <section class="benchmark-section is-soft">
+    <section class="lb-section lb-results" aria-labelledby="ranking-title">
       <div class="benchmark-container">
-        <div class="benchmark-section-head">
+        <div class="lb-section-head">
           <div>
-            <p class="benchmark-section-label">Detailed Results</p>
-            <h2 class="benchmark-section-title">Complete Ranking</h2>
+            <h2 id="ranking-title">Complete ranking</h2>
+            <p>Exact values for the active result set. Select a model name to inspect it above.</p>
           </div>
-          <span class="benchmark-tag">Success rate</span>
         </div>
 
-        <div class="benchmark-table-wrap" tabindex="0" aria-label="Scrollable model leaderboard">
-          <table class="benchmark-table leaderboard-table">
+        <div class="benchmark-table-wrap lb-table-wrap" tabindex="0" aria-label="Scrollable model leaderboard">
+          <table class="benchmark-table lb-table">
             <thead>
               <tr>
-                <th class="is-sticky-rank">Rank</th>
-                <th class="is-sticky-model">Model</th>
-                <th>Category</th>
-                <th data-score-heading="perturbed">Perturbed SR</th>
-                <th data-score-heading="base">Base SR</th>
-                <th>Drop</th>
-                <th data-score-heading="static">Static SR</th>
-                <th data-score-heading="dynamic">Dynamic SR</th>
-                <th>Goal</th>
-                <th>Object</th>
-                <th>Spatial</th>
-                <th>LIBERO-10</th>
-                <th>Coverage</th>
+                <th class="is-sticky-rank" scope="col">Rank</th>
+                <th class="is-sticky-model" scope="col">Model</th>
+                <th scope="col">Category</th>
+                <th scope="col" data-score-heading="perturbed" aria-sort="descending"><button type="button" data-table-sort="perturbed">Perturbed SR</button></th>
+                <th scope="col" data-score-heading="base"><button type="button" data-table-sort="base">Base SR</button></th>
+                <th scope="col">Drop</th>
+                <th scope="col" data-score-heading="static"><button type="button" data-table-sort="static">Static SR</button></th>
+                <th scope="col" data-score-heading="dynamic"><button type="button" data-table-sort="dynamic">Dynamic SR</button></th>
+                <th scope="col">Goal</th>
+                <th scope="col">Object</th>
+                <th scope="col">Spatial</th>
+                <th scope="col">LIBERO-10</th>
+                <th scope="col">Coverage</th>
               </tr>
             </thead>
             <tbody id="leaderboard-body">
-              <tr class="benchmark-table-empty"><td colspan="13">Loading current results...</td></tr>
+              <tr class="benchmark-table-empty"><td colspan="13">Loading current results…</td></tr>
             </tbody>
           </table>
         </div>
-        <p class="leaderboard-table-note">Rank follows the selected metric. Coverage counts applicable non-RQ score cells; empty and N/A values are not converted to zero.</p>
+        <p class="lb-table-note">Rank follows the selected metric. Empty and N/A values are omitted, never converted to zero. Coverage counts applicable non-RQ score cells.</p>
       </div>
     </section>
 
-    <section class="benchmark-section">
+    <section class="lb-section" aria-labelledby="task-leaders-title">
       <div class="benchmark-container">
-        <div class="benchmark-section-head">
+        <div class="lb-section-head">
           <div>
-            <p class="benchmark-section-label">Task Breakdown</p>
-            <h2 class="benchmark-section-title">Leaders by Base Task</h2>
+            <h2 id="task-leaders-title">Leaders by base task</h2>
+            <p>Highest perturbed success rate within each frozen LIBERO base task.</p>
           </div>
         </div>
-        <div class="leaderboard-suite-grid" id="leaderboard-suite-leaders" aria-live="polite"></div>
+        <div class="lb-task-leaders" id="leaderboard-suite-leaders" aria-live="polite"></div>
       </div>
     </section>
 
-    <section class="benchmark-section is-soft">
+    <section class="lb-section lb-method-section">
       <div class="benchmark-container">
-        <div class="benchmark-section-head">
-          <div>
-            <p class="benchmark-section-label">Methodology</p>
-            <h2 class="benchmark-section-title">Aggregation and Scope</h2>
+        <details class="lb-method">
+          <summary>
+            <span>Aggregation and scope</span>
+            <span>How this ranking is calculated</span>
+          </summary>
+          <div class="lb-method-body">
+            <dl>
+              <div><dt>Primary metric</dt><dd>Mean perturbed success rate</dd></div>
+              <div><dt>Evaluation scope</dt><dd>4 base tasks × 42 perturbation directions</dd></div>
+              <div><dt>Applicable cells</dt><dd>163 per evaluated model: 83 static + 80 dynamic</dd></div>
+              <div><dt>Excluded</dt><dd>S22, all RQ worksheets, and combination suites</dd></div>
+            </dl>
+            <div class="lb-method-copy">
+              <p>Overall, mode, and task scores are arithmetic means of the available numeric S01–S21 and D01–D21 success-rate cells in the four <code>libero-*</code> worksheets.</p>
+              <p>Base SR is shown only when all four base-task values are available. Robustness Drop is Base SR minus Perturbed SR. The snapshot does not infer dates, trial counts, or missing scores.</p>
+            </div>
           </div>
-          <span class="benchmark-tag">RQ results excluded</span>
-        </div>
-        <div class="benchmark-detail-grid">
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Primary Ranking Metric</span><span class="benchmark-detail-value">Mean perturbed success rate</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Evaluation Scope</span><span class="benchmark-detail-value">4 base tasks × 42 perturbation directions</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Applicable Score Cells</span><span class="benchmark-detail-value">163 per evaluated model</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Static / Dynamic Directions</span><span class="benchmark-detail-value">21 static / 21 dynamic</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Missing Data Policy</span><span class="benchmark-detail-value">Empty and N/A values are omitted</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Excluded Results</span><span class="benchmark-detail-value">Out-of-scope directions, all RQ worksheets, and combination suites</span></div>
-        </div>
-        <ul class="leaderboard-notes">
-          <li>Overall, mode, and task scores are arithmetic means of the available numeric S01-S21 and D01-D21 success-rate cells in the four <code>libero-*</code> worksheets.</li>
-          <li>Base SR is shown only when all four base-task values are available. Robustness Drop is Base SR minus Perturbed SR.</li>
-          <li>The snapshot records values as published in the source sheet; it does not infer experiment dates, trial counts, or missing scores.</li>
-        </ul>
+        </details>
       </div>
     </section>
   </main>
