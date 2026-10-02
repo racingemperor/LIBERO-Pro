@@ -3,15 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#edf1f0">
   <title>Tasks | LIBERO-PRO</title>
   <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
   <link rel="stylesheet" href="static/css/bulma.min.css">
   <link rel="stylesheet" href="static/css/index.css">
   <link rel="stylesheet" href="static/css/benchmark.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/css/tasks.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script defer src="static/js/site-nav.js"></script>
+  <script defer src="static/js/tasks.js"></script>
 </head>
 <body>
+  <a class="task-skip-link" href="#main-content">Skip to task catalog</a>
   <header class="site-header">
     <nav class="site-nav container is-max-widescreen" aria-label="Primary navigation">
       <a class="site-brand" href="index.html" aria-label="LIBERO-PRO overview">LIBERO-PRO</a>
@@ -27,132 +33,149 @@
       </div>
     </nav>
   </header>
-  <main class="benchmark-page">
-    <header class="benchmark-page-header">
-      <div class="benchmark-container">
-        <p class="benchmark-page-kicker">LIBERO-PRO 2.0 Catalog</p>
-        <h1 class="benchmark-page-title">Tasks</h1>
-        <div class="benchmark-page-meta" aria-label="Task catalog metadata">
-          <span class="benchmark-meta-item">Tasks: —</span>
-          <span class="benchmark-meta-item">Perturbations: —</span>
-          <span class="benchmark-meta-item">Modes: —</span>
-          <span class="benchmark-meta-item">Updated: —</span>
+
+  <main class="tasks-page" id="main-content">
+    <header class="task-masthead">
+      <div class="benchmark-container task-masthead-grid">
+        <div class="task-intro">
+          <h1>Task &amp; Perturbation Catalog</h1>
+          <p>Browse the non-physical perturbation specification shared by the 4 LIBERO-PRO base suites. Each evaluation task applies one direction; combination suites are outside this catalog.</p>
+          <div class="task-source-line">
+            <span>Specification: <span lang="zh-CN">非物理静态-动态 Sim-to-Real 扰动建议清单</span></span>
+            <time id="task-source-version" datetime="2026-08-22">Version 2026-08-22</time>
+          </div>
         </div>
+        <dl class="task-scope" aria-label="Published task catalog scope">
+          <div><dt>Published Directions</dt><dd id="task-published-count">42</dd></div>
+          <div><dt>Static</dt><dd id="task-static-count">22</dd></div>
+          <div><dt>Dynamic</dt><dd id="task-dynamic-count">20</dd></div>
+          <div><dt>Base Suites</dt><dd id="task-suite-count">4</dd></div>
+        </dl>
       </div>
     </header>
 
-    <section class="benchmark-section">
+    <section class="task-scope-band" aria-labelledby="scope-note-title">
+      <div class="benchmark-container task-scope-note">
+        <div>
+          <h2 id="scope-note-title">Published Matrix vs. Runtime Taxonomy</h2>
+          <p>The runtime defines <strong>43 directions</strong>, while the current published matrix contains <strong>42</strong>. <code translate="no">D19</code> is implemented in the runtime but excluded from the published manifest, so it is shown here as Runtime-only.</p>
+        </div>
+        <dl>
+          <div><dt>Evaluation Unit</dt><dd>1 direction per task</dd></div>
+          <div><dt>Combination Suites</dt><dd>Not included</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="task-section" aria-labelledby="catalog-title">
       <div class="benchmark-container">
-        <div class="benchmark-section-head">
+        <div class="task-section-head">
           <div>
-            <p class="benchmark-section-label">Perturbation Space</p>
-            <h2 class="benchmark-section-title">Perturbation Catalog</h2>
+            <h2 id="catalog-title">Perturbation Catalog</h2>
+            <p>Search the specification or narrow it by mode, implementation operator, and publication status.</p>
           </div>
-          <div class="benchmark-segmented" aria-label="Task view">
-            <button class="benchmark-segment is-active" type="button" disabled>Table</button>
-            <button class="benchmark-segment" type="button" disabled>Cards</button>
+          <button class="task-clear" id="task-clear-filters" type="button" hidden>Clear Filters</button>
+        </div>
+
+        <form class="task-toolbar" id="task-toolbar" role="search">
+          <label class="task-control task-search-control" for="task-search">
+            <span>Search Directions</span>
+            <input id="task-search" name="q" type="search" autocomplete="off" placeholder="Try S15, camera_transform, or 相机…">
+          </label>
+          <label class="task-control" for="task-mode-filter">
+            <span>Mode</span>
+            <select id="task-mode-filter" name="mode">
+              <option value="all">Static &amp; Dynamic</option>
+              <option value="Static">Static</option>
+              <option value="Dynamic">Dynamic</option>
+            </select>
+          </label>
+          <label class="task-control" for="task-operator-filter">
+            <span>Operator</span>
+            <select id="task-operator-filter" name="operator">
+              <option value="all">All Operators</option>
+            </select>
+          </label>
+          <label class="task-control" for="task-status-filter">
+            <span>Status</span>
+            <select id="task-status-filter" name="status">
+              <option value="all">All Statuses</option>
+              <option value="published">Published</option>
+              <option value="runtime-only">Runtime-only</option>
+            </select>
+          </label>
+        </form>
+
+        <p class="task-result-summary" id="task-result-summary" aria-live="polite">Loading catalog…</p>
+
+        <div class="task-workbench">
+          <div class="task-directory">
+            <div class="task-table-wrap" tabindex="0" role="region" aria-label="Perturbation directions table">
+              <table class="task-table">
+                <thead>
+                  <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Mode</th>
+                    <th scope="col">Direction</th>
+                    <th scope="col">Operator</th>
+                    <th scope="col">Variant</th>
+                    <th scope="col">Trigger</th>
+                    <th scope="col">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="task-catalog-body">
+                  <tr><td class="task-table-state" colspan="7">Loading catalog…</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-        <div class="benchmark-toolbar" aria-label="Perturbation direction filters">
-          <label>
-            <span class="benchmark-control-label">Search Directions</span>
-            <input class="benchmark-control" type="search" placeholder="Search by ID or direction" disabled>
-          </label>
-          <label>
-            <span class="benchmark-control-label">Mode</span>
-            <select class="benchmark-control" disabled><option>Static and dynamic</option></select>
-          </label>
-          <label>
-            <span class="benchmark-control-label">Reference Task</span>
-            <select class="benchmark-control" disabled><option>All tasks</option></select>
-          </label>
-          <label>
-            <span class="benchmark-control-label">Implementation Tier</span>
-            <select class="benchmark-control" disabled><option>All tiers</option></select>
-          </label>
-        </div>
-        <div class="benchmark-table-wrap" style="margin-top: 18px;">
-          <table class="benchmark-table is-wide">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Mode</th>
-                <th>Perturbation Direction</th>
-                <th>Primary Task</th>
-                <th>Validation Task</th>
-                <th>Implementation Tier</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="benchmark-table-empty"><td colspan="6">No perturbations published</td></tr>
-            </tbody>
-          </table>
+
+          <aside class="task-detail" id="task-direction-detail" aria-label="Direction detail" aria-live="polite" tabindex="-1">
+            <p class="task-detail-state">Select a direction to inspect its specification.</p>
+          </aside>
         </div>
       </div>
     </section>
 
-    <section class="benchmark-section is-soft">
+    <section class="task-section task-registry-section" aria-labelledby="registry-title">
       <div class="benchmark-container">
-        <div class="benchmark-section-head">
+        <div class="task-section-head">
           <div>
-            <p class="benchmark-section-label">Evaluation Set</p>
-            <h2 class="benchmark-section-title">Generated Task Registry</h2>
+            <h2 id="registry-title">Generated Task Registry</h2>
+            <p>The task-level registry remains a reserved interface until the public manifest fields are finalized.</p>
           </div>
-          <span class="benchmark-tag">Task ID: —</span>
         </div>
-        <div class="benchmark-toolbar is-wide" aria-label="Generated evaluation task filters">
-          <label><span class="benchmark-control-label">Search Tasks</span><input class="benchmark-control" type="search" placeholder="Search by task ID" disabled></label>
-          <label><span class="benchmark-control-label">Reference Task</span><select class="benchmark-control" disabled><option>All tasks</option></select></label>
-          <label><span class="benchmark-control-label">Mode</span><select class="benchmark-control" disabled><option>Static and dynamic</option></select></label>
-          <label><span class="benchmark-control-label">Direction</span><select class="benchmark-control" disabled><option>All directions</option></select></label>
-          <label><span class="benchmark-control-label">Status</span><select class="benchmark-control" disabled><option>All statuses</option></select></label>
-        </div>
-        <div class="benchmark-table-wrap" style="margin-top: 18px;">
-          <table class="benchmark-table is-wide">
-            <thead><tr><th>Task ID</th><th>Reference Task</th><th>Direction</th><th>Mode</th><th>Submode</th><th>Parameters</th><th>Seed</th><th>Injection Phase</th><th>Manifest</th><th>Status</th></tr></thead>
-            <tbody><tr class="benchmark-table-empty"><td colspan="10">No tasks published</td></tr></tbody>
-          </table>
+        <div class="task-registry-empty">
+          <div>
+            <strong>No task-level entries published</strong>
+            <p>Direction definitions are available above. Concrete task IDs, seeds, parameter vectors, rollout media, and manifest links are intentionally not inferred.</p>
+          </div>
+          <dl>
+            <div><dt>Task Rows</dt><dd>0</dd></div>
+            <div><dt>Direction Scope</dt><dd>Single perturbation</dd></div>
+            <div><dt>Manifest Status</dt><dd>Not exposed here</dd></div>
+          </dl>
         </div>
       </div>
     </section>
 
-    <section class="benchmark-section">
+    <section class="task-section task-notes-section">
       <div class="benchmark-container">
-        <div class="benchmark-section-head">
-          <div>
-            <p class="benchmark-section-label">Direction Detail</p>
-            <h2 class="benchmark-section-title">Perturbation Card</h2>
+        <details class="task-notes">
+          <summary>
+            <span>Catalog Scope &amp; Reading Guide</span>
+            <span>How to interpret modes and status</span>
+          </summary>
+          <div class="task-notes-body">
+            <dl>
+              <div><dt>Static</dt><dd>Injected after reset and held fixed through the rollout.</dd></div>
+              <div><dt>Dynamic</dt><dd>Injected at an event trigger; persistence and recovery follow the direction implementation.</dd></div>
+              <div><dt>Published</dt><dd>Included in the current 42-direction task matrix.</dd></div>
+              <div><dt>Runtime-only</dt><dd>Implemented in code but absent from the current published manifest.</dd></div>
+            </dl>
+            <p>The catalog excludes physical changes to mass, inertia, friction, stiffness, damping, and mechanism resistance. <code translate="no">BASE</code> is the clean baseline and is not counted as a perturbation direction.</p>
           </div>
-          <span class="benchmark-tag">Direction ID: —</span>
-        </div>
-        <div class="benchmark-detail-grid" style="margin-bottom: 28px;">
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Direction and Definition</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Mode</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Primary Reference Task</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Validation Reference Task</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Submode</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Parameter Vector</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Injection Phase / Time</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Implementation Tier</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Validity Gates</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Related Findings</span><span class="benchmark-detail-value">—</span></div>
-        </div>
-        <div class="benchmark-section-head">
-          <div>
-            <p class="benchmark-section-label">Demonstrations</p>
-            <h2 class="benchmark-section-title">Clean and Perturbed Rollouts</h2>
-          </div>
-        </div>
-        <div class="benchmark-media-grid">
-          <div class="benchmark-media-slot">
-            <div class="benchmark-media-label">Clean Baseline</div>
-            <div class="benchmark-media-empty">Image or Video</div>
-          </div>
-          <div class="benchmark-media-slot">
-            <div class="benchmark-media-label">Single Perturbation</div>
-            <div class="benchmark-media-empty">Image or Video</div>
-          </div>
-        </div>
+        </details>
       </div>
     </section>
   </main>
