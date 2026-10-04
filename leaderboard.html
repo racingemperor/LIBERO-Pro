@@ -39,10 +39,11 @@
       <div class="benchmark-container lb-masthead-grid">
         <div class="lb-intro">
           <h1>Leaderboard</h1>
-          <p>Model robustness across 42 static and dynamic perturbation directions. Research-question results, S22, and combination suites are excluded.</p>
+          <p>Model robustness across 41 available static and dynamic perturbation directions in four LIBERO suites. Research-question results, S22, and combination suites are excluded.</p>
           <div class="lb-source-line">
             <span>Snapshot <time id="leaderboard-updated">—</time></span>
             <a id="leaderboard-source-link" href="https://docs.google.com/spreadsheets/d/1Lfu3m6Dmh2nj3JeC9hBio1beL1yAJ6GTqXX7jFNuHaE/edit?gid=893535827#gid=893535827" target="_blank" rel="noopener noreferrer">Source sheet</a>
+            <a id="leaderboard-counts-link" href="data/completed-evaluations-2026-10-04.json" target="_blank" rel="noopener noreferrer">Completed evaluation counts</a>
           </div>
         </div>
         <dl class="lb-scope" aria-label="Benchmark scope">
@@ -51,7 +52,7 @@
             <dd id="leaderboard-model-count">—</dd>
           </div>
           <div>
-            <dt>Base tasks</dt>
+            <dt>Suites</dt>
             <dd id="leaderboard-suite-count">—</dd>
           </div>
           <div>
@@ -163,8 +164,8 @@
       <div class="benchmark-container">
         <div class="lb-section-head">
           <div>
-            <h2 id="task-leaders-title">Leaders by base task</h2>
-            <p>Highest perturbed success rate within each frozen LIBERO base task.</p>
+            <h2 id="task-leaders-title">Leaders by suite</h2>
+            <p>Highest perturbed success rate within each LIBERO suite.</p>
           </div>
         </div>
         <div class="lb-task-leaders" id="leaderboard-suite-leaders" aria-live="polite"></div>
@@ -181,13 +182,14 @@
           <div class="lb-method-body">
             <dl>
               <div><dt>Primary metric</dt><dd>Mean perturbed success rate</dd></div>
-              <div><dt>Evaluation scope</dt><dd>4 base tasks × 42 perturbation directions</dd></div>
+              <div><dt>Evaluation scope</dt><dd>4 suites × 41 available perturbation directions</dd></div>
               <div><dt>Applicable cells</dt><dd>163 per evaluated model: 83 static + 80 dynamic</dd></div>
               <div><dt>Excluded</dt><dd>S22, all RQ worksheets, and combination suites</dd></div>
             </dl>
             <div class="lb-method-copy">
-              <p>Overall, mode, and task scores are arithmetic means of the available numeric S01–S21 and D01–D21 success-rate cells in the four <code>libero-*</code> worksheets.</p>
-              <p>Base SR is shown only when all four base-task values are available. Robustness Drop is Base SR minus Perturbed SR. The snapshot does not infer dates, trial counts, or missing scores.</p>
+              <p>Each score cell represents one suite and one perturbation direction. Overall, mode, and suite scores are arithmetic means of the available S01–S21 and D01–D21 cells. D19 has no available results; Spatial S04 is also unavailable, leaving 83 static and 80 dynamic cells.</p>
+              <p>OpenVLA-OFT_w, OpenVLA-OFT_m, OpenVLA-OFT+, and RIPT-VLA use completed evaluations of eight tasks (two per suite), with 30 rollouts per task and case. Successes and episodes are pooled within each suite and direction before averaging cells. The linked counts also retain S22, which is excluded from this ranking. Other model scores retain the October 1 source-sheet snapshot.</p>
+              <p>Base SR is the mean of the four suite BASE scores, shown only when all are available. Robustness Drop is Base SR minus Perturbed SR. Empty and N/A values are omitted, never converted to zero.</p>
             </div>
           </div>
         </details>

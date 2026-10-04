@@ -24,7 +24,7 @@
     base: {
       label: 'Base SR',
       title: 'Base-task success rate',
-      caption: 'Mean of four base tasks when all values are available',
+      caption: 'Mean of four suite BASE scores when all values are available',
       color: '#58677b'
     }
   };
@@ -88,7 +88,7 @@
 
   function renderMetadata(data) {
     setText('leaderboard-model-count', NUMBER_FORMATTER.format(data.entries.length));
-    setText('leaderboard-suite-count', NUMBER_FORMATTER.format(data.scope.baseTasks));
+    setText('leaderboard-suite-count', NUMBER_FORMATTER.format(data.scope.suites));
     setText('leaderboard-direction-count', NUMBER_FORMATTER.format(data.scope.perturbationDirections));
     setText('leaderboard-cell-count', NUMBER_FORMATTER.format(data.scope.applicableScoreCellsPerModel));
 
@@ -101,6 +101,8 @@
 
     const source = document.getElementById('leaderboard-source-link');
     if (source) source.href = data.snapshot.sourceUrl;
+    const counts = document.getElementById('leaderboard-counts-link');
+    if (counts) counts.href = data.snapshot.completedEvaluationCountsUrl;
   }
 
   function populateCategories(data) {
@@ -253,7 +255,7 @@
     split.appendChild(splitBars);
 
     const tasks = createElement('section', 'lb-profile-group');
-    tasks.appendChild(createElement('h4', '', 'By base task'));
+    tasks.appendChild(createElement('h4', '', 'By suite'));
     const taskBars = createElement('div', 'lb-profile-bars lb-task-bars');
     Object.entries(TASK_LABELS).forEach(([key, label]) => {
       taskBars.appendChild(createProfileBar(label, entry.tasks[key], 'is-task'));
@@ -267,6 +269,19 @@
     );
 
     panel.append(header, comparison, split, tasks, coverage);
+    const provenance = createElement('p', 'lb-profile-coverage');
+    const sourceLink = createElement('a', '', entry.source?.label || 'Source sheet');
+    sourceLink.href = entry.source?.url || data.snapshot.sourceUrl;
+    sourceLink.target = '_blank';
+    sourceLink.rel = 'noopener noreferrer';
+    if (entry.source) {
+      provenance.append(document.createTextNode(
+        `${NUMBER_FORMATTER.format(entry.source.completedEpisodes)} completed episodes · ` +
+        `${entry.source.baseTasks} tasks · ${entry.source.trialsPerCase} rollouts per case. `
+      ));
+    }
+    provenance.append(sourceLink);
+    panel.append(provenance);
   }
 
   function scoreCell(value, metric, isPrimary) {
