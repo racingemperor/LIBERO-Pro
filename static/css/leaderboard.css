@@ -51,6 +51,122 @@
   scroll-margin-top: 80px;
 }
 
+.lb-toc,
+.lb-toc * {
+  box-sizing: border-box;
+}
+
+.lb-toc {
+  position: fixed;
+  z-index: 1000;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  width: 216px;
+  max-height: calc(100dvh - 100px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  color: var(--lb-ink);
+  background: var(--lb-surface);
+  border: 1px solid var(--lb-rule-strong);
+  border-radius: 3px;
+}
+
+.lb-toc summary {
+  min-height: 44px;
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.lb-toc summary::-webkit-details-marker {
+  display: none;
+}
+
+.lb-toc summary::after {
+  content: "+";
+  color: var(--lb-muted);
+}
+
+.lb-toc[open] summary::after {
+  content: "−";
+}
+
+.lb-toc nav {
+  padding: 0 8px 8px;
+}
+
+.lb-toc a {
+  min-height: 44px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  color: var(--lb-muted);
+  border-left: 2px solid var(--lb-rule);
+  font-size: 0.79rem;
+  line-height: 1.4;
+  text-decoration: none;
+}
+
+.lb-toc a:hover,
+.lb-toc summary:hover {
+  color: var(--lb-ink);
+  background: var(--lb-paper);
+}
+
+.lb-toc a[aria-current="location"] {
+  color: #163f98;
+  background: var(--lb-vla-soft);
+  border-left-color: var(--lb-primary);
+  font-weight: 600;
+}
+
+.lb-toc a:focus-visible,
+.lb-toc summary:focus-visible {
+  outline: 2px solid #a4511d;
+  outline-offset: -2px;
+}
+
+@media screen and (min-width: 1200px) {
+  .leaderboard-page {
+    margin-left: 184px;
+  }
+
+  .lb-toc {
+    top: 100px;
+    left: 16px;
+    right: auto;
+    bottom: auto;
+    width: 160px;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .lb-toc summary {
+    padding: 10px 8px;
+  }
+
+  .lb-toc nav {
+    padding: 0;
+  }
+
+  .lb-toc a {
+    padding: 10px;
+  }
+}
+
+@media screen and (max-width: 1199px) {
+  .leaderboard-page {
+    padding-bottom: 80px;
+  }
+}
+
 .lb-skip-link {
   padding: 10px 14px;
   position: absolute;
@@ -1582,6 +1698,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   .lb-metric-tabs button,
   .lb-chart-row,
   .lb-task-leader {
@@ -1590,6 +1710,10 @@
 }
 
 @media print {
+  .lb-toc {
+    display: none;
+  }
+
   .lb-toolbar,
   .lb-clear,
   .lb-profile-nav {

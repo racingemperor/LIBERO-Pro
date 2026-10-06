@@ -135,11 +135,10 @@
     const entries = [...(news.entries || [])].sort((left, right) => right.date.localeCompare(left.date));
     list.replaceChildren();
     list.setAttribute('aria-busy', 'false');
-    status.textContent = entries.length ? `${NUMBER_FORMATTER.format(entries.length)} published update${entries.length === 1 ? '' : 's'}` : 'No published updates';
-    if (!entries.length) {
-      list.appendChild(createElement('li', 'lb-state', 'No leaderboard updates have been published yet.'));
-      return;
-    }
+    status.hidden = !entries.length;
+    list.hidden = !entries.length;
+    status.textContent = entries.length ? `${NUMBER_FORMATTER.format(entries.length)} published update${entries.length === 1 ? '' : 's'}` : '';
+    if (!entries.length) return;
     entries.forEach((entry) => {
       const item = createElement('li', 'lb-news-item');
       const time = createElement('time', 'lb-news-date', parseDate(entry.date));
@@ -154,8 +153,12 @@
   function showNewsError() {
     const list = document.getElementById('leaderboard-news-list');
     const status = document.getElementById('leaderboard-news-status');
-    if (status) status.textContent = 'Update feed unavailable';
+    if (status) {
+      status.hidden = false;
+      status.textContent = 'Update feed unavailable';
+    }
     if (list) {
+      list.hidden = false;
       list.setAttribute('aria-busy', 'false');
       list.replaceChildren(createElement('li', 'lb-state', 'News could not be loaded. Reload the page to try again.'));
     }
@@ -538,6 +541,7 @@
 
       readUrlState();
       renderAll('replace');
+      document.dispatchEvent(new Event('leaderboard:ready'));
       toolbar?.addEventListener('submit', (event) => event.preventDefault());
       search?.addEventListener('input', () => { state.query = search.value; renderAll('replace'); });
       category?.addEventListener('change', () => { state.category = category.value; renderAll('push'); });

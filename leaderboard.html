@@ -15,6 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script defer src="static/js/site-nav.js"></script>
   <script defer src="static/js/leaderboard.js"></script>
+  <script defer src="static/js/leaderboard-nav.js"></script>
 </head>
 <body>
   <a class="lb-skip-link" href="#leaderboard-main">Skip to leaderboard content</a>
@@ -35,7 +36,20 @@
   </header>
 
   <main class="benchmark-page leaderboard-page" id="leaderboard-main">
-    <header class="lb-masthead">
+    <details class="lb-toc" id="leaderboard-page-nav" open>
+      <summary>On this page</summary>
+      <nav aria-label="Leaderboard sections">
+        <a href="#leaderboard-overview" aria-current="location">Overview</a>
+        <a href="#news">News</a>
+        <a href="#model-comparison">Model comparison</a>
+        <a href="#leaderboard-model-detail">Model details</a>
+        <a href="#complete-ranking">Complete ranking</a>
+        <a href="#suite-leaders">Leaders by suite</a>
+        <a href="#aggregation">Aggregation &amp; scope</a>
+      </nav>
+    </details>
+
+    <header class="lb-masthead" id="leaderboard-overview" tabindex="-1">
       <div class="benchmark-container lb-masthead-grid">
         <div class="lb-intro">
           <h1>Leaderboard</h1>
@@ -67,22 +81,19 @@
       </div>
     </header>
 
-    <section class="lb-section lb-news-section" aria-labelledby="leaderboard-news-title">
+    <section class="lb-section lb-news-section" id="news" tabindex="-1" aria-labelledby="leaderboard-news-title">
       <div class="benchmark-container">
         <div class="lb-section-head lb-news-head">
           <div>
             <h2 id="leaderboard-news-title">News</h2>
-            <p>New evaluations and material score updates, listed by publication date.</p>
           </div>
-          <span class="lb-news-status" id="leaderboard-news-status">Loading updates…</span>
+          <span class="lb-news-status" id="leaderboard-news-status" hidden></span>
         </div>
-        <ol class="lb-news-list" id="leaderboard-news-list" aria-live="polite" aria-busy="true">
-          <li class="lb-state">Loading leaderboard updates…</li>
-        </ol>
+        <ol class="lb-news-list" id="leaderboard-news-list" aria-live="polite" aria-busy="true" hidden></ol>
       </div>
     </section>
 
-    <section class="lb-section" aria-labelledby="comparison-title">
+    <section class="lb-section" id="model-comparison" tabindex="-1" aria-labelledby="comparison-title">
       <div class="benchmark-container">
         <div class="lb-section-head">
           <div>
@@ -140,7 +151,7 @@
       </div>
     </section>
 
-    <section class="lb-section lb-results" aria-labelledby="ranking-title">
+    <section class="lb-section lb-results" id="complete-ranking" tabindex="-1" aria-labelledby="ranking-title">
       <div class="benchmark-container">
         <div class="lb-section-head">
           <div>
@@ -177,7 +188,7 @@
       </div>
     </section>
 
-    <section class="lb-section" aria-labelledby="task-leaders-title">
+    <section class="lb-section" id="suite-leaders" tabindex="-1" aria-labelledby="task-leaders-title">
       <div class="benchmark-container">
         <div class="lb-section-head">
           <div>
@@ -189,7 +200,7 @@
       </div>
     </section>
 
-    <section class="lb-section lb-method-section">
+    <section class="lb-section lb-method-section" id="aggregation" tabindex="-1" aria-label="Aggregation and scope">
       <div class="benchmark-container">
         <details class="lb-method">
           <summary>
