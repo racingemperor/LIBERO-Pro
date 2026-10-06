@@ -1,0 +1,16 @@
+{
+  "updated": "2026-10-04",
+  "entries": [
+    {
+      "date": "2026-10-04",
+      "title": "Completed evaluations published for four models",
+      "summary": "Added OpenVLA-OFT_w, OpenVLA-OFT_m, and OpenVLA-OFT+, and updated RIPT-VLA using the completed 10,170-episode evaluation records for each model.",
+      "models": [
+        "OpenVLA-OFT_w",
+        "OpenVLA-OFT_m",
+        "OpenVLA-OFT+",
+        "RIPT-VLA"
+      ]
+    }
+  ]
+}

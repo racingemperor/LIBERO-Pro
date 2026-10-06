@@ -67,6 +67,21 @@
       </div>
     </header>
 
+    <section class="lb-section lb-news-section" aria-labelledby="leaderboard-news-title">
+      <div class="benchmark-container">
+        <div class="lb-section-head lb-news-head">
+          <div>
+            <h2 id="leaderboard-news-title">News</h2>
+            <p>New evaluations and material score updates, listed by publication date.</p>
+          </div>
+          <span class="lb-news-status" id="leaderboard-news-status">Loading updates…</span>
+        </div>
+        <ol class="lb-news-list" id="leaderboard-news-list" aria-live="polite" aria-busy="true">
+          <li class="lb-state">Loading leaderboard updates…</li>
+        </ol>
+      </div>
+    </section>
+
     <section class="lb-section" aria-labelledby="comparison-title">
       <div class="benchmark-container">
         <div class="lb-section-head">
@@ -99,6 +114,8 @@
           </fieldset>
         </form>
 
+        <div class="lb-category-key" id="leaderboard-category-key" aria-label="Model category key"></div>
+
         <div class="lb-workbench">
           <section class="lb-ranking" aria-labelledby="leaderboard-chart-title">
             <div class="lb-panel-head">
@@ -116,7 +133,7 @@
             </div>
           </section>
 
-          <aside class="lb-profile" id="leaderboard-model-detail" aria-live="polite" aria-label="Selected model performance">
+          <aside class="lb-profile" id="leaderboard-model-detail" tabindex="-1" aria-live="polite" aria-label="Selected model performance">
             <p class="lb-state">Loading model profile…</p>
           </aside>
         </div>
@@ -128,7 +145,7 @@
         <div class="lb-section-head">
           <div>
             <h2 id="ranking-title">Complete ranking</h2>
-            <p>Exact values for the active result set. Select a model name to inspect it above.</p>
+            <p>Exact values for the active result set. Select any model row to open its detailed result.</p>
           </div>
         </div>
 
