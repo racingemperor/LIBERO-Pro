@@ -68,5 +68,15 @@ for(const [name,s,d] of [['OpenVLA-OFT',58.9,64.6],['Lingbot-VA',68.7,81.8],['Mo
   const m=models.find(m=>m.name===name);assert.equal((m.scores.static.average*100).toFixed(1),s.toFixed(1));assert.equal((m.scores.dynamic.average*100).toFixed(1),d.toFixed(1));
 }
 assert.equal(read('news').entries.length,0);
-for(const file of ['results','catalogue','tasks','sheet-success-rates'])assert(!JSON.stringify(read(file)).match(/(?:[CD]:\\|\/data\/zxy|PRIVATE KEY|ghp_)/i));
-console.log('PASS: 14 model images; 42 paper IDs and six domains; eight tasks; all aggregate/source cells; task counts; paper controls; empty news.');
+const clips=read('home-rollouts').clips;
+assert.equal(clips.length,42);
+assert.deepEqual(clips.map(c=>c.perturbation).sort(),perturbations.map(p=>p.id).sort());
+for(const clip of clips){
+  assert.equal(clip.rotationDegrees,180);
+  assert.equal(clip.internalVariant,perturbations.find(p=>p.id===clip.perturbation).sourceId);
+  assert.equal(clip.archive,clip.task.startsWith('libero_spatial-')?'0913spatial 全量rollout.zip':'0911rollout.zip');
+  assert(clip.duration>0&&/^[a-f0-9]{64}$/.test(clip.sourceSha256));
+  for(const path of [clip.src,clip.poster])assert(fs.existsSync(new URL('../'+path,import.meta.url)),`Missing Home media ${path}`);
+}
+for(const file of ['results','catalogue','tasks','sheet-success-rates','home-rollouts'])assert(!JSON.stringify(read(file)).match(/(?:[CD]:\\|\/data[0-9]*\/|PRIVATE KEY|ghp_)/i));
+console.log('PASS: 14 model images; 42 paper IDs and latest Home rollouts; eight tasks; all aggregate/source cells; task counts; paper controls; empty news.');

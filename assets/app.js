@@ -12,7 +12,7 @@ const mean = values => { const valid = values.filter(Number.isFinite); return va
 const modeLabel = mode => mode === 'dynamic' ? 'Dynamic' : 'Static';
 const typeClass = type => type === 'World Action Models' ? 'wam' : type === 'Robustness-oriented' ? 'robust' : 'vla';
 const typeLabel = type => type === 'World Action Models' ? 'World Action' : type === 'Robustness-oriented' ? 'Robustness' : 'VLA';
-let catalogue, results, tasks, assets, news, designs, people, publication;
+let catalogue, results, tasks, assets, news, designs, people, publication, homeRollouts;
 const url = (file, values={}, hash='') => `${file}.html${Object.keys(values).length ? `?${new URLSearchParams(Object.entries(values).filter(([,v])=>v !== null && v !== undefined))}` : ''}${hash ? '#'+hash : ''}`;
 const modelUrl = (m, extra={}, hash='') => url('model',{id:m.id,...extra},hash);
 const directionUrl = (p, m=null) => m ? modelUrl(m,{perturbation:p.id,mode:p.mode,category:p.category},'rollouts') : url('perturbation',{id:p.id});
@@ -50,7 +50,7 @@ function homePage() {
     <section class="section home-centered" id="benchmark">${sectionHead('Beyond familiar scenes')}<div class="home-summary"><p>High success rates on LIBERO do not always reveal how a policy will behave when familiar conditions change. The original LIBERO-Pro study highlighted that models can rely on memorized action sequences and scene layouts, leaving weaknesses in visual grounding and instruction understanding hidden by standard evaluation.</p><p>LIBERO-Pro evaluates robustness under 42 controlled perturbations: 22 static shifts at reset and 20 dynamic interventions during execution. Across eight tasks from four LIBERO suites, it varies conditions, environments, observations, execution, robot state and language while preserving the original task goals. This tests both generalization to changed scenes and recovery when an ongoing task is disturbed.</p></div></section>
     <section class="section paper-overview home-centered" id="paper-overview">${sectionHead('Benchmark overview')}<figure><a href="assets/paper/overview.webp" target="_blank" rel="noopener" aria-label="Open the full LIBERO-Pro overview figure"><img src="assets/paper/overview.webp" width="2000" height="1125" loading="lazy" alt="LIBERO-Pro overview showing 22 static and 20 dynamic perturbations across six domains"></a><figcaption class="caption">LIBERO-Pro evaluates robustness across 22 static shifts and 20 runtime interventions in six perturbation domains.</figcaption></figure></section>
     <section class="section home-centered" id="domains">${sectionHead('Perturbation domains')}<p class="home-section-intro">Six domains organize the benchmark. Each perturbation has a mechanism illustration and a gallery for the eight evaluation tasks.</p><div class="home-domains"><div class="home-domain-column home-domain-left">${catalogue.categories.slice(0,3).map(domainLink).join('')}</div>${taxonomyFigure(catalogue)}<div class="home-domain-column home-domain-right">${catalogue.categories.slice(3).map(domainLink).join('')}</div></div><a class="text-link home-domains-explore" href="docs.html#taxonomy">Explore all 42 perturbations ↗</a></section>
-    ${homeGallery(catalogue,'static')}${homeGallery(catalogue,'dynamic')}
+    ${homeGallery(catalogue,'static',homeRollouts)}${homeGallery(catalogue,'dynamic',homeRollouts)}
     <section class="section" id="evaluation-tasks">${sectionHead('Evaluation tasks','<a class="text-link" href="docs.html#task-designs">Read task designs ↗</a>')}<p style="margin-bottom:15px">Eight held-out tasks, with two tasks from each LIBERO suite. Open a task to read its instruction, scene design and success conditions.</p>${documentTaskList()}</section>
     <section class="section" id="leaderboard">${sectionHead('Leaderboard','<a class="text-link" href="leaderboard.html">Full leaderboard ↗</a>')}<p class="caption" style="margin:0 0 24px">Top five models in each setting · success rate (%) · all 42 published perturbations</p><div class="chart-grid">${chart('static',5)}${chart('dynamic',5)}</div></section>
     <section class="section" id="resources">${sectionHead('Resources')}<div class="mode-guide"><div><h3>Evaluation protocol</h3><p style="margin:10px 0">Understand the task split, success-rate aggregation and public perturbation numbering.</p><a class="text-link" href="docs.html#protocol">Read the protocol ↗</a></div><div><h3>Results and examples</h3><p style="margin:10px 0">Browse model results and inspect task-level counts where available. Rollout media will be added to the reserved galleries.</p><a class="text-link" href="leaderboard.html">Browse results ↗</a></div></div></section>
@@ -384,6 +384,11 @@ try {
   [catalogue,results,{tasks},assets,news,designs,people,publication]=await Promise.all(['catalogue','results','tasks','model-assets','news','task-designs','people','publication'].map(async name=>{
     const response=await fetch(`data/${name}.json`);if(!response.ok)throw new Error(`Unable to load ${name}`);return response.json();
   }));
+  if(page==='index') {
+    const response=await fetch('data/home-rollouts.json');
+    if(!response.ok)throw new Error('Unable to load Home rollouts');
+    homeRollouts=await response.json();
+  }
   // Accept the previous public model deep link while the new profile route settles.
   if(page==='leaderboard'&&params.get('model')){
     const old=results.models.find(m=>m.name===params.get('model')||m.id===params.get('model'));

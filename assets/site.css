@@ -151,13 +151,17 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
 @media print{.home-reveal{opacity:1!important;transform:none!important;transition:none!important}}
 .gallery-section .section-head{align-items:center}
 .gallery-section .section-head .caption{margin-top:15px;max-width:680px}
-.gallery-viewport{max-width:100%;overflow-x:auto;scrollbar-width:thin;padding-bottom:14px;overscroll-behavior-x:contain}
-.gallery-track{display:flex;gap:20px;width:max-content}
-.gallery-item{display:block;width:400px;flex:none}
-.gallery-item img{display:block;width:100%;height:auto;aspect-ratio:1760/510;object-fit:contain;background:#f4f6f8;border-radius:5px}
-.gallery-item>span{display:flex;align-items:baseline;gap:10px;font-size:14px;margin-top:11px}
-.gallery-item small{font-size:11px;color:var(--muted)}
-.gallery-item>span>span{margin-left:auto;color:var(--blue)}
+.gallery-rows{display:grid;gap:22px}
+.gallery-viewport{max-width:100%;overflow-x:auto;scrollbar-width:none;padding:4px 0;overscroll-behavior-x:contain;overflow-anchor:none}
+.gallery-viewport::-webkit-scrollbar{display:none}
+.gallery-track,.gallery-group{display:flex;width:max-content}
+.gallery-group{gap:16px;padding-right:16px}
+.gallery-item{display:block;width:206px;flex:none}
+.gallery-video{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:contain;background:#e8e7e2;border-radius:6px}
+.gallery-caption{display:grid;grid-template-columns:auto 1fr auto;align-items:baseline;gap:8px;font-size:13px;line-height:1.4;margin-top:9px;min-height:37px}
+.gallery-item small{font-size:11px;font-variant-numeric:tabular-nums;color:var(--muted)}
+.gallery-caption>span:last-child{color:var(--blue)}
+.gallery-item:hover .gallery-caption{color:var(--blue)}
 .gallery-all{display:inline-block;margin-top:15px}
 
 /* Task documents use a stable grouped directory, like a research wiki. */
@@ -255,8 +259,9 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
   .citation-header{padding:12px 16px}
   .citation-code{padding:16px;font-size:12px;min-height:140px}
   .gallery-section .section-head{gap:5px}
-  .gallery-item{width:290px}
-  .gallery-item>span{font-size:12px}
+  .gallery-item{width:164px}
+  .gallery-caption{font-size:12px;gap:6px;min-height:35px}
+  .gallery-rows{gap:16px}
   .docs-layout{display:block;padding-top:25px}
   .docs-sidebar{position:static;max-height:none;padding:0;border:1px solid var(--line);border-radius:6px}
   .doc-directory-toggle{display:list-item;padding:12px 15px;cursor:pointer;font-size:13px;font-weight:600}

@@ -26,9 +26,21 @@ export function homeShowcase(catalogue) {
   </section>`;
 }
 
-export function homeGallery(catalogue, mode) {
+export function homeGallery(catalogue, mode, media) {
   const entries = catalogue.perturbations.filter(p=>p.mode===mode);
-  return `<section class="section gallery-section" id="${mode}-gallery"><div class="section-head"><div><h2>${mode==='static'?'Static shifts':'Dynamic interventions'}</h2><p class="caption">${entries.length} paper mechanism illustrations · open any example for its design and task gallery</p></div><button class="motion-control" data-gallery-toggle="${mode}" aria-pressed="false">Pause gallery</button></div><div class="gallery-viewport" data-gallery="${mode}" tabindex="0" role="region" aria-label="${mode} perturbation examples, horizontally scrollable"><div class="gallery-track">${entries.map(p=>`<a class="gallery-item" href="docs.html?perturbation=${p.id}"><img src="${p.image}" width="1760" height="510" alt="${escape(p.name)} mechanism" loading="lazy"><span><small>${p.id}</small>${escape(p.name)}<span aria-hidden="true">↗</span></span></a>`).join('')}</div></div><a class="text-link gallery-all" href="docs.html#${mode}-perturbations">View all ${entries.length} ${mode} perturbations ↗</a></section>`;
+  const card = (p, duplicate) => {
+    const clip = media.clips.find(c=>c.perturbation===p.id);
+    return `<a class="gallery-item" href="docs.html?perturbation=${p.id}" ${duplicate?'tabindex="-1"':''} aria-label="${p.id}: ${escape(p.name)} — open perturbation design"><video class="gallery-video" data-src="${escape(clip.src)}" poster="${escape(clip.poster)}" width="256" height="256" muted loop playsinline preload="none" aria-hidden="true" disablepictureinpicture></video><span class="gallery-caption"><small>${p.id}</small><span>${escape(p.name)}</span><span aria-hidden="true">↗</span></span></a>`;
+  };
+  // Keep each perturbation once in the reading order. A second visual copy
+  // bridges the marquee seam without duplicating keyboard or screen-reader stops.
+  let offset = 0;
+  const rows = Array.from({length:3}, (_,i)=>{
+    const count = Math.ceil((entries.length-offset)/(3-i));
+    const items = entries.slice(offset,offset+count);offset+=count;
+    return `<div class="gallery-viewport" data-gallery-row data-direction="${i===1?'left':'right'}" tabindex="0" role="region" aria-label="${mode} examples, row ${i+1}, scroll to explore"><div class="gallery-track">${[false,true].map(duplicate=>`<div class="gallery-group" ${duplicate?'aria-hidden="true"':''}>${items.map(p=>card(p,duplicate)).join('')}</div>`).join('')}</div></div>`;
+  }).join('');
+  return `<section class="section gallery-section" id="${mode}-gallery" data-gallery="${mode}"><div class="section-head"><div><h2>${mode==='static'?'Static shifts':'Dynamic interventions'}</h2><p class="caption">${entries.length} perturbations in motion · one example per perturbation</p></div><button class="motion-control" data-gallery-toggle="${mode}" aria-pressed="false">Pause gallery</button></div><div class="gallery-rows">${rows}</div><a class="text-link gallery-all" href="docs.html#${mode}-perturbations">View all ${entries.length} ${mode} perturbations ↗</a></section>`;
 }
 
 export function bindHomePresentation() {
@@ -80,10 +92,24 @@ export function bindHomeMotion() {
   const dots = [...root.querySelectorAll('[data-slide]')];
   const pause = root.querySelector('[data-carousel-pause]');
   let current = 0, stopped = preference.matches, elapsed = 0, last = 0;
-  const galleries = [...document.querySelectorAll('[data-gallery]')].map(view => ({
-    view, button: document.querySelector(`[data-gallery-toggle="${view.dataset.gallery}"]`), stopped: preference.matches,
-    visible: false, position: 0
+  const galleries = [...document.querySelectorAll('[data-gallery]')].map(section => ({
+    section, button: section.querySelector('[data-gallery-toggle]'), stopped: preference.matches,
+    rows: [...section.querySelectorAll('[data-gallery-row]')].map(view=>({view, visible:false, position:0, span:0})),
+    videos: [...section.querySelectorAll('video')].map(video=>({video, visible:false, requested:false}))
   }));
+  const syncVideos = () => {
+    for (const gallery of galleries) for (const item of gallery.videos) {
+      const play = item.visible && !gallery.stopped && !document.hidden;
+      if (play && !item.requested) {
+        item.requested=true;
+        if (!item.video.getAttribute('src')) item.video.src=item.video.dataset.src;
+        item.video.muted=true;
+        item.video.play()?.catch(()=>{item.requested=false;});
+      } else if (!play && item.requested) {
+        item.requested=false;item.video.pause();
+      }
+    }
+  };
   const show = (index, manual = false) => {
     current = (index + slides.length) % slides.length;
     slides.forEach((slide,i)=>{slide.classList.toggle('is-active',i===current);slide.inert=i!==current;slide.setAttribute('aria-hidden',String(i!==current));});
@@ -99,6 +125,7 @@ export function bindHomeMotion() {
       gallery.button.textContent = gallery.stopped ? 'Play gallery' : 'Pause gallery';
       gallery.button.setAttribute('aria-pressed',String(gallery.stopped));
     }
+    syncVideos();
   };
   dots.forEach(dot=>dot.addEventListener('click',()=>{stopped=true;show(Number(dot.dataset.slide),true);sync();}));
   root.querySelectorAll('[data-slide-step]').forEach(button=>button.addEventListener('click',()=>{stopped=true;show(current+Number(button.dataset.slideStep),true);sync();}));
@@ -107,15 +134,42 @@ export function bindHomeMotion() {
     if(!['ArrowLeft','ArrowRight'].includes(event.key))return;
     event.preventDefault();stopped=true;show(current+(event.key==='ArrowRight'?1:-1),true);sync();
   });
-  const observer = new IntersectionObserver(entries=>entries.forEach(entry=>{
-    const gallery=galleries.find(g=>g.view===entry.target);if(gallery)gallery.visible=entry.isIntersecting;
-  }),{threshold:0.15});
+  const rows=galleries.flatMap(g=>g.rows), videos=galleries.flatMap(g=>g.videos);
+  const observer = new IntersectionObserver(entries=>{
+    for (const entry of entries) {
+      const row=rows.find(r=>r.view===entry.target);
+      if(row)row.visible=entry.isIntersecting;
+      const item=videos.find(v=>v.video===entry.target);
+      if(item)item.visible=entry.isIntersecting;
+    }
+    syncVideos();
+  },{threshold:0});
+  const measure = row => {
+    const span=row.view.querySelector('.gallery-group').getBoundingClientRect().width;
+    if(!span)return;
+    row.position=row.span?row.position/row.span*span:(row.view.dataset.direction==='right'?span:0);
+    row.span=span;row.view.scrollLeft=row.position;
+  };
+  const resize=new ResizeObserver(entries=>entries.forEach(entry=>measure(rows.find(r=>r.view===entry.target))));
   for (const gallery of galleries) {
-    observer.observe(gallery.view);
-    gallery.button.addEventListener('click',()=>{gallery.stopped=!gallery.stopped;gallery.position=gallery.view.scrollLeft;sync();});
-    // A touch, keyboard or wheel interaction hands scrolling to the visitor.
-    for (const event of ['pointerdown','keydown','wheel']) gallery.view.addEventListener(event,()=>{gallery.stopped=true;sync();},{passive:true});
+    gallery.button.addEventListener('click',()=>{gallery.stopped=!gallery.stopped;gallery.rows.forEach(r=>r.position=r.view.scrollLeft);sync();});
+    gallery.videos.forEach(item=>observer.observe(item.video));
+    for(const row of gallery.rows) {
+      measure(row);observer.observe(row.view);resize.observe(row.view);
+      // Hand horizontal browsing to the visitor without interrupting loops
+      // when they simply scroll down the page.
+      const stop=()=>{gallery.stopped=true;sync();};
+      row.view.addEventListener('keydown',event=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(event.key))stop();});
+      row.view.addEventListener('wheel',event=>{if(event.shiftKey||Math.abs(event.deltaX)>Math.abs(event.deltaY))stop();},{passive:true});
+      let gesture=null;
+      row.view.addEventListener('pointerdown',event=>{gesture={x:event.clientX,y:event.clientY};},{passive:true});
+      row.view.addEventListener('pointermove',event=>{
+        if(gesture&&Math.abs(event.clientX-gesture.x)>12&&Math.abs(event.clientX-gesture.x)>Math.abs(event.clientY-gesture.y)){stop();gesture=null;}
+      },{passive:true});
+      for(const event of ['pointerup','pointercancel','pointerleave'])row.view.addEventListener(event,()=>{gesture=null;},{passive:true});
+    }
   }
+  document.addEventListener('visibilitychange',syncVideos);
   preference.addEventListener('change',()=>{if(preference.matches){stopped=true;galleries.forEach(g=>g.stopped=true);sync();}});
   const tick = now => {
     const dt = last ? Math.min(now-last,100) : 0;last=now;
@@ -125,12 +179,13 @@ export function bindHomeMotion() {
         elapsed+=dt;if(elapsed>=6500)show(current+1);
       }
       for (const gallery of galleries) {
-        if(gallery.stopped||!gallery.visible||gallery.view.matches(':hover,:focus-within')){gallery.position=gallery.view.scrollLeft;continue;}
-        const maximum=gallery.view.scrollWidth-gallery.view.clientWidth;
-        if(maximum<=0)continue;
-        gallery.position+=dt*0.026;
-        if(gallery.position>=maximum)gallery.position=0;
-        gallery.view.scrollLeft=gallery.position;
+        for(const row of gallery.rows) {
+          if(gallery.stopped||!row.visible||row.view.matches(':hover,:focus-within')){row.position=row.view.scrollLeft;continue;}
+          if(!row.span)continue;
+          row.position+=dt*.022*(row.view.dataset.direction==='right'?-1:1);
+          row.position=(row.position+row.span)%row.span;
+          row.view.scrollLeft=row.position;
+        }
       }
     }
     requestAnimationFrame(tick);

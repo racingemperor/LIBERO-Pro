@@ -33,7 +33,7 @@ Open `scripts/taxonomy-test.html` for chart interaction checks, including exact 
 
 - `assets/app.js`, `assets/site.css`: shared rendering, navigation, tables, charts and task galleries.
 - Main navigation: **Home, Document, Leaderboard, Eval**, matching RoboDojo's first four entries. The task catalogue remains accessible through Document and Home; Findings has no top-level navigation entry.
-- `index.html`, `assets/home.js`: Home slideshow, scrolling static/dynamic paper galleries, taxonomy, tasks, leaderboard preview and empty News. Slideshow and galleries have pause controls, pause on hover/focus, and start paused for reduced-motion preferences. Touch, wheel or keyboard interaction stops gallery autoplay.
+- `index.html`, `assets/home.js`: Home slideshow, three-row static/dynamic rollout galleries, taxonomy, tasks, leaderboard preview and empty News. Gallery rows move right / left / right, with a seamless repeated track. Hover/focus holds the row in place while the clip keeps playing; Pause stops both scrolling and playback. Horizontal touch, wheel or keyboard scrolling hands control to the visitor; vertical page scrolling does not pause the gallery. Reduced-motion preferences start paused. Videos only load and play when visible, and pause when off-screen or the tab is hidden.
 - Home sections fade in and rise slightly on their first entry into the viewport. Native scrolling is preserved. Keyboard focus reveals its containing section immediately; reduced-motion preferences, unsupported observation and printing leave content visible.
 - `leaderboard.html`: separate static/dynamic charts and sortable domain success-rate tables.
 - `model.html?id=MODEL_ID`: model profile and perturbation/task results.
@@ -72,7 +72,19 @@ Place GIF, WebP, MP4 or WebM files under `assets/rollouts/`. In `data/tasks.json
 {"media":{"openvla-oft-m":{"D01":"assets/rollouts/oft-m-goal3-D01.mp4"}}}
 ```
 
-Use only genuine evaluation media for the matching model, task and perturbation. Missing media renders as a reserved slot. S04 is not applicable to the two Spatial evaluation tasks; D06 is not applicable to Long task 8. These slots show N/A rather than missing scores. The Home galleries currently animate real paper illustrations, not model rollout videos.
+Use only genuine evaluation media for the matching model, task and perturbation. Missing media renders as a reserved slot. S04 is not applicable to the two Spatial evaluation tasks; D06 is not applicable to Long task 8. These slots show N/A rather than missing scores.
+
+Home uses a separate `data/home-rollouts.json`: exactly one illustrative rollout per perturbation, matching the task shown in its paper illustration, rather than restricting examples to the eight evaluation tasks. These clips are not evidence for any leaderboard score. The manifest preserves the task, public/internal IDs, policy, trial seed, source archive, experiment date and original SHA-256, without private server paths.
+
+All 42 examples use the latest available task/perturbation batch: five Spatial examples from the September 13 archive and 37 Object/Goal/Long examples from September 11. Seed 143 matches the illustrations where available; D06's illustration seed 145 is absent, so it uses seed 142 of the same task in the latest batch. Selection never uses success/failure as a criterion. Videos and posters are rotated 180° to display upright; original duration and playback speed are preserved. Silent H.264 MP4 loops provide the animated-image effect with a WebP poster and about 3.55 MB for all 42 clips and posters.
+
+To rebuild these assets from authorized local archives and illustration manifests (OpenCV, Pillow and imageio-ffmpeg required):
+
+```sh
+python scripts/build_home_rollouts.py --source ARCHIVE_DIRECTORY --review-dir LOCAL_REVIEW_DIRECTORY --static-manifest STATIC_MANIFEST_JSON --dynamic-manifest DYNAMIC_MANIFEST_JSON --build
+```
+
+Without `--build`, the script only prepares local contact sheets and a source-selection audit. Static manifest entries resolve their original `render.json`; dynamic manifest entries carry the source task directly. Original archives remain untouched. The public/internal D19/D20 remapping is applied before matching. Older batches are never substituted when a task has no video in the latest suite revision.
 
 ## People and institution logos
 
