@@ -1,8 +1,10 @@
 import {homeShowcase, homeGallery, bindHomeMotion} from './home.js';
+import {updateView, isLocalViewLink} from './navigation.js';
 
 const app = document.querySelector('#app');
 const page = document.body.dataset.page;
-const params = new URLSearchParams(location.search);
+let params = new URLSearchParams(location.search);
+const defaultTitle = document.title;
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pct = value => Number.isFinite(value) ? `${(value * 100).toFixed(1)}%` : '—';
 const mean = values => { const valid = values.filter(Number.isFinite); return valid.length ? valid.reduce((a,b)=>a+b,0)/valid.length : null; };
@@ -75,8 +77,9 @@ function chart(mode,limit=14,models=null) {
 
 function leaderboardTable(mode,models,sort='average',ascending=false) {
   const sortButton=(key,label)=>`<button data-sort="${key}" aria-label="Sort by ${label}">${label}${sort===key?(ascending?' ↑':' ↓'):''}</button>`;
+  const domainHeaders=catalogue.categories.map(c=>`<th scope="col" ${sort===c.id?`aria-sort="${ascending?'ascending':'descending'}"`:''}>${sortButton(c.id,c.name)}</th>`).join('');
   const delta=m=>m.scores.base===null?'—':`${m.scores[mode].average-m.scores.base>0?'+':''}${((m.scores[mode].average-m.scores.base)*100).toFixed(1)}`;
-  return `<div class="table-scroll" tabindex="0" role="region" aria-label="${modeLabel(mode)} leaderboard, horizontally scrollable"><table class="leaderboard-table"><thead><tr><th scope="col">#</th><th scope="col">Model</th><th scope="col">Type</th><th scope="col" ${sort==='average'?`aria-sort="${ascending?'ascending':'descending'}"`:''}>${sortButton('average','Average')}</th>${catalogue.categories.map(c=>`<th scope="col" ${sort===c.id?`aria-sort="${ascending?'ascending':'descending'}"`:''}>${sortButton(c.id,c.name)}<small>${c[mode].join(', ')}</small></th>`).join('')}<th scope="col" ${sort==='base'?`aria-sort="${ascending?'ascending':'descending'}"`:''}>${sortButton('base','Base')}</th><th scope="col" ${sort==='delta'?`aria-sort="${ascending?'ascending':'descending'}"`:''}>${sortButton('delta','Δ (pp)')}</th><th scope="col"><span class="small">Details</span></th></tr></thead><tbody>${models.map((m,i)=>`<tr data-href="${modelUrl(m,{mode})}"><td>${i+1}</td><th scope="row" class="model-cell"><a class="model-link" href="${modelUrl(m,{mode})}">${logo(m)}${esc(m.name)}</a></th><td>${tag(m)}</td><td class="average">${pct(m.scores[mode].average)}</td>${catalogue.categories.map(c=>{const v=m.scores[mode].categories[c.id];return `<td class="score-cell"><a style="--heat:${v===null?0:(.04+v*.22).toFixed(3)}" href="${modelUrl(m,{mode,category:c.id,perturbation:c[mode][0]},'rollouts')}" aria-label="${esc(m.name)}, ${c.name}, ${pct(v)}, view tasks">${pct(v)}</a></td>`;}).join('')}<td>${pct(m.scores.base)}</td><td class="delta">${delta(m)}</td><td><a href="${modelUrl(m,{mode})}" aria-label="View ${esc(m.name)} details">↗</a></td></tr>`).join('')}</tbody></table></div>`;
+  return `<div class="table-scroll" tabindex="0" role="region" aria-label="${modeLabel(mode)} leaderboard, horizontally scrollable"><table class="leaderboard-table"><thead><tr><th scope="col">#</th><th scope="col">Model</th><th scope="col">Type</th><th scope="col" ${sort==='average'?`aria-sort="${ascending?'ascending':'descending'}"`:''}>${sortButton('average','Average')}</th>${domainHeaders}<th scope="col" ${sort==='base'?`aria-sort="${ascending?'ascending':'descending'}"`:''}>${sortButton('base','Base')}</th><th scope="col" ${sort==='delta'?`aria-sort="${ascending?'ascending':'descending'}"`:''}>${sortButton('delta','Δ (pp)')}</th><th scope="col">Details</th></tr></thead><tbody>${models.map((m,i)=>`<tr data-href="${modelUrl(m,{mode})}"><td>${i+1}</td><th scope="row" class="model-cell"><a class="model-link" href="${modelUrl(m,{mode})}">${logo(m)}${esc(m.name)}</a></th><td>${tag(m)}</td><td class="average">${pct(m.scores[mode].average)}</td>${catalogue.categories.map(c=>{const v=m.scores[mode].categories[c.id];return `<td class="score-cell"><a style="--heat:${v===null?0:(.04+v*.22).toFixed(3)}" href="${modelUrl(m,{mode,category:c.id,perturbation:c[mode][0]},'rollouts')}" aria-label="${esc(m.name)}, ${c.name}, ${pct(v)}, view tasks">${pct(v)}</a></td>`;}).join('')}<td>${pct(m.scores.base)}</td><td class="delta">${delta(m)}</td><td><a href="${modelUrl(m,{mode})}" aria-label="View ${esc(m.name)} details">↗</a></td></tr>`).join('')}</tbody></table></div>`;
 }
 
 function leaderboardPage() {
@@ -88,7 +91,7 @@ function leaderboardPage() {
   return layout(`${head('Leaderboard','Success rates under static shifts and dynamic interventions. Select a model or a domain score to inspect its tasks.')}
     ${newsSection()}
     <section class="section" id="capabilities">${sectionHead('Model capabilities')}<div class="chart-grid">${chart('static')}${chart('dynamic')}</div><div class="legend"><span style="--bar:#c99742">Static success rate</span><span style="--bar:#269d92">Dynamic success rate</span><p>Shared 0–100% scale. Click any model to explore its results.</p></div></section>
-    <section class="section" id="rankings">${sectionHead('Model comparison',`<span class="count-label">${entries.length} models · success rate (%)</span>`)}<div class="controls">${tabs(mode,m=>url('leaderboard',{mode:m,type},'rankings'))}<label class="control">Model type <select data-query="type" data-anchor="rankings"><option value="all">All models</option>${['Mainstream VLA','World Action Models','Robustness-oriented'].map(t=>`<option ${type===t?'selected':''}>${t}</option>`).join('')}</select></label></div>${leaderboardTable(mode,entries,sort,asc)}<p class="table-note">Average includes every applicable suite × perturbation result in the selected setting. Six domain columns use the paper taxonomy. Δ = Average − Base, in percentage points. Missing values remain blank (—). <a class="text-link" href="docs.html#scoring">Scoring details ↗</a></p></section>
+    <section class="section" id="rankings">${sectionHead('Model comparison',`<span class="count-label">${entries.length} models · success rate (%)</span>`)}<div class="controls">${tabs(mode,m=>url('leaderboard',{mode:m,type,sort,order:asc?'asc':'desc'},'rankings'))}<label class="control">Model type <select data-query="type" data-anchor="rankings"><option value="all">All models</option>${['Mainstream VLA','World Action Models','Robustness-oriented'].map(t=>`<option ${type===t?'selected':''}>${t}</option>`).join('')}</select></label></div>${leaderboardTable(mode,entries,sort,asc)}<p class="table-note">Average includes every applicable suite × perturbation result in the selected setting. Δ = Average − Base, in percentage points. Missing values remain blank (—). <a class="text-link" href="docs.html#taxonomy">Domain definitions ↗</a> · <a class="text-link" href="docs.html#scoring">Scoring details ↗</a></p></section>
     <section class="section" id="protocol">${sectionHead('Evaluation protocol')}<div class="mode-guide"><div><h3>42 perturbations, 8 base tasks</h3><p style="margin-top:12px">S01–S22 are static; D01–D20 are dynamic. Evaluation uses two held-out tasks from each of four LIBERO suites. A single perturbation is applied to each evaluated case.</p></div><div><h3>Success rate only</h3><p style="margin-top:12px">A rollout succeeds when it satisfies the original task goal. Scores exclude RQ experiments and combined perturbation suites. No additional composite score is used.</p></div></div></section>
     <section class="section" id="data">${sectionHead('Data & sources')}<p>Sheet results were retrieved on October 7, 2026. OpenVLA-OFT_w, OpenVLA-OFT_m, OpenVLA-OFT+ and RIPT-VLA use completed evaluation counts from October 4, 2026.</p><div class="actions" style="justify-content:flex-start"><a class="button secondary" href="data/results.json" download>Download results</a><a class="button secondary" href="docs.html#sources">Data coverage</a></div></section>`,[['news','News'],['capabilities','Capabilities'],['rankings','Model comparison'],['protocol','Protocol'],['data','Data & sources']]);
 }
@@ -120,7 +123,7 @@ function mediaSlot(task,p,m=null) {
 }
 
 function catalogueNav(p,m=null) {
-  const href=d=>directionUrl(d,m);
+  const href=d=>page==='perturbation'?url('perturbation',{id:d.id,...(m?{model:m.id}:{})}):directionUrl(d,m);
   return `<aside class="catalogue-nav" aria-label="Perturbations">${tabs(p.mode,mode=>href(directionsFor(mode,p.category)[0]))}${catalogue.categories.map(c=>`<section class="nav-group"><h3 class="domain-name" ${domainStyle(c)}>${c.name}</h3>${directionsFor(p.mode,c.id).map(d=>`<a class="nav-item ${d.id===p.id?'active':''}" ${d.id===p.id?'aria-current="true"':''} href="${href(d)}"><span>${d.id}</span>${esc(d.name)}</a>`).join('')}</section>`).join('')}</aside>`;
 }
 
@@ -158,7 +161,7 @@ function taskPage() {
   const mode=selectedMode(),m=modelById(params.get('model'));
   const category=selectedCategory();
   const dirs=directionsFor(mode,category);
-  return `<main id="content">${head('Task details',esc(t.instruction),breadcrumb([['Tasks','tasks.html#base-tasks'],[`LIBERO-${t.suiteName} · task ${t.taskId}`]]))}<p style="margin-bottom:24px"><a class="text-link" href="${url('docs',{task:t.id})}">Read task design & success conditions ↗</a></p>${modelSelect(m)}<div class="controls">${tabs(mode,mode=>url('task',{id:t.id,mode,...(m?{model:m.id}:{})}))}<span class="count-label">${dirs.length} perturbations</span></div><nav class="domain-filter" aria-label="Perturbation domain">${[{id:'all',name:'All domains'},...catalogue.categories].map(c=>`<a class="${c.id===category?'active':''}" href="${url('task',{id:t.id,mode,category:c.id,...(m?{model:m.id}:{})})}">${c.name}</a>`).join('')}</nav><div class="task-detail-grid">${dirs.map(p=>`<div><h3 style="font-size:15px;margin-bottom:12px"><a href="${directionUrl(p,m)}">${p.id} · ${esc(p.name)} ↗</a></h3>${mediaSlot(t,p,m)}</div>`).join('')}</div><p class="table-note">Missing task rates are shown as —. Suite averages are never substituted for an individual task. Rollout media is reserved for future uploads.</p></main>`;
+  return `<main id="content">${head('Task details',esc(t.instruction),breadcrumb([['Tasks','tasks.html#base-tasks'],[`LIBERO-${t.suiteName} · task ${t.taskId}`]]))}<p style="margin-bottom:24px"><a class="text-link" href="${url('docs',{task:t.id})}">Read task design & success conditions ↗</a></p>${modelSelect(m)}<div class="controls">${tabs(mode,mode=>url('task',{id:t.id,mode,category,...(m?{model:m.id}:{})}))}<span class="count-label">${dirs.length} perturbations</span></div><nav class="domain-filter" aria-label="Perturbation domain">${[{id:'all',name:'All domains'},...catalogue.categories].map(c=>`<a class="${c.id===category?'active':''}" href="${url('task',{id:t.id,mode,category:c.id,...(m?{model:m.id}:{})})}">${c.name}</a>`).join('')}</nav><div class="task-detail-grid">${dirs.map(p=>`<div><h3 style="font-size:15px;margin-bottom:12px"><a href="${directionUrl(p,m)}">${p.id} · ${esc(p.name)} ↗</a></h3>${mediaSlot(t,p,m)}</div>`).join('')}</div><p class="table-note">Missing task rates are shown as —. Suite averages are never substituted for an individual task. Rollout media is reserved for future uploads.</p></main>`;
 }
 
 function findingsPage() {
@@ -243,43 +246,110 @@ function notFound(kind,href) {
   return `<main id="content">${head(`${kind} not found`)}<p>The requested identifier is not part of the published catalogue.</p><div class="actions" style="justify-content:flex-start"><a class="button" href="${href}">Return to catalogue</a></div></main>`;
 }
 
-function bindInteractions() {
-  const docDirectory=document.querySelector('.doc-directory');
-  if(docDirectory&&matchMedia('(max-width:760px)').matches)docDirectory.open=false;
-  const docSelected=document.querySelector('.docs-sidebar a[aria-current=page]');
-  if(docSelected&&!matchMedia('(max-width:760px)').matches){
-    const sidebar=document.querySelector('.docs-sidebar');
-    sidebar.scrollTop=Math.max(0,docSelected.getBoundingClientRect().top-sidebar.getBoundingClientRect().top-100);
-  }
-  const catalogueNav=document.querySelector('.catalogue-nav');
-  const selectedItem=catalogueNav?.querySelector('.nav-item.active');
-  if(selectedItem){
-    const offset=selectedItem.getBoundingClientRect().top-catalogueNav.getBoundingClientRect().top;
-    catalogueNav.scrollTop=Math.max(0,offset-90);
-  }
-  document.querySelectorAll('[data-query]').forEach(select=>select.addEventListener('change',()=>{
-    const u=new URL(location.href);u.searchParams.set(select.dataset.query,select.value);u.hash=select.dataset.anchor||'';location.assign(u);
-  }));
-  document.querySelectorAll('[data-sort]').forEach(button=>button.addEventListener('click',()=>{
-    const u=new URL(location.href);const previous=u.searchParams.get('sort')||'average';const previousAsc=u.searchParams.get('order')==='asc';
-    u.searchParams.set('sort',button.dataset.sort);u.searchParams.set('order',previous===button.dataset.sort&&!previousAsc?'asc':'desc');u.hash='rankings';location.assign(u);
-  }));
-  document.querySelectorAll('[data-href]').forEach(row=>row.addEventListener('click',event=>{
-    if(event.target.closest('a,button')||window.getSelection().toString())return;location.assign(row.dataset.href);
-  }));
-  document.querySelector('#model-select')?.addEventListener('change',event=>{
-    const u=new URL(location.href);if(event.target.value)u.searchParams.set('model',event.target.value);else u.searchParams.delete('model');location.assign(u);
-  });
+const renderers={index:homePage,leaderboard:leaderboardPage,tasks:tasksPage,model:modelPage,perturbation:perturbationPage,task:taskPage,findings:findingsPage,docs:docsPage,eval:evalPage};
+
+function revealSelected(container, selected, inset=0) {
+  if(!container||!selected)return;
+  const box=container.getBoundingClientRect(),item=selected.getBoundingClientRect();
+  if(item.top<box.top+inset)container.scrollTop+=item.top-box.top-inset;
+  else if(item.bottom>box.bottom)container.scrollTop+=item.bottom-box.bottom;
+}
+
+function prepareDirectories(initial=false) {
+  const mobile=matchMedia('(max-width:760px)').matches;
+  const directory=document.querySelector('.doc-directory');
+  if(directory&&mobile&&initial)directory.open=false;
+  const selected=document.querySelector('.docs-sidebar a[aria-current=page]');
+  const group=selected?.closest('.doc-nav-group details');
+  if(group)group.open=true;
+  if(!mobile)revealSelected(document.querySelector('.docs-sidebar'),selected,20);
+  revealSelected(document.querySelector('.catalogue-nav'),document.querySelector('.nav-item.active'),50);
+}
+
+function updateSectionIndicator() {
   const sections=[...document.querySelectorAll('main section[id]')];
   if(sections.length&&document.querySelector('.toc')){
-    const update=()=>{
-      let active=sections[0];for(const section of sections){if(section.getBoundingClientRect().top<=160)active=section;}
-      if(window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-5)active=sections.at(-1);
-      document.querySelectorAll('.toc a').forEach(a=>{const selected=a.hash==='#'+active.id;a.classList.toggle('active',selected);if(selected)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');});
-    };
-    window.addEventListener('scroll',update,{passive:true});update();
+    let active=sections[0];for(const section of sections){if(section.getBoundingClientRect().top<=160)active=section;}
+    if(window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-5)active=sections.at(-1);
+    document.querySelectorAll('.toc a').forEach(a=>{const selected=a.hash==='#'+active.id;a.classList.toggle('active',selected);if(selected)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');});
   }
-  if(location.hash)requestAnimationFrame(()=>document.getElementById(location.hash.slice(1))?.scrollIntoView());
+}
+
+function scrollToAnchor(hash) {
+  if(!hash)return;
+  let id;
+  try{id=decodeURIComponent(hash.slice(1));}catch{return;}
+  const target=document.getElementById(id);
+  target?.scrollIntoView({behavior:'instant',block:'start'});
+  if(id==='content'&&target){target.setAttribute('tabindex','-1');target.focus({preventScroll:true});}
+}
+
+function updateCurrentView(next, {anchor=false, top=false, replace=true}={}) {
+  const changed=params.toString()!==next.searchParams.toString();
+  const position={left:window.scrollX,top:window.scrollY};
+  const focused=document.activeElement;
+  // A filter/task choice is state of this view, not another stop in Back history.
+  if(replace)history.replaceState(history.state,'',next);
+  if(changed){
+    params=new URLSearchParams(next.search);
+    document.title=defaultTitle;
+    updateView(app,(renderers[page]||homePage)());
+    prepareDirectories();
+    if(focused!==document.body&&!focused.isConnected){
+      const heading=document.querySelector('#content h1');
+      heading?.setAttribute('tabindex','-1');heading?.focus({preventScroll:true});
+    }
+    window.scrollTo({...position,behavior:'instant'});
+    const status=document.querySelector('#view-status');
+    status.textContent=page==='leaderboard'?`${modeLabel(selectedMode())} leaderboard updated. ${document.querySelectorAll('.leaderboard-table tbody tr').length} models.`:document.querySelector('.nav-item.active')?.textContent||document.querySelector('#content h1')?.textContent||'View updated';
+  }
+  if(page==='docs'&&changed){
+    const directory=document.querySelector('.doc-directory');
+    if(directory&&matchMedia('(max-width:760px)').matches)directory.open=false;
+    document.querySelector('#content')?.scrollIntoView({behavior:'instant',block:'start'});
+  }
+  if(anchor)scrollToAnchor(next.hash);
+  if(top)window.scrollTo({top:0,left:0,behavior:'instant'});
+  updateSectionIndicator();
+}
+
+function bindInteractions() {
+  prepareDirectories(true);
+  const status=document.createElement('div');
+  status.id='view-status';status.className='sr-only';status.setAttribute('role','status');status.setAttribute('aria-live','polite');document.body.append(status);
+  document.addEventListener('click',event=>{
+    const link=event.target.closest('a[href]');
+    if(isLocalViewLink(event,link,location.href)){
+      const next=new URL(link.href);
+      const changed=next.search!==location.search;
+      event.preventDefault();
+      updateCurrentView(next,{
+        anchor:!!next.hash&&!link.closest('.tabs,.catalogue-nav,.domain-filter')&&(!changed||page==='docs'||!!link.closest('.category-scores,.domain-list')),
+        top:!!link.closest('.site-nav,.brand')
+      });
+      return;
+    }
+    const sort=event.target.closest('[data-sort]');
+    if(sort){
+      const next=new URL(location.href),previous=next.searchParams.get('sort')||'average',ascending=next.searchParams.get('order')==='asc';
+      next.searchParams.set('sort',sort.dataset.sort);next.searchParams.set('order',previous===sort.dataset.sort&&!ascending?'asc':'desc');next.hash='rankings';
+      updateCurrentView(next);return;
+    }
+    const row=event.target.closest('[data-href]');
+    if(row&&!event.target.closest('a,button')&&!window.getSelection().toString())location.assign(row.dataset.href);
+  });
+  document.addEventListener('change',event=>{
+    const select=event.target.closest('[data-query],#model-select');
+    if(!select)return;
+    const next=new URL(location.href),key=select.dataset.query||'model';
+    if(select.value)next.searchParams.set(key,select.value);else next.searchParams.delete(key);
+    if(select.dataset.anchor)next.hash=select.dataset.anchor;
+    updateCurrentView(next);
+  });
+  window.addEventListener('popstate',()=>updateCurrentView(new URL(location.href),{replace:false}));
+  window.addEventListener('scroll',updateSectionIndicator,{passive:true});
+  updateSectionIndicator();
+  if(location.hash&&performance.getEntriesByType('navigation')[0]?.type!=='back_forward')requestAnimationFrame(()=>scrollToAnchor(location.hash));
 }
 
 document.querySelector('.menu-button').addEventListener('click',event=>{
@@ -298,7 +368,6 @@ try {
     const old=results.models.find(m=>m.name===params.get('model')||m.id===params.get('model'));
     if(old){location.replace(modelUrl(old,{mode:params.get('metric')==='dynamic'?'dynamic':'static'}));}
   }
-  const renderers={index:homePage,leaderboard:leaderboardPage,tasks:tasksPage,model:modelPage,perturbation:perturbationPage,task:taskPage,findings:findingsPage,docs:docsPage,eval:evalPage};
   app.innerHTML=(renderers[page]||homePage)();bindInteractions();bindHomeMotion();
 } catch(error) {
   console.error(error);

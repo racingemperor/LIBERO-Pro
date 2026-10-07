@@ -13,6 +13,16 @@ node scripts/verify-data.mjs
 
 Open http://127.0.0.1:8765/. No frontend dependencies or build step are required.
 
+For browser navigation regression checks, open http://127.0.0.1:8765/scripts/navigation-test.html (or add `?width=375` for the narrow layout). The checks exercise the real pages and verify document identity, history length, scroll, filters, deep links and the document directory.
+
+## Navigation behavior
+
+Selections within a page (model perturbations, static/dynamic settings, domains, model filters and sorting) update in place. The URL is replaced with the current selection so it remains shareable without adding a browser Back stop for each click. Back returns to the previous page; Forward restores the final selection. Cross-page links, downloads and opening links in new tabs keep native browser behavior.
+
+The shared updater in `assets/navigation.js` keeps unchanged DOM elements, controls and scroll containers. Document selection updates the reading panel and preserves the expanded directory; a new document starts at the top of its content. Section anchors also replace the current URL instead of filling navigation history.
+
+Leaderboard headings use one row of domain names. Static/dynamic perturbation IDs and their domain assignments are documented in **Document → Paper taxonomy** (`docs.html#taxonomy`).
+
 ## Structure
 
 - `assets/app.js`, `assets/site.css`: shared rendering, navigation, tables, charts and task galleries.
