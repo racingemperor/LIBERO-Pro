@@ -5,11 +5,12 @@ export function homeShowcase(catalogue) {
     const p = catalogue.perturbations.find(item => item.id === id);
     return `<a class="hero-example" href="docs.html?perturbation=${id}"><img src="${p.image}" alt="${escape(p.name)} — paper mechanism illustration" width="1760" height="510"><span>${id} · ${escape(p.name)}</span></a>`;
   };
+  const collageIds = ['S01','S10','S15','D01','D04','D18'];
+  const collage = `<figure class="showcase-collage" aria-label="Selected LIBERO-Pro perturbation examples"><div class="collage-canvas">${collageIds.map(id=>{const p=catalogue.perturbations.find(item=>item.id===id);return `<div class="collage-card"><img src="${p.image}" alt="${escape(p.id+' '+p.name)}" width="1760" height="510"></div>`;}).join('')}<div class="collage-tint" aria-hidden="true"></div><figcaption><span>LIBERO-Pro</span><small>Static shifts · Runtime interventions</small></figcaption></div></figure>`;
   return `<section class="home-showcase" aria-label="Benchmark highlights" aria-roledescription="carousel">
     <div class="showcase-stage">
       <article class="showcase-slide is-active" role="group" aria-roledescription="slide" aria-label="1 of 3: LIBERO-Pro">
-        <div class="showcase-copy"><h1>LIBERO-Pro</h1><p class="showcase-subtitle">A Benchmark for Evaluating Robust Embodied Intelligence</p><p>Static distribution shifts. Runtime interventions. The same task goal.</p><a class="button" href="#benchmark">Explore the benchmark <span aria-hidden="true">↗</span></a></div>
-        <figure class="showcase-overview"><img src="assets/paper/overview.webp" width="2000" height="1125" alt="LIBERO-Pro: 22 static and 20 dynamic perturbations across six domains"><figcaption>42 perturbations · 6 domains · 8 evaluation tasks</figcaption></figure>
+        ${collage}<div class="showcase-copy"><h1>LIBERO-Pro</h1><p class="showcase-subtitle">A Benchmark for Evaluating Robust Embodied Intelligence</p><p>Static distribution shifts. Runtime interventions. The same task goal.</p><a class="button" href="#benchmark">Explore the benchmark <span aria-hidden="true">↗</span></a></div>
       </article>
       <article class="showcase-slide" role="group" aria-roledescription="slide" aria-label="2 of 3: Static shifts" aria-hidden="true" inert>
         <div class="showcase-copy"><span class="mode static">22 static perturbations</span><h2>Before the<br>first action.</h2><p class="showcase-subtitle">Generalization under changed conditions</p><p>Layouts, appearance, sensing and robot configuration change at reset.</p><a class="button secondary" href="tasks.html?mode=static">Explore static shifts <span aria-hidden="true">↗</span></a></div>

@@ -19,9 +19,29 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
 .showcase-copy .showcase-subtitle{font-size:23px;line-height:1.35;color:var(--ink);letter-spacing:-.025em;margin:18px 0}
 .showcase-copy>p:not(.showcase-subtitle){font-size:15px;line-height:1.7}
 .showcase-copy .button{margin-top:24px}
-.showcase-overview{background:white;padding:16px;border-radius:10px}
-.showcase-overview img{width:100%;display:block}
-.showcase-overview figcaption{font-size:12px;color:var(--muted);text-align:center;margin:14px 0 0}
+.showcase-slide:first-child{position:relative;display:block;padding:0;min-height:500px;overflow:hidden;background:#1d3445}
+.showcase-slide:first-child .showcase-collage{position:absolute;inset:0;margin:0}
+.showcase-slide:first-child .showcase-copy{position:relative;z-index:5;display:flex;flex-direction:column;justify-content:center;min-height:500px;max-width:590px;padding:64px 46px;color:white;text-shadow:0 2px 9px rgba(4,19,30,.28)}
+.showcase-slide:first-child .showcase-copy .showcase-subtitle,.showcase-slide:first-child .showcase-copy>p:not(.showcase-subtitle){color:white}
+.showcase-slide:first-child .showcase-copy .button{align-self:flex-start;background:white;border-color:white;color:#19364a;text-shadow:none}
+.showcase-slide:first-child .showcase-copy .button:hover{background:#eaf1f5;color:#19364a}
+.showcase-collage{position:relative;min-height:380px;margin:0}
+.collage-canvas{position:absolute;inset:0;overflow:hidden;background:#dfe8ec}
+.collage-card{position:absolute;overflow:hidden;background:#f6f8f9;border:5px solid rgba(255,255,255,.92);box-shadow:0 12px 28px rgba(12,33,49,.22);transform:rotate(var(--rotation,0deg));}
+.collage-card img{display:block;width:100%;height:100%;object-fit:cover}
+.collage-card:nth-child(1){inset:4% 48% 56% 2%;--rotation:-4deg}
+.collage-card:nth-child(2){inset:2% 2% 60% 51%;--rotation:3deg}
+.collage-card:nth-child(3){inset:43% 52% 5% 4%;--rotation:2deg}
+.collage-card:nth-child(4){inset:39% 3% 10% 53%;--rotation:-3deg}
+.collage-card:nth-child(5){inset:21% 27% 34% 28%;z-index:2;--rotation:-1deg}
+.collage-card:nth-child(6){inset:62% 29% 1% 30%;z-index:3;--rotation:2deg}
+.collage-tint{position:absolute;inset:0;z-index:4;background:linear-gradient(90deg,rgba(13,32,48,.94) 0%,rgba(18,57,76,.7) 27%,rgba(32,112,131,.17) 59%,rgba(227,132,75,.16) 100%),linear-gradient(180deg,rgba(9,36,53,.06),rgba(9,36,53,.37));pointer-events:none}
+.collage-canvas figcaption{position:absolute;right:31px;bottom:24px;z-index:4;display:flex;flex-direction:column;align-items:flex-end;color:white;text-shadow:0 2px 10px rgba(0,0,0,.35)}
+.collage-canvas figcaption span{font-size:18px;font-weight:700;letter-spacing:-.02em}
+.collage-canvas figcaption small{font-size:11px;margin-top:4px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.8)}
+.paper-overview figure{margin:0;max-width:1080px}
+.paper-overview figure img{display:block;width:100%;height:auto;background:white;border:1px solid var(--line);border-radius:10px}
+.paper-overview .caption{max-width:780px}
 .showcase-examples{display:grid;gap:12px;max-width:550px;justify-self:end;width:100%}
 .hero-example{display:block;background:white;border-radius:7px;padding:7px 10px}
 .hero-example img{display:block;width:100%;height:84px;object-fit:contain}
@@ -105,6 +125,9 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
   .home-showcase{margin-top:24px}
   .showcase-stage{border-radius:15px}
   .showcase-slide{grid-template-columns:1fr;padding:26px 20px;gap:25px;align-content:start;min-height:0}
+  .showcase-slide:first-child{min-height:570px}
+  .showcase-slide:first-child .showcase-copy{min-height:570px;padding:38px 21px 45px;justify-content:flex-start;max-width:none;background:linear-gradient(90deg,rgba(10,31,46,.62),rgba(10,31,46,.16) 82%,transparent)}
+  .showcase-slide:first-child .showcase-copy h1{margin-top:13px}
   .showcase-copy h1{font-size:43px}
   .showcase-copy h2{font-size:38px;margin-top:10px}
   .showcase-copy .showcase-subtitle{font-size:20px;margin:12px 0}
@@ -113,8 +136,18 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
   .showcase-examples{max-width:none;gap:9px}
   .hero-example img{height:65px}
   .hero-example>span{font-size:10px}
-  .showcase-overview{padding:9px}
-  .showcase-overview figcaption{font-size:10px}
+  .showcase-collage{min-height:570px}
+  .collage-card{border-width:3px}
+  .collage-card:nth-child(1){inset:5% 43% 62% 1%}
+  .collage-card:nth-child(2){inset:3% 1% 66% 47%}
+  .collage-card:nth-child(3){inset:39% 47% 15% 2%}
+  .collage-card:nth-child(4){inset:35% 1% 18% 49%}
+  .collage-card:nth-child(5){inset:22% 24% 40% 25%}
+  .collage-card:nth-child(6){inset:61% 24% 2% 26%}
+  .collage-canvas figcaption{right:14px;bottom:14px}
+  .collage-canvas figcaption span{font-size:14px}
+  .collage-canvas figcaption small{font-size:9px}
+  .collage-tint{background:linear-gradient(90deg,rgba(9,30,46,.96) 0%,rgba(14,52,70,.76) 48%,rgba(24,98,113,.25) 100%),linear-gradient(180deg,rgba(9,36,53,.12),rgba(9,36,53,.46))}
   .showcase-controls{gap:2px}
   .slide-dots button{width:29px}
   .slide-count{margin:0 7px}
