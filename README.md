@@ -23,6 +23,8 @@ The shared updater in `assets/navigation.js` keeps unchanged DOM elements, contr
 
 Leaderboard headings use one row of domain names. Static/dynamic perturbation IDs and their domain assignments are documented in **Document → Paper taxonomy** (`docs.html#taxonomy`).
 
+Home exploration links open the complete Document with section anchors, retaining all eight task designs and 42 perturbation documents. `#taxonomy` lists all six domains, `#domain-CONDITION_ID` targets a domain row, and `#static-perturbations` / `#dynamic-perturbations` target the full 22/20-item indexes. Home's overview figure and taxonomy diagram share the navigation bar's center line; the six domain descriptions flank the diagram in two equal columns on desktop.
+
 ## Structure
 
 - `assets/app.js`, `assets/site.css`: shared rendering, navigation, tables, charts and task galleries.
