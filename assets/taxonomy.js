@@ -10,45 +10,44 @@ const arc = (inner, outer, start, end) => {
 
 export function taxonomyFigure(catalogue) {
   const total = catalogue.perturbations.length;
-  const entries = new Map(catalogue.perturbations.map(p => [p.id,p]));
-  let angle = -90, slot = 0;
-  // Keep Condition in the upper left, matching the paper and flanking descriptions.
-  const sectors = [...catalogue.categories].reverse().map(category => {
-    const ids = [...category.static,...category.dynamic];
-    const start = angle, end = angle += ids.length / total * 360, middle = (start+end)/2;
-    const [dx,dy] = point(20,middle);
-    const countAt = point(147,middle);
-    return `<g class="taxonomy-domain" data-ring-domain="${category.id}" style="--domain:var(--${category.id});--lift-x:${dx}px;--lift-y:${dy-9}px">
-      <path class="taxonomy-hit" d="${arc(115,274,start,end)}" aria-hidden="true"/>
-      <g class="taxonomy-lift">
-        <g class="taxonomy-sector" role="button" tabindex="0" aria-pressed="false" aria-label="Preview ${category.name}, ${ids.length} perturbations" data-domain-preview="${category.id}">
-          <path d="${arc(115,177,start+.6,end-.6)}"/>
-          <text x="${countAt[0]}" y="${countAt[1]}" aria-hidden="true">${ids.length}</text>
-        </g>
-        ${ids.map((id,i) => {
-          const p=entries.get(id),a=start+i/total*360,b=start+(i+1)/total*360;
-          const label=point(232,(a+b)/2),compact=point(slot++%2===0?218:252,(a+b)/2);
-          const [x,y]=point(6,(a+b)/2);
-          return `<a class="taxonomy-task ${p.mode}" href="docs.html?perturbation=${id}" data-ring-task="${id}" aria-label="${escape(id+' '+p.name+' — '+category.name+', '+p.mode)}" style="--task-x:${x}px;--task-y:${y-2}px">
-            <path d="${arc(182,272,a+.22,b-.22)}"/>
-            <text class="taxonomy-id" x="${label[0]}" y="${label[1]}" aria-hidden="true">${id}</text>
-            <text class="taxonomy-id-compact" x="${compact[0]}" y="${compact[1]}" aria-hidden="true">${id}</text>
-          </a>`;
-        }).join('')}
+  const domains = new Map(catalogue.categories.map(c => [c.id,c]));
+  // Public IDs define the circle's order; category membership only controls highlighting.
+  const ordered = ['static','dynamic'].flatMap(mode => catalogue.perturbations
+    .filter(p => p.mode===mode).sort((a,b) => Number(a.id.slice(1))-Number(b.id.slice(1))));
+  let modeStart=-90;
+  const modeSectors=['static','dynamic'].map(mode=>{
+    const count=ordered.filter(p=>p.mode===mode).length,end=modeStart+count/total*360;
+    const label=point(145,(modeStart+end)/2);
+    const markup=`<a class="taxonomy-mode ${mode}" data-ring-mode="${mode}" href="docs.html#${mode}-perturbations" aria-label="${mode==='static'?'Static':'Dynamic'}: ${count} perturbations">
+      <path d="${arc(111,178,modeStart+.6,end-.6)}"/>
+      <text x="${label[0]}" y="${label[1]-10}" aria-hidden="true">${mode==='static'?'Static':'Dynamic'}</text>
+      <text class="taxonomy-mode-count" x="${label[0]}" y="${label[1]+13}" aria-hidden="true">${count}</text>
+    </a>`;
+    modeStart=end;return markup;
+  }).join('');
+  const sectors = ordered.map((p,i) => {
+    const start=-90+i/total*360,end=-90+(i+1)/total*360,middle=(start+end)/2;
+    const label=point(232,middle),compact=point(i%2===0?218:252,middle);
+    const [dx,dy]=point(16,middle);
+    return `<a class="taxonomy-task ${p.mode}" href="docs.html?perturbation=${p.id}" data-ring-task="${p.id}" data-ring-domain="${p.category}" aria-label="${escape(p.id+' '+p.name+' — '+domains.get(p.category).name+', '+p.mode)}" style="--domain:var(--${p.category});--lift-x:${dx}px;--lift-y:${dy-5}px">
+      <path class="taxonomy-hit" d="${arc(182,274,start,end)}" aria-hidden="true"/>
+      <g class="taxonomy-lift" aria-hidden="true">
+        <path class="taxonomy-face" d="${arc(182,272,start+.18,end-.18)}"/>
+        <text class="taxonomy-id" x="${label[0]}" y="${label[1]}">${p.id}</text>
+        <text class="taxonomy-id-compact" x="${compact[0]}" y="${compact[1]}">${p.id}</text>
       </g>
-    </g>`;
+    </a>`;
   }).join('');
   return `<figure class="home-taxonomy" aria-label="Interactive perturbation taxonomy">
     <div class="taxonomy-stage">
       <svg class="taxonomy-ring" viewBox="-310 -310 620 620" role="group" aria-labelledby="taxonomy-title taxonomy-description">
-        <title id="taxonomy-title">42 perturbations across six domains</title>
-        <desc id="taxonomy-description">Preview a domain with its inner sector or a side description. Each horizontal S or D code links to its full design. Sector size represents the number of perturbations.</desc>
-        ${sectors}
+        <title id="taxonomy-title">42 perturbations in public ID order</title>
+        <desc id="taxonomy-description">The inner ring has two parts: 22 static and 20 dynamic perturbations. The outer ring runs clockwise from the top: S01 through S22, then D01 through D20. Each code links to its full design. Side descriptions highlight matching codes without changing their order.</desc>
+        ${modeSectors}${sectors}
       </svg>
       <div class="taxonomy-center" aria-hidden="true"><strong data-taxonomy-value>42</strong><span data-taxonomy-name>Perturbations</span><small data-taxonomy-meta>22 static · 20 dynamic</small></div>
     </div>
-    <figcaption class="caption">Hover or tap a sector. Select a code to read its design.</figcaption>
-    <p class="sr-only" data-taxonomy-status role="status"></p>
+    <figcaption class="caption">S01–S22, then D01–D20 · clockwise. Select a code to read its design.</figcaption>
   </figure>`;
 }
 
@@ -57,28 +56,28 @@ export function bindTaxonomy(catalogue) {
   if(!root)return;
   const domains=new Map(catalogue.categories.map(c=>[c.id,c]));
   const entries=new Map(catalogue.perturbations.map(p=>[p.id,p]));
-  const groups=[...root.querySelectorAll('.taxonomy-domain')];
+  const links=[...root.querySelectorAll('[data-ring-task]')];
   const cards=[...root.querySelectorAll('.home-domain')];
-  const buttons=[...root.querySelectorAll('[data-domain-preview]')];
+  const modes=[...root.querySelectorAll('[data-ring-mode]')];
   const value=root.querySelector('[data-taxonomy-value]');
   const name=root.querySelector('[data-taxonomy-name]');
   const meta=root.querySelector('[data-taxonomy-meta]');
-  let hovered=null,focused=null,pinned=null;
+  let hovered=null,focused=null;
   const selection=target=>{
     if(!(target instanceof Element))return null;
-    const source=target.closest('[data-ring-domain],[data-home-domain]');
-    return source?{domain:source.dataset.ringDomain||source.dataset.homeDomain,task:target.closest('[data-ring-task]')?.dataset.ringTask}:null;
+    const source=target.closest('[data-ring-domain],[data-home-domain],[data-ring-mode]');
+    return source?{domain:source.dataset.ringDomain||source.dataset.homeDomain,task:target.closest('[data-ring-task]')?.dataset.ringTask,mode:source.dataset.ringMode}:null;
   };
   const render=()=>{
-    const active=hovered||focused||pinned,c=domains.get(active?.domain),p=entries.get(active?.task);
+    const active=hovered||focused,c=domains.get(active?.domain),p=entries.get(active?.task),mode=active?.mode;
+    const modeCount=mode?catalogue.perturbations.filter(p=>p.mode===mode).length:0;
     root.classList.toggle('has-active-domain',!!c);
-    groups.forEach(group=>group.classList.toggle('is-active',group.dataset.ringDomain===c?.id));
+    links.forEach(link=>link.classList.toggle('is-active',p?link.dataset.ringTask===p.id:c?link.dataset.ringDomain===c.id:!!mode&&link.classList.contains(mode)));
     cards.forEach(card=>card.classList.toggle('is-active',card.dataset.homeDomain===c?.id));
-    buttons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.domainPreview===pinned?.domain)));
-    root.querySelectorAll('[data-ring-task]').forEach(link=>link.classList.toggle('is-current',link.dataset.ringTask===p?.id));
-    value.textContent=p?p.id:c?c.static.length+c.dynamic.length:catalogue.perturbations.length;
-    name.textContent=p?p.name:c?c.name:'Perturbations';
-    meta.textContent=p?`${p.mode==='static'?'Static':'Dynamic'} · ${c.name}`:c?`${c.static.length} static · ${c.dynamic.length} dynamic`:'22 static · 20 dynamic';
+    modes.forEach(link=>link.classList.toggle('is-active',link.dataset.ringMode===(p?.mode||mode)));
+    value.textContent=p?p.id:c?c.static.length+c.dynamic.length:mode?modeCount:catalogue.perturbations.length;
+    name.textContent=p?p.name:c?c.name:mode?mode==='static'?'Static shifts':'Dynamic interventions':'Perturbations';
+    meta.textContent=p?`${p.mode==='static'?'Static':'Dynamic'} · ${c.name}`:c?`${c.static.length} static · ${c.dynamic.length} dynamic`:mode?mode==='static'?'S01–S22':'D01–D20':'22 static · 20 dynamic';
   };
   root.addEventListener('pointerover',event=>{
     if(event.pointerType==='touch')return;
@@ -89,19 +88,7 @@ export function bindTaxonomy(catalogue) {
   root.addEventListener('pointerleave',()=>{hovered=null;render();});
   root.addEventListener('focusin',event=>{focused=selection(event.target);hovered=null;render();});
   root.addEventListener('focusout',event=>{focused=selection(event.relatedTarget);render();});
-  const preview=button=>{
-    const id=button.dataset.domainPreview;
-    pinned=pinned?.domain===id?null:{domain:id};
-    hovered=null;focused=null;render();
-    root.querySelector('[data-taxonomy-status]').textContent=pinned?`${domains.get(id).name}: ${domains.get(id).static.length} static and ${domains.get(id).dynamic.length} dynamic perturbations.`:'All 42 perturbations.';
-  };
-  root.addEventListener('click',event=>{
-    const button=event.target.closest('[data-domain-preview]')||event.target.closest('.taxonomy-hit')?.parentElement.querySelector('[data-domain-preview]');
-    if(button)preview(button);
-  });
   root.addEventListener('keydown',event=>{
-    const button=event.target.closest('[data-domain-preview]');
-    if(button&&['Enter',' '].includes(event.key)){event.preventDefault();preview(button);}
-    if(event.key==='Escape'){hovered=null;focused=null;pinned=null;render();}
+    if(event.key==='Escape'){hovered=null;focused=null;render();}
   });
 }

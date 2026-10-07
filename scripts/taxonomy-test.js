@@ -14,32 +14,42 @@ const pointer=(selector,type='pointerover',pointerType='mouse')=>q(selector).dis
 const key=(selector,key)=>q(selector).dispatchEvent(new (win().KeyboardEvent)('keydown',{bubbles:true,key}));
 const click=selector=>q(selector).dispatchEvent(new (win().MouseEvent)('click',{bubbles:true,button:0}));
 const reset=()=>{doc().activeElement?.blur();key('.home-domains','Escape');};
+const expectedOrder=[...Array.from({length:22},(_,i)=>`S${String(i+1).padStart(2,'0')}`),...Array.from({length:20},(_,i)=>`D${String(i+1).padStart(2,'0')}`)];
+const codeOrder=()=>all('[data-ring-task]').map(link=>link.dataset.ringTask);
 let initialDocument,initialHistory;
 const tests=[
-  ['All 42 horizontal codes match the six published domain groups',async()=>{
+  ['The continuous ring runs clockwise S01–S22, then D01–D20, with horizontal labels',async()=>{
     await waitFor(()=>q('[data-ring-task="S01"]'));
     initialDocument=doc();initialHistory=win().history.length;
     const catalogue=await fetch('../data/catalogue.json').then(r=>r.json());
-    assert(all('[data-ring-task]').length===42,'Missing or duplicate perturbations');
+    assert(JSON.stringify(codeOrder())===JSON.stringify(expectedOrder),'Public ID order changed');
+    assert(!q('.taxonomy-domain,.taxonomy-sector,[data-domain-preview]'),'Grouped category sectors remain');
     for(const category of catalogue.categories){
-      const group=q(`[data-ring-domain="${category.id}"]`);
-      const actual=[...group.querySelectorAll('[data-ring-task]')].map(a=>a.dataset.ringTask).sort();
+      const actual=all(`[data-ring-domain="${category.id}"]`).map(a=>a.dataset.ringTask).sort();
       assert(JSON.stringify(actual)===JSON.stringify([...category.static,...category.dynamic].sort()),`Incorrect ${category.id} membership`);
     }
+    let lastAngle=-1;
     for(const label of all('.taxonomy-task text').filter(el=>win().getComputedStyle(el).display!=='none')){
       const matrix=label.getCTM();assert(Math.abs(matrix.b)<.001&&Math.abs(matrix.c)<.001,'A code is rotated');
+      const angle=(Math.atan2(Number(label.getAttribute('y')),Number(label.getAttribute('x')))*180/Math.PI+450)%360;
+      assert(angle>lastAngle,'Visual clockwise order differs from public ID order');lastAngle=angle;
     }
   }],
-  ['Each side description lifts the matching sector without navigation or layout shift',async()=>{
+  ['Domain previews lift matching codes without grouping, reordering or navigation',async()=>{
     const bounds=q('.taxonomy-ring').getBoundingClientRect();
     for(const card of all('.home-domain')){
       const id=card.dataset.homeDomain;
       pointer(`[data-home-domain="${id}"]`);
-      await waitFor(()=>q('.taxonomy-domain.is-active')?.dataset.ringDomain===id);
+      const matching=all(`[data-ring-domain="${id}"]`);
+      await waitFor(()=>matching.every(link=>link.classList.contains('is-active')));
       if(!win().matchMedia('(prefers-reduced-motion: reduce)').matches){
-        await waitFor(()=>Math.abs(new (win().DOMMatrix)(win().getComputedStyle(q(`[data-ring-domain="${id}"] .taxonomy-lift`)).transform).e)>1);
+        await waitFor(()=>{
+          const matrix=new (win().DOMMatrix)(win().getComputedStyle(matching[0].querySelector('.taxonomy-lift')).transform);
+          return Math.hypot(matrix.e,matrix.f)>5;
+        });
       }
-      assert(all('.taxonomy-domain.is-active').length===1,'More than one domain lifted');
+      assert(all('.taxonomy-task.is-active').length===matching.length,'Unrelated codes lifted');
+      assert(JSON.stringify(codeOrder())===JSON.stringify(expectedOrder),'Preview reordered the codes');
       assert(q('.taxonomy-ring').getBoundingClientRect().width===bounds.width,'Chart layout changed');
     }
     assert(doc()===initialDocument&&win().history.length===initialHistory,'Hover navigated or added history');
@@ -49,26 +59,35 @@ const tests=[
     pointer('[data-ring-task="D13"]');
     assert(q('[data-taxonomy-value]').textContent==='D13','Wrong hovered code');
     assert(q('[data-taxonomy-name]').textContent==='Arm–gripper desynchronization','Missing full name');
-    pointer('[data-ring-domain="observation"] .taxonomy-hit');
-    assert(q('.taxonomy-domain.is-active')?.dataset.ringDomain==='observation','Selection flickered at original hit area');
+    assert(all('.taxonomy-task.is-active').length===1,'Individual hover lifts unrelated codes');
+    pointer('[data-ring-task="D13"] .taxonomy-hit');
+    assert(q('.taxonomy-task.is-active')?.dataset.ringTask==='D13','Selection flickered at original hit area');
     pointer('.home-domains','pointerleave');
-    assert(!q('.taxonomy-domain.is-active'),'Hover did not reset after leaving');
-    click('[data-ring-domain="observation"] .taxonomy-hit');
-    assert(q('[data-domain-preview="observation"]').getAttribute('aria-pressed')==='true','Original hit area could not pin a raised sector');
+    assert(!q('.taxonomy-task.is-active'),'Hover did not reset after leaving');
     reset();
   }],
-  ['Keyboard and touch can pin, switch and clear a domain preview',async()=>{
-    q('[data-domain-preview="condition"]').focus();key('[data-domain-preview="condition"]','Enter');
-    pointer('.home-domains','pointerleave');
-    assert(q('[data-domain-preview="condition"]').getAttribute('aria-pressed')==='true','Enter did not pin');
-    pointer('[data-domain-preview="robot"]','pointerover','touch');click('[data-domain-preview="robot"]');
-    assert(q('.taxonomy-domain.is-active')?.dataset.ringDomain==='robot','Tap did not switch domain');
-    assert(q('[data-domain-preview="condition"]').getAttribute('aria-pressed')==='false','Previous pin not cleared');
-    key('[data-domain-preview="robot"]',' ');
-    assert(!q('.taxonomy-domain.is-active'),'Space did not toggle preview off');
+  ['The inner ring has only Static 22 and Dynamic 20 aligned with the outer IDs',async()=>{
+    assert(all('[data-ring-mode]').length===2,'Inner ring does not have exactly two parts');
+    for(const [mode,count]of [['static',22],['dynamic',20]]){
+      const selector=`[data-ring-mode="${mode}"]`;
+      assert(q(selector).querySelector('.taxonomy-mode-count').textContent===String(count),'Wrong inner count');
+      assert(q(selector).getAttribute('href')===`docs.html#${mode}-perturbations`,'Wrong inner ring destination');
+      pointer(selector);
+      assert(all('.taxonomy-task.is-active').length===count,'Inner preview highlights the wrong number of codes');
+      assert(all('.taxonomy-task.is-active').every(link=>link.classList.contains(mode)),'Inner preview includes the other mode');
+      assert(JSON.stringify(codeOrder())===JSON.stringify(expectedOrder),'Inner preview changed outer order');
+    }
+    reset();
+  }],
+  ['Keyboard focus previews categories and individual codes; touch does not leave a stale hover',async()=>{
+    q('[data-home-domain="condition"]').focus();
+    assert(all('.taxonomy-task.is-active').length===14,'Keyboard category preview misses codes');
     q('[data-ring-task="S06"]').focus();
     assert(q('[data-taxonomy-name]').textContent==='Instance replacement','Keyboard focus lacks task name');
-    reset();assert(!q('.taxonomy-domain.is-active'),'Escape did not clear preview');
+    assert(all('.taxonomy-task.is-active').length===1,'Keyboard task preview lifts unrelated codes');
+    reset();assert(!q('.taxonomy-task.is-active'),'Escape did not clear preview');
+    pointer('[data-ring-task="D20"]','pointerover','touch');
+    assert(!q('.taxonomy-task.is-active'),'Touch creates a stale hover preview');
   }],
   ['Visible labels do not overlap, and the page fits the viewport',async()=>{
     await waitFor(()=>all('.taxonomy-lift').every(el=>win().getComputedStyle(el).transform==='matrix(1, 0, 0, 1, 0, 0)'));
@@ -89,15 +108,22 @@ const tests=[
     doc().head.append(style);
     try{
       pointer('[data-ring-task="S01"]');
-      for(const el of [q('[data-ring-domain="condition"] .taxonomy-lift'),q('[data-ring-task="S01"]')]){
-        const computed=win().getComputedStyle(el);
-        assert(computed.transform==='none'&&computed.transitionDuration==='0s','Reduced motion still moves the chart');
-      }
-      assert(q('.taxonomy-domain.is-active')&&q('[data-taxonomy-value]').textContent==='S01','Reduced motion removed preview content');
+      const lift=win().getComputedStyle(q('[data-ring-task="S01"] .taxonomy-lift'));
+      assert(lift.transform==='none'&&lift.transitionDuration==='0s','Reduced motion still moves the chart');
+      assert(win().getComputedStyle(q('[data-ring-task="S01"] .taxonomy-face')).transitionDuration==='0s','Reduced motion still animates color');
+      assert(q('.taxonomy-task.is-active')&&q('[data-taxonomy-value]').textContent==='S01','Reduced motion removed preview content');
     }finally{reset();style.remove();}
   }],
   ['Clicking an SVG code opens its design with all eight tasks and 42 documents available',async()=>{
-    click('[data-ring-task="S06"]');
+    for(const mode of ['static','dynamic']){
+      click(`[data-ring-mode="${mode}"]`);
+      await waitFor(()=>q(`#${mode}-perturbations`));
+      assert(win().location.hash===`#${mode}-perturbations`,'Inner ring did not locate the full index');
+      assert(all('.docs-sidebar a[href*="perturbation="]').length===42,'Mode link filtered the directory');
+      win().history.back();
+      await waitFor(()=>q('[data-ring-task="S06"]'));
+    }
+    click('[data-ring-task="S06"] .taxonomy-hit');
     await waitFor(()=>q('h1')?.textContent==='Instance replacement');
     assert(win().location.search==='?perturbation=S06','Wrong document destination');
     assert(all('.docs-sidebar a[href*="perturbation="]').length===42,'Document was filtered');
