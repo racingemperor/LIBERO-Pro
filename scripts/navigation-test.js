@@ -15,7 +15,7 @@ const doc = () => frame.contentDocument;
 const win = () => frame.contentWindow;
 const query = selector => doc().querySelector(selector);
 const load = async path => {
-  frame.src = new URL('../' + path, location.href);
+  frame.src = new URL(path, new URL('../', location.href));
   await new Promise(resolve => frame.addEventListener('load', resolve, {once:true}));
   await waitFor(() => query('#content h1') && !query('.loading'));
 };
@@ -66,8 +66,7 @@ const tests = [
     assert(query('#capabilities') === charts, 'Capability charts were replaced');
     assert(Math.abs(win().scrollY-scroll) < 2 && query('.table-scroll').scrollLeft === left, 'Page/table scroll jumped');
     assert(!query('thead small'), 'Perturbation IDs remain in the header');
-    const path = win().location.pathname + win().location.search;
-    await load(path.slice(1));
+    await load(win().location.href);
     assert(query('.tab.active').textContent.includes('Dynamic') && query('[data-query="type"]').value === 'World Action Models', 'Deep link did not restore filters');
   }],
   ['Task catalogue switches domains and settings without navigation', async () => {
