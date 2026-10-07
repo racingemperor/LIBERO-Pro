@@ -15,8 +15,14 @@ const doc = () => frame.contentDocument;
 const win = () => frame.contentWindow;
 const query = selector => doc().querySelector(selector);
 const load = async path => {
-  frame.src = new URL(path, new URL('../', location.href));
-  await new Promise(resolve => frame.addEventListener('load', resolve, {once:true}));
+  const target = new URL(path, new URL('../', location.href));
+  const loaded = new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => reject(new Error('Page load timed out')), 10000);
+    frame.addEventListener('load', () => { clearTimeout(timeout); resolve(); }, {once:true});
+  });
+  if(win().location.href === target.href)win().location.reload();
+  else frame.src = target;
+  await loaded;
   await waitFor(() => query('#content h1') && !query('.loading'));
 };
 const click = selector => {
