@@ -5,6 +5,8 @@ const {categories,perturbations}=read('catalogue');
 const {models}=read('results');
 const {tasks}=read('tasks');
 const assets=read('model-assets');
+const designs=read('task-designs').tasks;
+const people=read('people');
 const completed=read('completed-evaluations-2026-10-04');
 const sheet=read('sheet-success-rates');
 const avg=vs=>vs.length?vs.reduce((a,b)=>a+b,0)/vs.length:null;
@@ -22,6 +24,21 @@ for(const p of perturbations){
   assert(fs.existsSync(new URL('../'+p.image,import.meta.url)));
 }
 assert.deepEqual(tasks.map(t=>t.id),['libero_spatial-0','libero_spatial-8','libero_object-1','libero_object-8','libero_goal-3','libero_goal-6','libero_10-5','libero_10-8']);
+assert.deepEqual(Object.keys(designs).sort(),tasks.map(t=>t.id).sort(),'Every task needs a design document');
+for(const task of tasks){
+  assert(designs[task.id].predicates.length,'Every task needs its BASE success condition');
+  for(const id of designs[task.id].excluded){
+    assert(perturbations.some(p=>p.id===id));
+    assert(models.every(m=>!m.cases.some(c=>c.task===task.id&&c.direction===id)),`Inapplicable ${task.id}/${id} has recorded counts`);
+  }
+}
+assert(designs['libero_10-8'].predicates.includes('Turnon(flat_stove_1)'));
+for(const institution of people.affiliations){
+  assert(/^assets\/institutions\/[\w./-]+\.(svg|png|webp|jpg)$/.test(institution.logo)&&!institution.logo.includes('..'));
+  assert(fs.existsSync(new URL('../'+institution.logo,import.meta.url)),'Use actual institution image assets');
+  assert(/^https:\/\//.test(institution.source),'Preserve the official logo source');
+}
+for(const author of people.authors)for(const id of author.affiliations||[])assert(people.affiliations.some(a=>a.id===id));
 for(const m of models){
   assert(assets[m.id],`Missing model image ${m.id}`);
   assert(fs.existsSync(new URL('../assets/models/'+assets[m.id].asset,import.meta.url)));

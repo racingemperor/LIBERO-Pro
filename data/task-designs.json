@@ -1,0 +1,88 @@
+{
+  "source": "BASE instructions and goal predicates checked against LIBERO scene definitions; evaluation split and perturbation scope from the current paper, October 7, 2026.",
+  "tasks": {
+    "libero_spatial-0": {
+      "title": "Bowl between plate and ramekin",
+      "description": "Identify the black bowl between the plate and the ramekin, then transfer that bowl to the plate. The spatial relation selects the intended object.",
+      "objects": "Akita black bowl, plate, ramekin and surrounding scene objects.",
+      "focus": "Spatial reference resolution and goal-directed pick-and-place.",
+      "steps": ["Locate the bowl described by the between relation.", "Grasp and transport the selected bowl.", "Place the bowl on the plate."],
+      "success": "The target black bowl is on the plate.",
+      "predicates": ["On(akita_black_bowl_1, plate_1)"],
+      "excluded": ["S04"],
+      "exclusionReason": "Object position swap is not applicable to the Spatial evaluation tasks."
+    },
+    "libero_spatial-8": {
+      "title": "Bowl next to plate",
+      "description": "Select the black bowl next to the plate and move it onto the plate. The intended bowl must remain identifiable when scene conditions change.",
+      "objects": "Akita black bowl, plate and surrounding scene objects.",
+      "focus": "Spatial reference resolution under changes to layout and perception.",
+      "steps": ["Identify the bowl next to the plate.", "Grasp the target and move toward the receiving plate.", "Place the bowl on the plate."],
+      "success": "The target black bowl is on the plate.",
+      "predicates": ["On(akita_black_bowl_1, plate_1)"],
+      "excluded": ["S04"],
+      "exclusionReason": "Object position swap is not applicable to the Spatial evaluation tasks."
+    },
+    "libero_object-1": {
+      "title": "Cream cheese into basket",
+      "description": "Find the cream cheese among the scene objects and transfer it into the basket. Object identity determines what should be picked.",
+      "objects": "Cream cheese, basket and surrounding scene objects.",
+      "focus": "Object recognition, grasping and placement into a receiving region.",
+      "steps": ["Identify and grasp the cream cheese.", "Transport it to the basket.", "Place it inside the basket's containment region."],
+      "success": "The cream cheese is inside the basket's containment region.",
+      "predicates": ["In(cream_cheese_1, basket_1_contain_region)"],
+      "excluded": []
+    },
+    "libero_object-8": {
+      "title": "Chocolate pudding into basket",
+      "description": "Select the chocolate pudding and put it into the basket, keeping the target identity and receiving region consistent under perturbation.",
+      "objects": "Chocolate pudding, basket and surrounding scene objects.",
+      "focus": "Object selection and pick-and-place under instance and appearance changes.",
+      "steps": ["Identify and grasp the chocolate pudding.", "Transport it to the basket.", "Place it inside the basket's containment region."],
+      "success": "The chocolate pudding is inside the basket's containment region.",
+      "predicates": ["In(chocolate_pudding_1, basket_1_contain_region)"],
+      "excluded": []
+    },
+    "libero_goal-3": {
+      "title": "Bowl into top drawer",
+      "description": "Open the top drawer of the wooden cabinet and put the bowl into it. Accessing the receiver and placing the object form a dependent manipulation sequence.",
+      "objects": "Akita black bowl and wooden cabinet with a top drawer.",
+      "focus": "Articulated-object interaction followed by placement.",
+      "steps": ["Open the top drawer to make its receiving region accessible.", "Grasp and transport the bowl.", "Place the bowl inside the top drawer."],
+      "success": "The bowl is inside the cabinet's top receiving region. Drawer opening is part of the instructed sequence; the BASE goal checks bowl containment.",
+      "predicates": ["In(akita_black_bowl_1, wooden_cabinet_1_top_region)"],
+      "excluded": []
+    },
+    "libero_goal-6": {
+      "title": "Cream cheese on bowl",
+      "description": "Move the cream cheese onto the black bowl. The published BASE instruction uses the relation on, and the task goal uses the corresponding On predicate.",
+      "objects": "Cream cheese and akita black bowl.",
+      "focus": "Goal-conditioned placement and the required object-to-object relation.",
+      "steps": ["Locate the cream cheese and receiving bowl.", "Grasp and transport the cream cheese.", "Place it on the bowl so the required relation holds."],
+      "success": "The cream cheese satisfies the On relation with the black bowl.",
+      "predicates": ["On(cream_cheese_1, akita_black_bowl_1)"],
+      "excluded": []
+    },
+    "libero_10-5": {
+      "title": "Book into back compartment",
+      "description": "Pick up the black book and place it in the back compartment of the desk caddy. The receiving compartment, rather than the entire caddy, defines the destination.",
+      "objects": "Black book and compartmentalized desk caddy.",
+      "focus": "Compartment-specific placement and geometric clearance.",
+      "steps": ["Locate the book and the caddy's back compartment.", "Grasp and orient the book for the receiving compartment.", "Place the book inside the back containment region."],
+      "success": "The black book is inside the caddy's back containment region.",
+      "predicates": ["In(black_book_1, desk_caddy_1_back_contain_region)"],
+      "excluded": []
+    },
+    "libero_10-8": {
+      "title": "Both moka pots on stove",
+      "description": "Place both moka pots on the stove. The BASE success condition additionally requires the stove to be switched on, so completing only one placement is insufficient.",
+      "objects": "Two moka pots and a flat stove with a cooking region and switch.",
+      "focus": "Multi-object completion and maintaining all goal conditions.",
+      "steps": ["Identify both moka pots and the stove's cooking region.", "Move each pot onto the cooking region.", "Ensure the stove is on and both placements still satisfy the goal."],
+      "success": "Both moka pots are on the stove's cooking region and the stove is on. All three predicates must hold.",
+      "predicates": ["On(moka_pot_1, flat_stove_1_cook_region)", "On(moka_pot_2, flat_stove_1_cook_region)", "Turnon(flat_stove_1)"],
+      "excluded": ["D06"],
+      "exclusionReason": "The paper excludes distractor rearrangement for Long task 8 from the dynamic-evaluation denominator."
+    }
+  }
+}

@@ -16,12 +16,17 @@ Open http://127.0.0.1:8765/. No frontend dependencies or build step are required
 ## Structure
 
 - `assets/app.js`, `assets/site.css`: shared rendering, navigation, tables, charts and task galleries.
-- `index.html`: Home, current paper overview, taxonomy, tasks, leaderboard preview and empty News.
+- Main navigation: **Home, Document, Leaderboard, Eval**, matching RoboDojo's first four entries. The task catalogue remains accessible through Document and Home; Findings has no top-level navigation entry.
+- `index.html`, `assets/home.js`: Home slideshow, scrolling static/dynamic paper galleries, taxonomy, tasks, leaderboard preview and empty News. Slideshow and galleries have pause controls, pause on hover/focus, and start paused for reduced-motion preferences. Touch, wheel or keyboard interaction stops gallery autoplay.
 - `leaderboard.html`: separate static/dynamic charts and sortable domain success-rate tables.
 - `model.html?id=MODEL_ID`: model profile and perturbation/task results.
 - `tasks.html`, `perturbation.html?id=S01`, `task.html?id=libero_goal-3`: browsable catalogue and eight task slots per perturbation.
 - `findings.html`: analysis sections reserved for future content.
-- `docs.html`: protocol, aggregation, sources and coverage.
+- `docs.html`: grouped document directory, task design index, protocol, aggregation, sources and coverage.
+- `docs.html?task=libero_10-8`: each base task's instruction, scene, sequence, exact success predicates and media slots.
+- `docs.html?perturbation=D06`: each perturbation's mechanism, category, timing or constraint, and task/gallery links.
+- `eval.html`: evaluation setup, execution and result reporting. No online evaluation or submission service is claimed.
+- `data/task-designs.json`: eight task designs and applicability exclusions, checked against the BASE scene definitions and paper. This editorial file is separate from the generated task manifest.
 
 ## Data and reproducibility
 
@@ -50,7 +55,11 @@ Place GIF, WebP, MP4 or WebM files under `assets/rollouts/`. In `data/tasks.json
 {"media":{"openvla-oft-m":{"D01":"assets/rollouts/oft-m-goal3-D01.mp4"}}}
 ```
 
-Use only genuine evaluation media for the matching model, task and perturbation. Missing media renders as a reserved slot. S04 is not applicable to the two Spatial evaluation tasks.
+Use only genuine evaluation media for the matching model, task and perturbation. Missing media renders as a reserved slot. S04 is not applicable to the two Spatial evaluation tasks; D06 is not applicable to Long task 8. These slots show N/A rather than missing scores. The Home galleries currently animate real paper illustrations, not model rollout videos.
+
+## People and institution logos
+
+`data/people.json` is intentionally empty until the user supplies the author and affiliation list. The Home page omits the author/logo block until confirmed records exist. Author records use `name` and an `affiliations` array of institution IDs. Institution records use `id`, `name`, `logo` (a real local image under `assets/institutions/`) and `source` (the official source URL). Use official logos with clear provenance; never generate initials as a fallback. Institution order determines the displayed affiliation numbers.
 
 ## News
 
