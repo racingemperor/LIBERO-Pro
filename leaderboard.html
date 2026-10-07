@@ -100,30 +100,24 @@
             <h2 id="comparison-title">Model comparison</h2>
             <p id="leaderboard-result-summary" aria-live="polite">Loading evaluation results…</p>
           </div>
-          <button class="lb-clear" id="leaderboard-clear-filters" type="button" hidden>Clear filters</button>
         </div>
 
-        <form class="lb-toolbar" id="leaderboard-toolbar" role="search">
-          <label class="lb-control lb-search-control" for="leaderboard-search">
-            <span>Find a model</span>
-            <input id="leaderboard-search" name="model" type="search" inputmode="search" autocomplete="off" placeholder="e.g. π0.5…">
-          </label>
+        <div class="lb-toolbar" id="leaderboard-toolbar" role="group" aria-label="Leaderboard controls">
           <label class="lb-control" for="leaderboard-category-filter">
             <span>Category</span>
             <select id="leaderboard-category-filter" name="category">
               <option value="all">All categories</option>
             </select>
           </label>
-          <fieldset class="lb-metric-control">
-            <legend>Rank by</legend>
+          <div class="lb-metric-control" role="group" aria-labelledby="leaderboard-rank-label">
+            <span id="leaderboard-rank-label">Rank by</span>
             <div class="lb-metric-tabs leaderboard-sort">
               <button type="button" data-sort-key="perturbed" aria-pressed="true">Perturbed</button>
               <button type="button" data-sort-key="static" aria-pressed="false">Static</button>
               <button type="button" data-sort-key="dynamic" aria-pressed="false">Dynamic</button>
-              <button type="button" data-sort-key="base" aria-pressed="false">Base</button>
             </div>
-          </fieldset>
-        </form>
+          </div>
+        </div>
 
         <div class="lb-category-key" id="leaderboard-category-key" aria-label="Model category key"></div>
 

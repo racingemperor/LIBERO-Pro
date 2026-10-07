@@ -94,8 +94,7 @@
     url.searchParams.set('model', model);
     if (state.category !== 'all') url.searchParams.set('category', state.category);
     else url.searchParams.delete('category');
-    if (state.query) url.searchParams.set('q', state.query);
-    else url.searchParams.delete('q');
+    url.searchParams.delete('q');
     url.hash = 'leaderboard-model-detail';
     return url.toString();
   }
@@ -182,12 +181,7 @@
   }
 
   function getVisibleEntries(data, state) {
-    const query = state.query.trim().toLocaleLowerCase();
-    return data.entries.filter((entry) => {
-      const matchesCategory = state.category === 'all' || entry.category === state.category;
-      const searchable = `${entry.model} ${entry.category}`.toLocaleLowerCase();
-      return matchesCategory && (!query || searchable.includes(query));
-    });
+    return data.entries.filter((entry) => state.category === 'all' || entry.category === state.category);
   }
 
   function renderResultSummary(data, entries, metric) {
@@ -212,7 +206,7 @@
     chart.setAttribute('aria-busy', 'false');
     chart.replaceChildren();
     if (!entries.length) {
-      chart.appendChild(createElement('p', 'lb-state lb-empty-state', 'No matching models. Change the search or category filter.'));
+      chart.appendChild(createElement('p', 'lb-state lb-empty-state', 'No matching models. Change the category filter.'));
       return;
     }
     sortedEntries(entries, state.metric).forEach((entry, index) => {
@@ -465,17 +459,13 @@
       populateCategories(data);
       renderCategoryKey(data);
       renderMetadata(data);
-      const state = { metric: data.methodology.primaryMetric, selectedModel: '', category: 'all', query: '' };
-      const search = document.getElementById('leaderboard-search');
+      const state = { metric: data.methodology.primaryMetric, selectedModel: '', category: 'all' };
       const category = document.getElementById('leaderboard-category-filter');
-      const clear = document.getElementById('leaderboard-clear-filters');
-      const toolbar = document.getElementById('leaderboard-toolbar');
 
       function readUrlState() {
         const params = new URLSearchParams(window.location.search);
         const metric = params.get('metric');
         state.metric = Object.hasOwn(METRICS, metric) ? metric : data.methodology.primaryMetric;
-        state.query = params.get('q') || '';
         state.category = params.get('category') || 'all';
         state.selectedModel = params.get('model') || '';
         const categories = new Set(data.entries.map((entry) => entry.category));
@@ -493,8 +483,7 @@
         else url.searchParams.delete('model');
         if (state.category !== 'all') url.searchParams.set('category', state.category);
         else url.searchParams.delete('category');
-        if (state.query) url.searchParams.set('q', state.query);
-        else url.searchParams.delete('q');
+        url.searchParams.delete('q');
         window.history[mode === 'push' ? 'pushState' : 'replaceState']({}, '', url);
       }
 
@@ -505,9 +494,7 @@
           button.classList.toggle('is-active', active);
           button.setAttribute('aria-pressed', String(active));
         });
-        if (search && search.value !== state.query) search.value = state.query;
         if (category) category.value = state.category;
-        if (clear) clear.hidden = state.category === 'all' && !state.query;
       }
 
       function renderAll(historyMode) {
@@ -524,7 +511,6 @@
 
       function selectModel(model, revealDetail, clearFilters) {
         if (clearFilters) {
-          state.query = '';
           state.category = 'all';
         }
         const changed = state.selectedModel !== model;
@@ -542,15 +528,7 @@
       readUrlState();
       renderAll('replace');
       document.dispatchEvent(new Event('leaderboard:ready'));
-      toolbar?.addEventListener('submit', (event) => event.preventDefault());
-      search?.addEventListener('input', () => { state.query = search.value; renderAll('replace'); });
       category?.addEventListener('change', () => { state.category = category.value; renderAll('push'); });
-      clear?.addEventListener('click', () => {
-        state.query = '';
-        state.category = 'all';
-        renderAll('push');
-        search?.focus();
-      });
       document.querySelectorAll('[data-sort-key]').forEach((button) => button.addEventListener('click', () => selectMetric(button.dataset.sortKey)));
       document.querySelectorAll('[data-table-sort]').forEach((button) => button.addEventListener('click', () => selectMetric(button.dataset.tableSort)));
       window.addEventListener('popstate', () => { readUrlState(); renderAll(''); });

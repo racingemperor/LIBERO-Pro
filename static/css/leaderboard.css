@@ -360,28 +360,12 @@
   line-height: 1.5;
 }
 
-.lb-clear {
-  min-height: 36px;
-  padding: 6px 0;
-  color: #163f98;
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid currentColor;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
 .lb-toolbar {
-  margin: 0;
-  padding: 16px;
-  display: grid;
-  grid-template-columns: minmax(220px, 1fr) 210px minmax(410px, 1.25fr);
-  gap: 18px;
-  align-items: end;
-  background: #e8edf1;
-  border: 1px solid var(--lb-rule);
-  border-bottom: 0;
+  margin: 0 0 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  align-items: center;
 }
 
 .lb-category-key {
@@ -393,7 +377,7 @@
   gap: 7px;
   background: #f6f8f9;
   border: 1px solid var(--lb-rule);
-  border-top: 0;
+  border-bottom: 0;
 }
 
 .lb-category-key-label {
@@ -480,81 +464,69 @@
 .lb-metric-control {
   min-width: 0;
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .lb-control > span,
-.lb-metric-control legend {
-  margin: 0 0 6px;
-  padding: 0;
-  display: block;
-  color: #46525e;
+.lb-metric-control > span {
+  flex-shrink: 0;
+  color: var(--lb-muted);
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.2;
 }
 
-.lb-control input,
 .lb-control select {
-  width: 100%;
-  height: 44px;
-  padding: 0 11px;
+  width: 184px;
+  height: 36px;
+  padding: 0 8px;
   color: var(--lb-ink);
   background: var(--lb-surface);
-  border: 1px solid var(--lb-rule-strong);
+  border: 1px solid var(--lb-rule);
   border-radius: 2px;
+  font-size: 0.8125rem;
   outline: 0;
 }
 
-.lb-control input::placeholder {
-  color: #7b858e;
-}
-
-.lb-control input:focus-visible,
 .lb-control select:focus-visible {
-  border-color: var(--lb-primary);
-  box-shadow: 0 0 0 3px rgba(36, 87, 197, 0.17);
+  outline: 2px solid var(--lb-robust);
+  outline-offset: 2px;
 }
 
 .lb-metric-tabs {
   min-width: 0;
-  height: 44px;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(78px, 1fr));
-  background: var(--lb-surface);
-  border: 1px solid var(--lb-rule-strong);
-  border-radius: 2px;
+  display: flex;
+  gap: 8px;
 }
 
 .lb-metric-tabs button {
   min-width: 0;
+  min-height: 36px;
   padding: 0 10px;
-  color: #43505d;
+  color: var(--lb-muted);
   background: transparent;
   border: 0;
-  border-right: 1px solid var(--lb-rule);
-  font-size: 0.78rem;
+  border-bottom: 2px solid transparent;
+  font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
   transition: color 150ms ease, background-color 150ms ease;
 }
 
-.lb-metric-tabs button:last-child {
-  border-right: 0;
-}
-
 .lb-metric-tabs button:hover:not(.is-active) {
   color: var(--lb-ink);
-  background: #f3f5f6;
+  background: var(--lb-tint);
 }
 
 .lb-metric-tabs button.is-active {
-  color: #ffffff;
-  background: var(--lb-metric);
+  color: var(--lb-ink);
+  border-bottom-color: var(--lb-metric);
   font-weight: 600;
 }
 
 .lb-metric-tabs button:focus-visible,
-.lb-clear:focus-visible,
 .lb-chart-row:focus-visible,
 .lb-model-button:focus-visible,
 .lb-profile:focus-visible,
@@ -1456,14 +1428,6 @@
     gap: 36px;
   }
 
-  .lb-toolbar {
-    grid-template-columns: minmax(220px, 1fr) 210px;
-  }
-
-  .lb-metric-control {
-    grid-column: 1 / -1;
-  }
-
   .lb-workbench {
     grid-template-columns: 1fr;
   }
@@ -1521,13 +1485,9 @@
     gap: 18px;
   }
 
-  .lb-toolbar {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-
-  .lb-metric-control {
-    grid-column: auto;
+  .lb-control select,
+  .lb-metric-tabs button {
+    min-height: 44px;
   }
 
   .lb-ranking,
@@ -1595,21 +1555,22 @@
     width: 100%;
   }
 
-  .lb-metric-tabs {
-    height: auto;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .lb-control,
+  .lb-metric-control {
+    width: 100%;
+  }
+
+  .lb-control > span,
+  .lb-metric-control > span {
+    width: 54px;
+  }
+
+  .lb-control select {
+    flex: 1;
   }
 
   .lb-metric-tabs button {
-    min-height: 44px;
-  }
-
-  .lb-metric-tabs button:nth-child(2) {
-    border-right: 0;
-  }
-
-  .lb-metric-tabs button:nth-child(n + 3) {
-    border-top: 1px solid var(--lb-rule);
+    padding: 0 8px;
   }
 
   .lb-axis {
@@ -1715,7 +1676,6 @@
   }
 
   .lb-toolbar,
-  .lb-clear,
   .lb-profile-nav {
     display: none !important;
   }
