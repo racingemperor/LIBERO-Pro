@@ -1,4 +1,5 @@
 import {homeShowcase, homeGallery, bindHomeMotion} from './home.js';
+import {taxonomyFigure, bindTaxonomy} from './taxonomy.js';
 import {updateView, isLocalViewLink} from './navigation.js';
 
 const app = document.querySelector('#app');
@@ -41,14 +42,14 @@ function baseTaskList() {
 }
 
 function homePage() {
-  const domainLink=c=>`<a class="home-domain" href="docs.html#domain-${c.id}" ${domainStyle(c)}><h3 class="domain-name">${c.name}</h3><p>${esc(c.description)}</p><span>${c.static.length} static / ${c.dynamic.length} dynamic <span aria-hidden="true">↗</span></span></a>`;
+  const domainLink=c=>`<a class="home-domain" data-home-domain="${c.id}" href="docs.html#domain-${c.id}" ${domainStyle(c)}><h3 class="domain-name">${c.name}</h3><p>${esc(c.description)}</p><span>${c.static.length} static / ${c.dynamic.length} dynamic <span aria-hidden="true">↗</span></span></a>`;
   return `<main id="content">
     ${homeShowcase(catalogue)}
     <section class="paper-intro" id="overview"><h2>LIBERO-Pro: A Benchmark for Evaluating<br>Robust Embodied Intelligence</h2>${peopleSection()}<div class="paper-links"><a href="docs.html">Document ↗</a><a href="leaderboard.html">Leaderboard ↗</a><a href="eval.html">Evaluation protocol ↗</a></div></section>
     ${newsSection()}
     <section class="section" id="benchmark">${sectionHead('About the benchmark')}<p class="intro">LIBERO-Pro evaluates how robot policies respond when task conditions change. Static shifts are introduced at reset; dynamic shifts occur during execution. Both preserve the original task goal and the feasibility of completing it.</p><div class="mode-guide" style="margin-top:30px"><div>${pill('static')}<h3>Generalization before execution</h3><p>22 perturbations change object layouts, scene appearance, sensors, robot configuration, timing or language at initialization.</p></div><div>${pill('dynamic')}<h3>Adaptation during execution</h3><p>20 interventions are triggered at task-relevant moments, including approach, grasp, transport and placement.</p></div></div></section>
     <section class="section paper-overview home-centered" id="paper-overview">${sectionHead('Benchmark overview')}<figure><a href="assets/paper/overview.webp" target="_blank" rel="noopener" aria-label="Open the full LIBERO-Pro overview figure"><img src="assets/paper/overview.webp" width="2000" height="1125" loading="lazy" alt="LIBERO-Pro overview showing 22 static and 20 dynamic perturbations across six domains"></a><figcaption class="caption">LIBERO-Pro evaluates robustness across 22 static shifts and 20 runtime interventions in six perturbation domains.</figcaption></figure></section>
-    <section class="section home-centered" id="domains">${sectionHead('Perturbation domains')}<p class="home-section-intro">Six domains organize the benchmark. Each perturbation has a mechanism illustration and a gallery for the eight evaluation tasks.</p><div class="home-domains"><div class="home-domain-column home-domain-left">${catalogue.categories.slice(0,3).map(domainLink).join('')}</div><figure class="home-taxonomy"><a href="assets/paper/taxonomy.webp" target="_blank" rel="noopener" aria-label="Open the full perturbation taxonomy figure"><img src="assets/paper/taxonomy.webp" alt="Paper taxonomy diagram showing the distribution of 42 perturbation types across six domains" width="1200" height="1200" loading="lazy"></a><figcaption class="caption">Perturbation taxonomy from the current paper.</figcaption></figure><div class="home-domain-column home-domain-right">${catalogue.categories.slice(3).map(domainLink).join('')}</div></div><a class="text-link home-domains-explore" href="docs.html#taxonomy">Explore all 42 perturbations ↗</a></section>
+    <section class="section home-centered" id="domains">${sectionHead('Perturbation domains')}<p class="home-section-intro">Six domains organize the benchmark. Each perturbation has a mechanism illustration and a gallery for the eight evaluation tasks.</p><div class="home-domains"><div class="home-domain-column home-domain-left">${catalogue.categories.slice(0,3).map(domainLink).join('')}</div>${taxonomyFigure(catalogue)}<div class="home-domain-column home-domain-right">${catalogue.categories.slice(3).map(domainLink).join('')}</div></div><a class="text-link home-domains-explore" href="docs.html#taxonomy">Explore all 42 perturbations ↗</a></section>
     ${homeGallery(catalogue,'static')}${homeGallery(catalogue,'dynamic')}
     <section class="section" id="evaluation-tasks">${sectionHead('Evaluation tasks','<a class="text-link" href="docs.html#task-designs">Read task designs ↗</a>')}<p style="margin-bottom:15px">Eight held-out tasks, with two tasks from each LIBERO suite. Open a task to read its instruction, scene design and success conditions.</p>${documentTaskList()}</section>
     <section class="section" id="leaderboard">${sectionHead('Leaderboard','<a class="text-link" href="leaderboard.html">Full leaderboard ↗</a>')}<p class="caption" style="margin:0 0 24px">Top five models in each setting · success rate (%) · all 42 published perturbations</p><div class="chart-grid">${chart('static',5)}${chart('dynamic',5)}</div></section>
@@ -378,7 +379,7 @@ try {
     const old=results.models.find(m=>m.name===params.get('model')||m.id===params.get('model'));
     if(old){location.replace(modelUrl(old,{mode:params.get('metric')==='dynamic'?'dynamic':'static'}));}
   }
-  app.innerHTML=(renderers[page]||homePage)();bindInteractions();bindHomeMotion();
+  app.innerHTML=(renderers[page]||homePage)();bindInteractions();bindHomeMotion();bindTaxonomy(catalogue);
 } catch(error) {
   console.error(error);
   app.innerHTML='<main id="content"><div class="error"><h1>Results could not be loaded</h1><p>Please reload the page or open the public data files.</p><a class="text-link" href="data/results.json">View result data ↗</a></div></main>';

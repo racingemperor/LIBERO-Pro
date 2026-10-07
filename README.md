@@ -25,6 +25,10 @@ Leaderboard headings use one row of domain names. Static/dynamic perturbation ID
 
 Home exploration links open the complete Document with section anchors, retaining all eight task designs and 42 perturbation documents. `#taxonomy` lists all six domains, `#domain-CONDITION_ID` targets a domain row, and `#static-perturbations` / `#dynamic-perturbations` target the full 22/20-item indexes. Home's overview figure and taxonomy diagram share the navigation bar's center line; the six domain descriptions flank the diagram in two equal columns on desktop.
 
+The Home taxonomy is an interactive SVG generated from `data/catalogue.json` by `assets/taxonomy.js`. Hovering or focusing a domain lifts its entire sector and all of its perturbations. Codes stay horizontal; hovering or focusing one displays its full name in the center, and clicking it opens the complete Document at that design. Inner sectors also support tap, Enter and Space to pin a preview; Escape clears it. Fixed hit areas prevent animation from losing the pointer. Compact screens stagger horizontal labels across two radii, and reduced-motion preferences replace displacement with a static highlight. The original paper figure is retained as an asset.
+
+Open `scripts/taxonomy-test.html` for chart interaction checks, including taxonomy membership, keyboard/touch selection, horizontal label overlap, and full Document navigation. Add `?width=375` to check the compact layout.
+
 ## Structure
 
 - `assets/app.js`, `assets/site.css`: shared rendering, navigation, tables, charts and task galleries.
