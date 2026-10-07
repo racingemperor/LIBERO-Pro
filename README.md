@@ -2,7 +2,7 @@
 
 Experimental deployment: https://racingemperor.github.io/demo/
 
-A standalone static site for the current LIBERO-Pro benchmark. The frontend is rebuilt around the paper's six-domain taxonomy, 22 static shifts, 20 dynamic interventions and eight held-out tasks. No LIBERO-Pro 1.0 pages, scripts or media are used.
+A standalone static site for the current LIBERO-Pro benchmark. The frontend is rebuilt around the paper's six-domain taxonomy, 22 static shifts, 20 dynamic interventions and eight held-out tasks. The Home introduction summarizes the original LIBERO-Pro study's motivation; its pages, scripts, media and numerical results are not reused.
 
 ## Run locally
 
@@ -34,6 +34,7 @@ Open `scripts/taxonomy-test.html` for chart interaction checks, including exact 
 - `assets/app.js`, `assets/site.css`: shared rendering, navigation, tables, charts and task galleries.
 - Main navigation: **Home, Document, Leaderboard, Eval**, matching RoboDojo's first four entries. The task catalogue remains accessible through Document and Home; Findings has no top-level navigation entry.
 - `index.html`, `assets/home.js`: Home slideshow, scrolling static/dynamic paper galleries, taxonomy, tasks, leaderboard preview and empty News. Slideshow and galleries have pause controls, pause on hover/focus, and start paused for reduced-motion preferences. Touch, wheel or keyboard interaction stops gallery autoplay.
+- Home sections fade in and rise slightly on their first entry into the viewport. Native scrolling is preserved. Keyboard focus reveals its containing section immediately; reduced-motion preferences, unsupported observation and printing leave content visible.
 - `leaderboard.html`: separate static/dynamic charts and sortable domain success-rate tables.
 - `model.html?id=MODEL_ID`: model profile and perturbation/task results.
 - `tasks.html`, `perturbation.html?id=S01`, `task.html?id=libero_goal-3`: browsable catalogue and eight task slots per perturbation.
@@ -75,7 +76,13 @@ Use only genuine evaluation media for the matching model, task and perturbation.
 
 ## People and institution logos
 
-`data/people.json` is intentionally empty until the user supplies the author and affiliation list. The Home page omits the author/logo block until confirmed records exist. Author records use `name` and an `affiliations` array of institution IDs. Institution records use `id`, `name`, `logo` (a real local image under `assets/institutions/`) and `source` (the official source URL). Use official logos with clear provenance; never generate initials as a fallback. Institution order determines the displayed affiliation numbers.
+`data/people.json` is intentionally empty until the user supplies the author and affiliation list. Home always shows the Authors and Affiliations rows, with blank space until confirmed records exist. Author records use `name` and an `affiliations` array of institution IDs. Institution records use `id`, `name`, `logo` (a real local image under `assets/institutions/`) and `source` (the official source URL). Use official logos with clear provenance; never generate initials as a fallback. Institution order determines the displayed affiliation numbers.
+
+## Publication details and citation
+
+`data/publication.json` supplies `published` (display text), `report.label` and `report.url` (HTTPS), `email`, and `bibtex` (the exact confirmed citation as a string). These values are currently empty. Home reserves blank Published, Report and Email rows alongside the existing repository and leaderboard links. The final Citation section reserves a code block and disables Copy until BibTeX is supplied; no old author list, date or citation is substituted. Once populated, Copy writes the displayed citation and announces success, with manual-copy guidance if the clipboard is unavailable.
+
+The two-paragraph Home introduction summarizes the memorization/generalization concern from the original upstream website's Abstract, then describes the current 22-static / 20-dynamic protocol. The original study's numerical results are not presented as results of this benchmark.
 
 ## News
 

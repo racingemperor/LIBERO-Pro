@@ -1,4 +1,4 @@
-import {homeShowcase, homeGallery, bindHomeMotion} from './home.js';
+import {homeShowcase, homeGallery, bindHomeMotion, bindHomePresentation} from './home.js';
 import {taxonomyFigure, bindTaxonomy} from './taxonomy.js';
 import {updateView, isLocalViewLink} from './navigation.js';
 
@@ -12,7 +12,7 @@ const mean = values => { const valid = values.filter(Number.isFinite); return va
 const modeLabel = mode => mode === 'dynamic' ? 'Dynamic' : 'Static';
 const typeClass = type => type === 'World Action Models' ? 'wam' : type === 'Robustness-oriented' ? 'robust' : 'vla';
 const typeLabel = type => type === 'World Action Models' ? 'World Action' : type === 'Robustness-oriented' ? 'Robustness' : 'VLA';
-let catalogue, results, tasks, assets, news, designs, people;
+let catalogue, results, tasks, assets, news, designs, people, publication;
 const url = (file, values={}, hash='') => `${file}.html${Object.keys(values).length ? `?${new URLSearchParams(Object.entries(values).filter(([,v])=>v !== null && v !== undefined))}` : ''}${hash ? '#'+hash : ''}`;
 const modelUrl = (m, extra={}, hash='') => url('model',{id:m.id,...extra},hash);
 const directionUrl = (p, m=null) => m ? modelUrl(m,{perturbation:p.id,mode:p.mode,category:p.category},'rollouts') : url('perturbation',{id:p.id});
@@ -45,23 +45,33 @@ function homePage() {
   const domainLink=c=>`<a class="home-domain" data-home-domain="${c.id}" href="docs.html#domain-${c.id}" ${domainStyle(c)}><h3 class="domain-name">${c.name}</h3><p>${esc(c.description)}</p><span>${c.static.length} static / ${c.dynamic.length} dynamic <span aria-hidden="true">↗</span></span></a>`;
   return `<main id="content">
     ${homeShowcase(catalogue)}
-    <section class="paper-intro" id="overview"><h2>LIBERO-Pro: A Benchmark for Evaluating<br>Robust Embodied Intelligence</h2>${peopleSection()}<div class="paper-links"><a href="docs.html">Document ↗</a><a href="leaderboard.html">Leaderboard ↗</a><a href="eval.html">Evaluation protocol ↗</a></div></section>
+    <section class="paper-intro" id="overview"><h2>LIBERO-Pro: A Benchmark for Evaluating<br>Robust Embodied Intelligence</h2>${peopleSection()}</section>
     ${newsSection()}
-    <section class="section" id="benchmark">${sectionHead('About the benchmark')}<p class="intro">LIBERO-Pro evaluates how robot policies respond when task conditions change. Static shifts are introduced at reset; dynamic shifts occur during execution. Both preserve the original task goal and the feasibility of completing it.</p><div class="mode-guide" style="margin-top:30px"><div>${pill('static')}<h3>Generalization before execution</h3><p>22 perturbations change object layouts, scene appearance, sensors, robot configuration, timing or language at initialization.</p></div><div>${pill('dynamic')}<h3>Adaptation during execution</h3><p>20 interventions are triggered at task-relevant moments, including approach, grasp, transport and placement.</p></div></div></section>
+    <section class="section home-centered" id="benchmark">${sectionHead('Beyond familiar scenes')}<div class="home-summary"><p>High success rates on LIBERO do not always reveal how a policy will behave when familiar conditions change. The original LIBERO-Pro study highlighted that models can rely on memorized action sequences and scene layouts, leaving weaknesses in visual grounding and instruction understanding hidden by standard evaluation.</p><p>LIBERO-Pro evaluates robustness under 42 controlled perturbations: 22 static shifts at reset and 20 dynamic interventions during execution. Across eight tasks from four LIBERO suites, it varies conditions, environments, observations, execution, robot state and language while preserving the original task goals. This tests both generalization to changed scenes and recovery when an ongoing task is disturbed.</p></div></section>
     <section class="section paper-overview home-centered" id="paper-overview">${sectionHead('Benchmark overview')}<figure><a href="assets/paper/overview.webp" target="_blank" rel="noopener" aria-label="Open the full LIBERO-Pro overview figure"><img src="assets/paper/overview.webp" width="2000" height="1125" loading="lazy" alt="LIBERO-Pro overview showing 22 static and 20 dynamic perturbations across six domains"></a><figcaption class="caption">LIBERO-Pro evaluates robustness across 22 static shifts and 20 runtime interventions in six perturbation domains.</figcaption></figure></section>
     <section class="section home-centered" id="domains">${sectionHead('Perturbation domains')}<p class="home-section-intro">Six domains organize the benchmark. Each perturbation has a mechanism illustration and a gallery for the eight evaluation tasks.</p><div class="home-domains"><div class="home-domain-column home-domain-left">${catalogue.categories.slice(0,3).map(domainLink).join('')}</div>${taxonomyFigure(catalogue)}<div class="home-domain-column home-domain-right">${catalogue.categories.slice(3).map(domainLink).join('')}</div></div><a class="text-link home-domains-explore" href="docs.html#taxonomy">Explore all 42 perturbations ↗</a></section>
     ${homeGallery(catalogue,'static')}${homeGallery(catalogue,'dynamic')}
     <section class="section" id="evaluation-tasks">${sectionHead('Evaluation tasks','<a class="text-link" href="docs.html#task-designs">Read task designs ↗</a>')}<p style="margin-bottom:15px">Eight held-out tasks, with two tasks from each LIBERO suite. Open a task to read its instruction, scene design and success conditions.</p>${documentTaskList()}</section>
     <section class="section" id="leaderboard">${sectionHead('Leaderboard','<a class="text-link" href="leaderboard.html">Full leaderboard ↗</a>')}<p class="caption" style="margin:0 0 24px">Top five models in each setting · success rate (%) · all 42 published perturbations</p><div class="chart-grid">${chart('static',5)}${chart('dynamic',5)}</div></section>
     <section class="section" id="resources">${sectionHead('Resources')}<div class="mode-guide"><div><h3>Evaluation protocol</h3><p style="margin:10px 0">Understand the task split, success-rate aggregation and public perturbation numbering.</p><a class="text-link" href="docs.html#protocol">Read the protocol ↗</a></div><div><h3>Results and examples</h3><p style="margin:10px 0">Browse model results and inspect task-level counts where available. Rollout media will be added to the reserved galleries.</p><a class="text-link" href="leaderboard.html">Browse results ↗</a></div></div></section>
+    ${citationSection()}
   </main>`;
 }
 
 function peopleSection() {
-  // Publish only confirmed people and affiliations with actual image assets.
+  // Keep the metadata layout visible while unconfirmed values remain empty.
   const institutions=people.affiliations.filter(a=>/^assets\/institutions\/[\w./-]+\.(svg|png|webp|jpg)$/.test(a.logo||'')&&!a.logo.includes('..'));
-  if(!people.authors.length&&!institutions.length)return '';
-  return `<div class="paper-people">${people.authors.length?`<p class="authors">${people.authors.map(a=>`${esc(a.name)}${a.affiliations?.length?`<sup>${a.affiliations.map(id=>institutions.findIndex(i=>i.id===id)+1).filter(Boolean).join(', ')}</sup>`:''}`).join(', ')}</p>`:''}<div class="institution-logos">${institutions.map((a,i)=>`<figure><img src="${esc(a.logo)}" alt="${esc(a.name)}" loading="lazy"><figcaption><sup>${i+1}</sup> ${esc(a.name)}</figcaption></figure>`).join('')}</div></div>`;
+  const row=(label,content,kind='')=>`<div class="paper-meta-row ${kind}"><dt>${label}</dt><dd${content?'':' class="paper-meta-empty"'}>${content||'<span class="sr-only">To be announced</span>'}</dd></div>`;
+  const authors=people.authors.length?`<p class="authors">${people.authors.map(a=>`${esc(a.name)}${a.affiliations?.length?`<sup>${a.affiliations.map(id=>institutions.findIndex(i=>i.id===id)+1).filter(Boolean).join(', ')}</sup>`:''}`).join(', ')}</p>`:'';
+  const affiliations=institutions.length?`<div class="institution-logos">${institutions.map((a,i)=>`<figure><img src="${esc(a.logo)}" alt="${esc(a.name)}" loading="lazy"><figcaption><sup>${i+1}</sup> ${esc(a.name)}</figcaption></figure>`).join('')}</div>`:'';
+  const report=/^https:\/\//.test(publication.report?.url||'')?`<a href="${esc(publication.report.url)}" target="_blank" rel="noopener">${esc(publication.report.label||'Read the paper')} ↗</a>`:'';
+  const email=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(publication.email||'')?`<a href="mailto:${esc(publication.email)}">${esc(publication.email)}</a>`:'';
+  return `<dl class="paper-meta" aria-label="Paper information">${row('Authors',authors,'paper-meta-authors')}${row('Affiliations',affiliations,'paper-meta-affiliations')}${row('Published',esc(publication.published))}${row('Report',report)}${row('Repository','<a href="https://github.com/racingemperor/demo" target="_blank" rel="noopener">racingemperor/demo ↗</a>')}${row('Leaderboard','<a href="leaderboard.html">View leaderboard ↗</a>')}${row('Email',email,'paper-meta-contact')}</dl>`;
+}
+
+function citationSection() {
+  const bibtex=publication.bibtex?.trim()||'';
+  return `<section class="section citation-section" id="citation">${sectionHead('Citation')}<div class="citation-card"><div class="citation-header"><h3>LIBERO-Pro</h3><button class="citation-copy" data-copy-citation aria-label="Copy BibTeX"${bibtex?'':' disabled'}>Copy</button></div><pre class="citation-code"${bibtex?' tabindex="0" aria-label="BibTeX citation"':' aria-label="Citation reserved for the forthcoming paper"'}><code>${esc(bibtex)}</code></pre></div>${bibtex?'':'<p class="caption">Citation details will be added with the paper.</p>'}<p class="sr-only" data-copy-status role="status"></p></section>`;
 }
 
 function rankedModels(mode, category='all', sort='average', ascending=false) {
@@ -371,7 +381,7 @@ const navPage=page==='model'?'leaderboard':['task','perturbation','tasks'].inclu
 document.querySelector(`.site-nav a[href="${navPage}.html"]`)?.setAttribute('aria-current','page');
 
 try {
-  [catalogue,results,{tasks},assets,news,designs,people]=await Promise.all(['catalogue','results','tasks','model-assets','news','task-designs','people'].map(async name=>{
+  [catalogue,results,{tasks},assets,news,designs,people,publication]=await Promise.all(['catalogue','results','tasks','model-assets','news','task-designs','people','publication'].map(async name=>{
     const response=await fetch(`data/${name}.json`);if(!response.ok)throw new Error(`Unable to load ${name}`);return response.json();
   }));
   // Accept the previous public model deep link while the new profile route settles.
@@ -379,7 +389,7 @@ try {
     const old=results.models.find(m=>m.name===params.get('model')||m.id===params.get('model'));
     if(old){location.replace(modelUrl(old,{mode:params.get('metric')==='dynamic'?'dynamic':'static'}));}
   }
-  app.innerHTML=(renderers[page]||homePage)();bindInteractions();bindHomeMotion();bindTaxonomy(catalogue);
+  app.innerHTML=(renderers[page]||homePage)();bindInteractions();bindHomeMotion();bindHomePresentation();bindTaxonomy(catalogue);
 } catch(error) {
   console.error(error);
   app.innerHTML='<main id="content"><div class="error"><h1>Results could not be loaded</h1><p>Please reload the page or open the public data files.</p><a class="text-link" href="data/results.json">View result data ↗</a></div></main>';

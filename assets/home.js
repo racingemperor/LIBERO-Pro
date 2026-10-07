@@ -31,6 +31,47 @@ export function homeGallery(catalogue, mode) {
   return `<section class="section gallery-section" id="${mode}-gallery"><div class="section-head"><div><h2>${mode==='static'?'Static shifts':'Dynamic interventions'}</h2><p class="caption">${entries.length} paper mechanism illustrations · open any example for its design and task gallery</p></div><button class="motion-control" data-gallery-toggle="${mode}" aria-pressed="false">Pause gallery</button></div><div class="gallery-viewport" data-gallery="${mode}" tabindex="0" role="region" aria-label="${mode} perturbation examples, horizontally scrollable"><div class="gallery-track">${entries.map(p=>`<a class="gallery-item" href="docs.html?perturbation=${p.id}"><img src="${p.image}" width="1760" height="510" alt="${escape(p.name)} mechanism" loading="lazy"><span><small>${p.id}</small>${escape(p.name)}<span aria-hidden="true">↗</span></span></a>`).join('')}</div></div><a class="text-link gallery-all" href="docs.html#${mode}-perturbations">View all ${entries.length} ${mode} perturbations ↗</a></section>`;
 }
 
+export function bindHomePresentation() {
+  if (!document.querySelector('.home-showcase')) return;
+  const copy = document.querySelector('[data-copy-citation]');
+  copy?.addEventListener('click', async () => {
+    const text = document.querySelector('.citation-code code')?.textContent.trim();
+    if (!text) return;
+    const status = document.querySelector('[data-copy-status]');
+    try {
+      await navigator.clipboard.writeText(text);
+      copy.textContent = 'Copied';
+      status.textContent = 'Citation copied to clipboard.';
+      setTimeout(() => { copy.textContent = 'Copy'; status.textContent = ''; }, 2500);
+    } catch {
+      status.classList.remove('sr-only');
+      status.classList.add('caption');
+      status.textContent = 'Select the citation text and copy it manually.';
+    }
+  });
+
+  const preference = matchMedia('(prefers-reduced-motion: reduce)');
+  // Content remains visible if motion is disabled or observation is unavailable.
+  if (preference.matches || !('IntersectionObserver' in window)) return;
+  const blocks = [...document.querySelectorAll('#content > .section, .paper-intro > h2, .paper-meta')];
+  const reveal = block => { block.classList.add('is-revealed'); observer.unobserve(block); };
+  const observer = new IntersectionObserver(entries => {
+    for (const entry of entries) if (entry.isIntersecting) reveal(entry.target);
+  }, {rootMargin: '0px 0px -40px 0px', threshold: 0});
+  for (const block of blocks) {
+    block.classList.add('home-reveal');
+    observer.observe(block);
+  }
+  // Keyboard focus must never land on transparent content.
+  document.querySelector('#content').addEventListener('focusin', event => {
+    const block = event.target.closest('.home-reveal');
+    if (block) reveal(block);
+  });
+  preference.addEventListener('change', event => {
+    if (event.matches) { blocks.forEach(reveal); observer.disconnect(); }
+  });
+}
+
 export function bindHomeMotion() {
   const root = document.querySelector('.home-showcase');
   if (!root) return;

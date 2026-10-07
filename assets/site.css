@@ -113,16 +113,41 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
 .slide-count{font-size:12px;color:var(--muted);margin:0 10px;min-width:30px;font-variant-numeric:tabular-nums}
 .motion-control{font-size:12px;min-height:44px;padding:6px 10px;color:var(--muted);text-decoration:underline;text-underline-offset:4px;white-space:nowrap}
 .motion-control:hover{color:var(--blue)}
-.paper-intro{max-width:930px;margin:42px auto 30px;text-align:center}
+.paper-intro{max-width:1080px;margin:52px auto 30px;text-align:center}
 .paper-intro h2{font-size:30px;line-height:1.35;letter-spacing:-.03em}
-.paper-links{display:flex;gap:25px;justify-content:center;flex-wrap:wrap;margin-top:20px;font-size:14px;color:var(--blue)}
-.paper-people{margin-top:25px}
+.paper-meta{margin:38px 0 0;text-align:left}
+.paper-meta-row{display:grid;grid-template-columns:145px minmax(0,1fr);gap:28px;align-items:baseline;padding:9px 0;min-height:48px}
+.paper-meta dt{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.085em;color:var(--muted);padding-top:5px}
+.paper-meta dd{margin:0;min-width:0;font-size:17px;line-height:1.8;overflow-wrap:anywhere}
+.paper-meta dd>a{display:inline-block;color:var(--blue);padding:4px 0;min-height:40px}
+.paper-meta dd>a:hover{text-decoration:underline;text-underline-offset:4px}
+.paper-meta-empty{min-height:32px;border-bottom:1px solid var(--line)}
+.paper-meta-authors .paper-meta-empty{min-height:58px}
+.paper-meta-affiliations .paper-meta-empty{min-height:68px}
+.paper-meta-contact{border-top:1px solid var(--line);margin-top:14px;padding-top:20px}
 .authors{font-size:16px;line-height:2;color:var(--ink)}
 .authors sup{color:var(--muted);font-size:10px;margin:0 4px}
-.institution-logos{display:flex;justify-content:center;align-items:center;gap:24px;flex-wrap:wrap;margin-top:25px}
+.institution-logos{display:flex;align-items:center;gap:20px 24px;flex-wrap:wrap;padding:8px 0}
 .institution-logos figure{width:150px}
 .institution-logos img{height:55px;width:145px;object-fit:contain}
 .institution-logos figcaption{font-size:11px;color:var(--muted);margin-top:8px}
+.home-summary{max-width:900px;margin:0 auto;font-size:18px;line-height:1.85}
+.home-summary p+p{margin-top:22px}
+.citation-section{max-width:1080px;margin:0 auto;border-bottom:0}
+.citation-card{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.citation-header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:14px 22px;background:white}
+.citation-header h3{font-size:17px;letter-spacing:-.015em}
+.citation-copy{font-size:13px;min-width:70px;min-height:44px;padding:7px 14px;border:1px solid var(--line);border-radius:5px}
+.citation-copy:hover:enabled{border-color:var(--blue);color:var(--blue)}
+.citation-copy:disabled{color:var(--muted);background:var(--wash)}
+.citation-code{margin:0;padding:22px;background:var(--wash);border-top:1px solid var(--line);overflow:auto;min-height:160px;font:13px/1.75 Consolas,monospace;tab-size:2}
+.citation-code code{font:inherit}
+@media(prefers-reduced-motion:no-preference){
+  .home-reveal{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s cubic-bezier(.2,.7,.2,1)}
+  .home-reveal.is-revealed{opacity:1;transform:none}
+  .home-reveal:focus-within{opacity:1;transform:none;transition:none}
+}
+@media print{.home-reveal{opacity:1!important;transform:none!important;transition:none!important}}
 .gallery-section .section-head{align-items:center}
 .gallery-section .section-head .caption{margin-top:15px;max-width:680px}
 .gallery-viewport{max-width:100%;overflow-x:auto;scrollbar-width:thin;padding-bottom:14px;overscroll-behavior-x:contain}
@@ -217,7 +242,17 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
   .motion-control{font-size:11px;padding:6px}
   .paper-intro{margin-top:30px}
   .paper-intro h2{font-size:24px}
-  .paper-links{gap:12px 20px;font-size:13px}
+  .paper-meta{margin-top:26px}
+  .paper-meta-row{grid-template-columns:100px minmax(0,1fr);gap:14px;padding:8px 0}
+  .paper-meta dt{font-size:10px;letter-spacing:.055em}
+  .paper-meta dd{font-size:14px}
+  .paper-meta dd>a{min-height:44px}
+  .paper-meta-contact{padding-top:18px}
+  .institution-logos{gap:18px}
+  .institution-logos figure{max-width:100%}
+  .home-summary{font-size:16px;line-height:1.8}
+  .citation-header{padding:12px 16px}
+  .citation-code{padding:16px;font-size:12px;min-height:140px}
   .gallery-section .section-head{gap:5px}
   .gallery-item{width:290px}
   .gallery-item>span{font-size:12px}
