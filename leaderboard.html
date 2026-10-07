@@ -1,222 +1,25 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#e9eff5">
-  <title>Leaderboard | LIBERO-PRO</title>
-  <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
-  <link rel="stylesheet" href="static/css/bulma.min.css">
-  <link rel="stylesheet" href="static/css/index.css">
-  <link rel="stylesheet" href="static/css/benchmark.css">
-  <link rel="stylesheet" href="static/css/leaderboard.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script defer src="static/js/site-nav.js"></script>
-  <script defer src="static/js/leaderboard.js"></script>
-  <script defer src="static/js/leaderboard-nav.js"></script>
+  <meta name="description" content="LIBERO-Pro: robot-policy robustness across 22 static and 20 dynamic perturbations. Explore success rates, models, and eight held-out tasks.">
+  <meta name="theme-color" content="#2457c5">
+  <title>Leaderboard · LIBERO-Pro</title>
+  <link rel="stylesheet" href="assets/site.css">
+  <script type="module" src="assets/app.js"></script>
 </head>
-<body>
-  <a class="lb-skip-link" href="#leaderboard-main">Skip to leaderboard content</a>
+<body data-page="leaderboard">
+  <a class="skip" href="#content">Skip to content</a>
   <header class="site-header">
-    <nav class="site-nav container is-max-widescreen" aria-label="Primary navigation">
-      <a class="site-brand" href="index.html" aria-label="LIBERO-PRO overview">LIBERO-PRO</a>
-      <button class="site-menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" title="Open navigation">
-        <span></span><span></span><span></span>
-      </button>
-      <div class="site-menu" id="site-menu">
-        <a class="site-nav-link" href="index.html">Overview</a>
-        <a class="site-nav-link" href="findings.html">Findings</a>
-        <a class="site-nav-link" href="tasks.html">Tasks</a>
-        <a class="site-nav-link is-active" href="leaderboard.html" aria-current="page">Leaderboard</a>
-        <a class="site-nav-link" href="docs.html">Docs</a>
-      </div>
+    <a class="brand" href="index.html" aria-label="LIBERO-Pro home">LIBERO<span>-Pro</span></a>
+    <button class="menu-button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+    <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+      <a href="index.html">Home</a><a href="tasks.html">Tasks</a><a href="leaderboard.html">Leaderboard</a><a href="findings.html">Findings</a><a href="docs.html">Docs</a>
     </nav>
   </header>
-
-  <main class="benchmark-page leaderboard-page" id="leaderboard-main">
-    <details class="lb-toc" id="leaderboard-page-nav" open>
-      <summary>On this page</summary>
-      <nav aria-label="Leaderboard sections">
-        <a href="#leaderboard-overview" aria-current="location">Overview</a>
-        <a href="#news">News</a>
-        <a href="#model-comparison">Model comparison</a>
-        <a href="#leaderboard-model-detail">Model details</a>
-        <a href="#complete-ranking">Complete ranking</a>
-        <a href="#suite-leaders">Leaders by suite</a>
-        <a href="#aggregation">Aggregation &amp; scope</a>
-      </nav>
-    </details>
-
-    <header class="lb-masthead" id="leaderboard-overview" tabindex="-1">
-      <div class="benchmark-container lb-masthead-grid">
-        <div class="lb-intro">
-          <h1>Leaderboard</h1>
-          <p>Model robustness across 41 available static and dynamic perturbation directions in four LIBERO suites. Research-question results, S22, and combination suites are excluded.</p>
-          <div class="lb-source-line">
-            <span>Snapshot <time id="leaderboard-updated">—</time></span>
-            <a id="leaderboard-source-link" href="https://docs.google.com/spreadsheets/d/1Lfu3m6Dmh2nj3JeC9hBio1beL1yAJ6GTqXX7jFNuHaE/edit?gid=893535827#gid=893535827" target="_blank" rel="noopener noreferrer">Source sheet</a>
-            <a id="leaderboard-counts-link" href="data/completed-evaluations-2026-10-04.json" target="_blank" rel="noopener noreferrer">Completed evaluation counts</a>
-          </div>
-        </div>
-        <dl class="lb-scope" aria-label="Benchmark scope">
-          <div>
-            <dt>Models</dt>
-            <dd id="leaderboard-model-count">—</dd>
-          </div>
-          <div>
-            <dt>Suites</dt>
-            <dd id="leaderboard-suite-count">—</dd>
-          </div>
-          <div>
-            <dt>Perturbations</dt>
-            <dd id="leaderboard-direction-count">—</dd>
-          </div>
-          <div>
-            <dt>Scores / model</dt>
-            <dd id="leaderboard-cell-count">—</dd>
-          </div>
-        </dl>
-      </div>
-    </header>
-
-    <section class="lb-section lb-news-section" id="news" tabindex="-1" aria-labelledby="leaderboard-news-title">
-      <div class="benchmark-container">
-        <div class="lb-section-head lb-news-head">
-          <div>
-            <h2 id="leaderboard-news-title">News</h2>
-          </div>
-          <span class="lb-news-status" id="leaderboard-news-status" hidden></span>
-        </div>
-        <ol class="lb-news-list" id="leaderboard-news-list" aria-live="polite" aria-busy="true" hidden></ol>
-      </div>
-    </section>
-
-    <section class="lb-section" id="model-comparison" tabindex="-1" aria-labelledby="comparison-title">
-      <div class="benchmark-container">
-        <div class="lb-section-head">
-          <div>
-            <h2 id="comparison-title">Model comparison</h2>
-            <p id="leaderboard-result-summary" aria-live="polite">Loading evaluation results…</p>
-          </div>
-        </div>
-
-        <div class="lb-toolbar" id="leaderboard-toolbar" role="group" aria-label="Leaderboard controls">
-          <label class="lb-control" for="leaderboard-category-filter">
-            <span>Category</span>
-            <select id="leaderboard-category-filter" name="category">
-              <option value="all">All categories</option>
-            </select>
-          </label>
-          <div class="lb-metric-control" role="group" aria-labelledby="leaderboard-rank-label">
-            <span id="leaderboard-rank-label">Rank by</span>
-            <div class="lb-metric-tabs leaderboard-sort">
-              <button type="button" data-sort-key="perturbed" aria-pressed="true">Perturbed</button>
-              <button type="button" data-sort-key="static" aria-pressed="false">Static</button>
-              <button type="button" data-sort-key="dynamic" aria-pressed="false">Dynamic</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="lb-category-key" id="leaderboard-category-key" aria-label="Model category key"></div>
-
-        <div class="lb-workbench">
-          <section class="lb-ranking" aria-labelledby="leaderboard-chart-title">
-            <div class="lb-panel-head">
-              <div>
-                <h3 id="leaderboard-chart-title">Perturbed success rate</h3>
-                <p id="leaderboard-chart-caption">Mean over available non-RQ perturbation scores</p>
-              </div>
-              <span class="lb-metric-name" id="leaderboard-metric-key">Perturbed SR</span>
-            </div>
-            <div class="lb-axis" aria-hidden="true">
-              <span>0</span><span>25</span><span>50</span><span>75</span><span>100%</span>
-            </div>
-            <div class="lb-chart" id="leaderboard-ranking-chart" aria-live="polite" aria-busy="true">
-              <p class="lb-state">Loading model results…</p>
-            </div>
-          </section>
-
-          <aside class="lb-profile" id="leaderboard-model-detail" tabindex="-1" aria-live="polite" aria-label="Selected model performance">
-            <p class="lb-state">Loading model profile…</p>
-          </aside>
-        </div>
-      </div>
-    </section>
-
-    <section class="lb-section lb-results" id="complete-ranking" tabindex="-1" aria-labelledby="ranking-title">
-      <div class="benchmark-container">
-        <div class="lb-section-head">
-          <div>
-            <h2 id="ranking-title">Complete ranking</h2>
-            <p>Exact values for the active result set. Select any model row to open its detailed result.</p>
-          </div>
-        </div>
-
-        <div class="benchmark-table-wrap lb-table-wrap" tabindex="0" aria-label="Scrollable model leaderboard">
-          <table class="benchmark-table lb-table">
-            <thead>
-              <tr>
-                <th class="is-sticky-rank" scope="col">Rank</th>
-                <th class="is-sticky-model" scope="col">Model</th>
-                <th scope="col">Category</th>
-                <th scope="col" data-score-heading="perturbed" aria-sort="descending"><button type="button" data-table-sort="perturbed">Perturbed SR</button></th>
-                <th scope="col" data-score-heading="base"><button type="button" data-table-sort="base">Base SR</button></th>
-                <th scope="col">Drop</th>
-                <th scope="col" data-score-heading="static"><button type="button" data-table-sort="static">Static SR</button></th>
-                <th scope="col" data-score-heading="dynamic"><button type="button" data-table-sort="dynamic">Dynamic SR</button></th>
-                <th scope="col">Goal</th>
-                <th scope="col">Object</th>
-                <th scope="col">Spatial</th>
-                <th scope="col">LIBERO-10</th>
-                <th scope="col">Coverage</th>
-              </tr>
-            </thead>
-            <tbody id="leaderboard-body">
-              <tr class="benchmark-table-empty"><td colspan="13">Loading current results…</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="lb-table-note">Rank follows the selected metric. Empty and N/A values are omitted, never converted to zero. Coverage counts applicable non-RQ score cells.</p>
-      </div>
-    </section>
-
-    <section class="lb-section" id="suite-leaders" tabindex="-1" aria-labelledby="task-leaders-title">
-      <div class="benchmark-container">
-        <div class="lb-section-head">
-          <div>
-            <h2 id="task-leaders-title">Leaders by suite</h2>
-            <p>Highest perturbed success rate within each LIBERO suite.</p>
-          </div>
-        </div>
-        <div class="lb-task-leaders" id="leaderboard-suite-leaders" aria-live="polite"></div>
-      </div>
-    </section>
-
-    <section class="lb-section lb-method-section" id="aggregation" tabindex="-1" aria-label="Aggregation and scope">
-      <div class="benchmark-container">
-        <details class="lb-method">
-          <summary>
-            <span>Aggregation and scope</span>
-            <span>How this ranking is calculated</span>
-          </summary>
-          <div class="lb-method-body">
-            <dl>
-              <div><dt>Primary metric</dt><dd>Mean perturbed success rate</dd></div>
-              <div><dt>Evaluation scope</dt><dd>4 suites × 41 available perturbation directions</dd></div>
-              <div><dt>Applicable cells</dt><dd>163 per evaluated model: 83 static + 80 dynamic</dd></div>
-              <div><dt>Excluded</dt><dd>S22, all RQ worksheets, and combination suites</dd></div>
-            </dl>
-            <div class="lb-method-copy">
-              <p>Each score cell represents one suite and one perturbation direction. Overall, mode, and suite scores are arithmetic means of the available S01–S21 and D01–D21 cells. D19 has no available results; Spatial S04 is also unavailable, leaving 83 static and 80 dynamic cells.</p>
-              <p>OpenVLA-OFT_w, OpenVLA-OFT_m, OpenVLA-OFT+, and RIPT-VLA use completed evaluations of eight tasks (two per suite), with 30 rollouts per task and case. Successes and episodes are pooled within each suite and direction before averaging cells. The linked counts also retain S22, which is excluded from this ranking. Other model scores retain the October 1 source-sheet snapshot.</p>
-              <p>Base SR is the mean of the four suite BASE scores, shown only when all are available. Robustness Drop is Base SR minus Perturbed SR. Empty and N/A values are omitted, never converted to zero.</p>
-            </div>
-          </div>
-        </details>
-      </div>
-    </section>
-  </main>
+  <div class="container" id="app"><main id="content"><p class="loading" role="status">Loading benchmark…</p></main></div>
+  <noscript><p class="noscript">Enable JavaScript to browse the interactive benchmark. <a href="data/results.json">Download the success-rate data</a>.</p></noscript>
+  <footer class="container footer"><span>LIBERO-Pro · Robust embodied intelligence</span><div><a href="docs.html#protocol">Evaluation protocol</a> &nbsp; / &nbsp; <a href="https://github.com/racingemperor/demo">GitHub</a> &nbsp; / &nbsp; <a href="docs.html#sources">Sources</a></div></footer>
 </body>
 </html>

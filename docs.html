@@ -1,185 +1,25 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Docs | LIBERO-PRO</title>
-  <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
-  <link rel="stylesheet" href="static/css/bulma.min.css">
-  <link rel="stylesheet" href="static/css/index.css">
-  <link rel="stylesheet" href="static/css/benchmark.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script defer src="static/js/site-nav.js"></script>
+  <meta name="description" content="LIBERO-Pro: robot-policy robustness across 22 static and 20 dynamic perturbations. Explore success rates, models, and eight held-out tasks.">
+  <meta name="theme-color" content="#2457c5">
+  <title>Documentation · LIBERO-Pro</title>
+  <link rel="stylesheet" href="assets/site.css">
+  <script type="module" src="assets/app.js"></script>
 </head>
-<body>
+<body data-page="docs">
+  <a class="skip" href="#content">Skip to content</a>
   <header class="site-header">
-    <nav class="site-nav container is-max-widescreen" aria-label="Primary navigation">
-      <a class="site-brand" href="index.html" aria-label="LIBERO-PRO overview">LIBERO-PRO</a>
-      <button class="site-menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" title="Open navigation">
-        <span></span><span></span><span></span>
-      </button>
-      <div class="site-menu" id="site-menu">
-        <a class="site-nav-link" href="index.html">Overview</a>
-        <a class="site-nav-link" href="findings.html">Findings</a>
-        <a class="site-nav-link" href="tasks.html">Tasks</a>
-        <a class="site-nav-link" href="leaderboard.html">Leaderboard</a>
-        <a class="site-nav-link is-active" href="docs.html" aria-current="page">Docs</a>
-      </div>
+    <a class="brand" href="index.html" aria-label="LIBERO-Pro home">LIBERO<span>-Pro</span></a>
+    <button class="menu-button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+    <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+      <a href="index.html">Home</a><a href="tasks.html">Tasks</a><a href="leaderboard.html">Leaderboard</a><a href="findings.html">Findings</a><a href="docs.html">Docs</a>
     </nav>
   </header>
-  <main class="benchmark-page">
-    <header class="benchmark-page-header">
-      <div class="benchmark-container">
-        <p class="benchmark-page-kicker">LIBERO-PRO 2.0 Reference</p>
-        <h1 class="benchmark-page-title">Documentation</h1>
-        <div class="benchmark-page-meta" aria-label="Documentation metadata">
-          <span class="benchmark-meta-item">Benchmark Version: —</span>
-          <span class="benchmark-meta-item">Documentation Version: —</span>
-          <span class="benchmark-meta-item">Last Updated: —</span>
-        </div>
-      </div>
-    </header>
-
-    <section class="benchmark-section">
-      <div class="benchmark-container benchmark-doc-layout">
-        <nav class="benchmark-doc-nav" aria-label="Documentation sections">
-          <a href="#benchmark-overview">Overview</a>
-          <a href="#benchmark-design">Benchmark Design</a>
-          <a href="#perturbation-taxonomy">Perturbation Taxonomy</a>
-          <a href="#task-format">Task Format</a>
-          <a href="#validity-gates">Validity Gates</a>
-          <a href="#evaluation-protocol">Evaluation Protocol</a>
-          <a href="#metrics">Metrics</a>
-          <a href="#result-format">Result Format</a>
-          <a href="#reproduction">Reproduction</a>
-          <a href="#release-notes">Release Notes</a>
-          <a href="#citation">Citation</a>
-        </nav>
-
-        <div>
-          <section class="benchmark-doc-section" id="benchmark-overview">
-            <h2 class="benchmark-doc-title">Overview</h2>
-            <div class="benchmark-empty">Benchmark overview</div>
-            <div class="benchmark-stat-grid" style="margin-top: 18px;">
-              <div class="benchmark-stat"><span class="benchmark-stat-value">—</span><span class="benchmark-stat-label">Tasks</span></div>
-              <div class="benchmark-stat"><span class="benchmark-stat-value">—</span><span class="benchmark-stat-label">Perturbations</span></div>
-              <div class="benchmark-stat"><span class="benchmark-stat-value">—</span><span class="benchmark-stat-label">Models</span></div>
-              <div class="benchmark-stat"><span class="benchmark-stat-value">—</span><span class="benchmark-stat-label">Evaluations</span></div>
-            </div>
-          </section>
-
-          <section class="benchmark-doc-section" id="benchmark-design">
-            <h2 class="benchmark-doc-title">Benchmark Design</h2>
-            <div class="benchmark-pipeline">
-              <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">01</span><p class="benchmark-pipeline-name">Reference Task</p></div>
-              <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">02</span><p class="benchmark-pipeline-name">One Perturbation Direction</p></div>
-              <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">03</span><p class="benchmark-pipeline-name">Submode, Parameters &amp; Seed</p></div>
-              <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">04</span><p class="benchmark-pipeline-name">Generated Evaluation Task</p></div>
-              <div class="benchmark-pipeline-step"><span class="benchmark-pipeline-number">05</span><p class="benchmark-pipeline-name">Rollout &amp; Result</p></div>
-            </div>
-          </section>
-
-          <section class="benchmark-doc-section" id="perturbation-taxonomy">
-            <h2 class="benchmark-doc-title">Perturbation Taxonomy</h2>
-            <div class="benchmark-split-layout" style="margin-bottom: 18px;">
-              <div class="benchmark-dimension"><span class="benchmark-dimension-index">—</span><p class="benchmark-dimension-name">Static Perturbations</p></div>
-              <div class="benchmark-dimension"><span class="benchmark-dimension-index">—</span><p class="benchmark-dimension-name">Dynamic Perturbations</p></div>
-            </div>
-            <div class="benchmark-table-wrap">
-              <table class="benchmark-table is-wide">
-                <thead><tr><th>ID</th><th>Mode</th><th>Perturbation Direction</th><th>Primary Task</th><th>Validation Task</th><th>Implementation Tier</th></tr></thead>
-                <tbody><tr class="benchmark-table-empty"><td colspan="6">No perturbations published</td></tr></tbody>
-              </table>
-            </div>
-          </section>
-
-          <section class="benchmark-doc-section" id="task-format">
-            <h2 class="benchmark-doc-title">Task Format</h2>
-            <div class="benchmark-schema">
-              <div class="benchmark-schema-field">Reference Task ID</div>
-              <div class="benchmark-schema-field">Frozen BDDL Path and SHA256</div>
-              <div class="benchmark-schema-field">Original Instruction, Init and Goal</div>
-              <div class="benchmark-schema-field">Perturbation ID, Mode and Submode</div>
-              <div class="benchmark-schema-field">Parameter Vector, Units and Coordinates</div>
-              <div class="benchmark-schema-field">Seed, Candidate Index and Scene Hash</div>
-              <div class="benchmark-schema-field">Injection Phase, Time and Duration</div>
-              <div class="benchmark-schema-field">Evaluation Task ID, Media and Related Findings</div>
-            </div>
-          </section>
-
-          <section class="benchmark-doc-section" id="validity-gates">
-            <h2 class="benchmark-doc-title">Validity Gates</h2>
-            <div class="benchmark-schema">
-              <div class="benchmark-schema-field">Task semantics and original goal unchanged</div>
-              <div class="benchmark-schema-field">No collision, penetration, or unsupported placement</div>
-              <div class="benchmark-schema-field">Valid grasp or operation pose</div>
-              <div class="benchmark-schema-field">Complete feasible manipulation path</div>
-              <div class="benchmark-schema-field">Dynamic failure remains recoverable</div>
-              <div class="benchmark-schema-field">Only policy-consumed observation channels evaluated</div>
-              <div class="benchmark-schema-field">Identical manifest, seed and injection timing across models</div>
-              <div class="benchmark-schema-field">Generated instance verified before benchmark inclusion</div>
-            </div>
-          </section>
-
-          <section class="benchmark-doc-section" id="evaluation-protocol">
-            <h2 class="benchmark-doc-title">Evaluation Protocol</h2>
-            <div class="benchmark-detail-grid">
-              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Reference Task Set</span><span class="benchmark-detail-value">—</span></div>
-              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Perturbation Assignment</span><span class="benchmark-detail-value">—</span></div>
-              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Active Directions per Evaluation</span><span class="benchmark-detail-value">—</span></div>
-              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Sampling and Reproduction</span><span class="benchmark-detail-value">—</span></div>
-              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Trials per Evaluation Task</span><span class="benchmark-detail-value">—</span></div>
-              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Dynamic Injection</span><span class="benchmark-detail-value">—</span></div>
-              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Success Evaluation</span><span class="benchmark-detail-value">—</span></div>
-              <div class="benchmark-detail-item"><span class="benchmark-detail-label">Aggregation</span><span class="benchmark-detail-value">—</span></div>
-            </div>
-          </section>
-
-          <section class="benchmark-doc-section" id="metrics">
-            <h2 class="benchmark-doc-title">Metrics</h2>
-            <div class="benchmark-schema">
-              <div class="benchmark-schema-field">Original Success Rate</div>
-              <div class="benchmark-schema-field">Perturbed Success Rate</div>
-              <div class="benchmark-schema-field">Robustness Drop</div>
-              <div class="benchmark-schema-field">Direction-level Success Rate</div>
-              <div class="benchmark-schema-field">Static / Dynamic Success Rate</div>
-              <div class="benchmark-schema-field">Evaluation-task Coverage</div>
-              <div class="benchmark-schema-field">Invalid and Rejected Instance Rate</div>
-            </div>
-          </section>
-
-          <section class="benchmark-doc-section" id="result-format">
-            <h2 class="benchmark-doc-title">Result and Submission Format</h2>
-            <div class="benchmark-schema">
-              <div class="benchmark-schema-field">Model and Policy</div>
-              <div class="benchmark-schema-field">Benchmark Version</div>
-              <div class="benchmark-schema-field">Code and Commit Hash</div>
-              <div class="benchmark-schema-field">Checkpoint and Paper</div>
-              <div class="benchmark-schema-field">Evaluation Configuration</div>
-              <div class="benchmark-schema-field">Aggregate Scores</div>
-              <div class="benchmark-schema-field">Direction and Evaluation-task Results</div>
-              <div class="benchmark-schema-field">Evaluation Task Manifest and Scene Hash</div>
-              <div class="benchmark-schema-field">Verification Status</div>
-            </div>
-          </section>
-
-          <section class="benchmark-doc-section" id="reproduction">
-            <h2 class="benchmark-doc-title">Reproduction</h2>
-            <div class="benchmark-empty">Installation, evaluation, and result submission workflow</div>
-          </section>
-
-          <section class="benchmark-doc-section" id="release-notes">
-            <h2 class="benchmark-doc-title">Release Notes</h2>
-            <div class="benchmark-empty">No releases published</div>
-          </section>
-
-          <section class="benchmark-doc-section" id="citation">
-            <h2 class="benchmark-doc-title">Citation</h2>
-            <div class="benchmark-empty">Citation</div>
-          </section>
-        </div>
-      </div>
-    </section>
-  </main>
+  <div class="container" id="app"><main id="content"><p class="loading" role="status">Loading benchmark…</p></main></div>
+  <noscript><p class="noscript">Enable JavaScript to browse the interactive benchmark. <a href="data/results.json">Download the success-rate data</a>.</p></noscript>
+  <footer class="container footer"><span>LIBERO-Pro · Robust embodied intelligence</span><div><a href="docs.html#protocol">Evaluation protocol</a> &nbsp; / &nbsp; <a href="https://github.com/racingemperor/demo">GitHub</a> &nbsp; / &nbsp; <a href="docs.html#sources">Sources</a></div></footer>
 </body>
 </html>

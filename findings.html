@@ -1,147 +1,25 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Findings | LIBERO-PRO</title>
-  <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
-  <link rel="stylesheet" href="static/css/bulma.min.css">
-  <link rel="stylesheet" href="static/css/index.css">
-  <link rel="stylesheet" href="static/css/benchmark.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script defer src="static/js/site-nav.js"></script>
+  <meta name="description" content="LIBERO-Pro: robot-policy robustness across 22 static and 20 dynamic perturbations. Explore success rates, models, and eight held-out tasks.">
+  <meta name="theme-color" content="#2457c5">
+  <title>Findings · LIBERO-Pro</title>
+  <link rel="stylesheet" href="assets/site.css">
+  <script type="module" src="assets/app.js"></script>
 </head>
-<body>
+<body data-page="findings">
+  <a class="skip" href="#content">Skip to content</a>
   <header class="site-header">
-    <nav class="site-nav container is-max-widescreen" aria-label="Primary navigation">
-      <a class="site-brand" href="index.html" aria-label="LIBERO-PRO overview">LIBERO-PRO</a>
-      <button class="site-menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" title="Open navigation">
-        <span></span><span></span><span></span>
-      </button>
-      <div class="site-menu" id="site-menu">
-        <a class="site-nav-link" href="index.html">Overview</a>
-        <a class="site-nav-link is-active" href="findings.html" aria-current="page">Findings</a>
-        <a class="site-nav-link" href="tasks.html">Tasks</a>
-        <a class="site-nav-link" href="leaderboard.html">Leaderboard</a>
-        <a class="site-nav-link" href="docs.html">Docs</a>
-      </div>
+    <a class="brand" href="index.html" aria-label="LIBERO-Pro home">LIBERO<span>-Pro</span></a>
+    <button class="menu-button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+    <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+      <a href="index.html">Home</a><a href="tasks.html">Tasks</a><a href="leaderboard.html">Leaderboard</a><a href="findings.html">Findings</a><a href="docs.html">Docs</a>
     </nav>
   </header>
-  <main class="benchmark-page">
-    <header class="benchmark-page-header">
-      <div class="benchmark-container">
-        <p class="benchmark-page-kicker">LIBERO-PRO 2.0 Evidence &amp; Analysis</p>
-        <h1 class="benchmark-page-title">Findings</h1>
-        <div class="benchmark-page-meta" aria-label="Findings metadata">
-          <span class="benchmark-meta-item">Published Findings: —</span>
-          <span class="benchmark-meta-item">Related Tasks: —</span>
-          <span class="benchmark-meta-item">Perturbations: —</span>
-          <span class="benchmark-meta-item">Evaluated Models: —</span>
-        </div>
-      </div>
-    </header>
-
-    <section class="benchmark-section">
-      <div class="benchmark-container">
-        <div class="benchmark-section-head">
-          <div>
-            <p class="benchmark-section-label">Catalog</p>
-            <h2 class="benchmark-section-title">Findings Explorer</h2>
-          </div>
-        </div>
-        <div class="benchmark-toolbar is-wide" aria-label="Finding filters">
-          <label>
-            <span class="benchmark-control-label">Search Findings</span>
-            <input class="benchmark-control" type="search" placeholder="Search" disabled>
-          </label>
-          <label>
-            <span class="benchmark-control-label">Perturbation Mode</span>
-            <select class="benchmark-control" disabled><option>Static and dynamic</option></select>
-          </label>
-          <label>
-            <span class="benchmark-control-label">Model</span>
-            <select class="benchmark-control" disabled><option>All models</option></select>
-          </label>
-          <label>
-            <span class="benchmark-control-label">Direction</span>
-            <select class="benchmark-control" disabled><option>All directions</option></select>
-          </label>
-          <label>
-            <span class="benchmark-control-label">Result</span>
-            <select class="benchmark-control" disabled><option>All results</option></select>
-          </label>
-        </div>
-        <div class="benchmark-table-wrap" style="margin-top: 18px;">
-          <table class="benchmark-table">
-            <thead>
-              <tr>
-                <th>Finding ID</th>
-                <th>Finding</th>
-                <th>Direction</th>
-                <th>Mode</th>
-                <th>Submode</th>
-                <th>Reference Tasks</th>
-                <th>Affected Models</th>
-                <th>Failure Stage</th>
-                <th>Evidence</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="benchmark-table-empty"><td colspan="9">No findings published</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section class="benchmark-section is-soft">
-      <div class="benchmark-container">
-        <div class="benchmark-section-head">
-          <div>
-            <p class="benchmark-section-label">Evidence</p>
-            <h2 class="benchmark-section-title">Clean and Perturbed Rollouts</h2>
-          </div>
-          <div class="benchmark-segmented" aria-label="Evidence view">
-            <button class="benchmark-segment is-active" type="button" disabled>Side by Side</button>
-            <button class="benchmark-segment" type="button" disabled>Overlay</button>
-          </div>
-        </div>
-        <div class="benchmark-media-grid">
-          <div class="benchmark-media-slot">
-            <div class="benchmark-media-label">Clean Baseline</div>
-            <div class="benchmark-media-empty">Media</div>
-          </div>
-          <div class="benchmark-media-slot">
-            <div class="benchmark-media-label">Single Perturbation</div>
-            <div class="benchmark-media-empty">Media</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="benchmark-section">
-      <div class="benchmark-container">
-        <div class="benchmark-section-head">
-          <div>
-            <p class="benchmark-section-label">Finding Detail</p>
-            <h2 class="benchmark-section-title">Observation and Interpretation</h2>
-          </div>
-        </div>
-        <div class="benchmark-detail-grid">
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Research Question</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Short Conclusion</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Performance Change</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Expected Behavior</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Observed Behavior</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Failure Stage</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Interpretation</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Perturbation ID and Mode</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Submode and Parameters</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Reference Task IDs</span><span class="benchmark-detail-value">—</span></div>
-          <div class="benchmark-detail-item"><span class="benchmark-detail-label">Related Model IDs</span><span class="benchmark-detail-value">—</span></div>
-        </div>
-      </div>
-    </section>
-  </main>
+  <div class="container" id="app"><main id="content"><p class="loading" role="status">Loading benchmark…</p></main></div>
+  <noscript><p class="noscript">Enable JavaScript to browse the interactive benchmark. <a href="data/results.json">Download the success-rate data</a>.</p></noscript>
+  <footer class="container footer"><span>LIBERO-Pro · Robust embodied intelligence</span><div><a href="docs.html#protocol">Evaluation protocol</a> &nbsp; / &nbsp; <a href="https://github.com/racingemperor/demo">GitHub</a> &nbsp; / &nbsp; <a href="docs.html#sources">Sources</a></div></footer>
 </body>
 </html>

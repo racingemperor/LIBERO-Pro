@@ -1,183 +1,25 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#edf1f0">
-  <title>Tasks | LIBERO-PRO</title>
-  <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
-  <link rel="stylesheet" href="static/css/bulma.min.css">
-  <link rel="stylesheet" href="static/css/index.css">
-  <link rel="stylesheet" href="static/css/benchmark.css">
-  <link rel="stylesheet" href="static/css/tasks.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script defer src="static/js/site-nav.js"></script>
-  <script defer src="static/js/tasks.js"></script>
+  <meta name="description" content="LIBERO-Pro: robot-policy robustness across 22 static and 20 dynamic perturbations. Explore success rates, models, and eight held-out tasks.">
+  <meta name="theme-color" content="#2457c5">
+  <title>Tasks · LIBERO-Pro</title>
+  <link rel="stylesheet" href="assets/site.css">
+  <script type="module" src="assets/app.js"></script>
 </head>
-<body>
-  <a class="task-skip-link" href="#main-content">Skip to task catalog</a>
+<body data-page="tasks">
+  <a class="skip" href="#content">Skip to content</a>
   <header class="site-header">
-    <nav class="site-nav container is-max-widescreen" aria-label="Primary navigation">
-      <a class="site-brand" href="index.html" aria-label="LIBERO-PRO overview">LIBERO-PRO</a>
-      <button class="site-menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" title="Open navigation">
-        <span></span><span></span><span></span>
-      </button>
-      <div class="site-menu" id="site-menu">
-        <a class="site-nav-link" href="index.html">Overview</a>
-        <a class="site-nav-link" href="findings.html">Findings</a>
-        <a class="site-nav-link is-active" href="tasks.html" aria-current="page">Tasks</a>
-        <a class="site-nav-link" href="leaderboard.html">Leaderboard</a>
-        <a class="site-nav-link" href="docs.html">Docs</a>
-      </div>
+    <a class="brand" href="index.html" aria-label="LIBERO-Pro home">LIBERO<span>-Pro</span></a>
+    <button class="menu-button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+    <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+      <a href="index.html">Home</a><a href="tasks.html">Tasks</a><a href="leaderboard.html">Leaderboard</a><a href="findings.html">Findings</a><a href="docs.html">Docs</a>
     </nav>
   </header>
-
-  <main class="tasks-page" id="main-content">
-    <header class="task-masthead">
-      <div class="benchmark-container task-masthead-grid">
-        <div class="task-intro">
-          <h1>Task &amp; Perturbation Catalog</h1>
-          <p>Browse the non-physical perturbation specification shared by the 4 LIBERO-PRO base suites. Each evaluation task applies one direction; combination suites are outside this catalog.</p>
-          <div class="task-source-line">
-            <span>Specification: <span lang="zh-CN">非物理静态-动态 Sim-to-Real 扰动建议清单</span></span>
-            <time id="task-source-version" datetime="2026-08-22">Version 2026-08-22</time>
-          </div>
-        </div>
-        <dl class="task-scope" aria-label="Published task catalog scope">
-          <div><dt>Published Directions</dt><dd id="task-published-count">42</dd></div>
-          <div><dt>Static</dt><dd id="task-static-count">22</dd></div>
-          <div><dt>Dynamic</dt><dd id="task-dynamic-count">20</dd></div>
-          <div><dt>Base Suites</dt><dd id="task-suite-count">4</dd></div>
-        </dl>
-      </div>
-    </header>
-
-    <section class="task-scope-band" aria-labelledby="scope-note-title">
-      <div class="benchmark-container task-scope-note">
-        <div>
-          <h2 id="scope-note-title">Published Matrix vs. Runtime Taxonomy</h2>
-          <p>The runtime defines <strong>43 directions</strong>, while the current published matrix contains <strong>42</strong>. <code translate="no">D19</code> is implemented in the runtime but excluded from the published manifest, so it is shown here as Runtime-only.</p>
-        </div>
-        <dl>
-          <div><dt>Evaluation Unit</dt><dd>1 direction per task</dd></div>
-          <div><dt>Combination Suites</dt><dd>Not included</dd></div>
-        </dl>
-      </div>
-    </section>
-
-    <section class="task-section" aria-labelledby="catalog-title">
-      <div class="benchmark-container">
-        <div class="task-section-head">
-          <div>
-            <h2 id="catalog-title">Perturbation Catalog</h2>
-            <p>Search the specification or narrow it by mode, implementation operator, and publication status.</p>
-          </div>
-          <button class="task-clear" id="task-clear-filters" type="button" hidden>Clear Filters</button>
-        </div>
-
-        <form class="task-toolbar" id="task-toolbar" role="search">
-          <label class="task-control task-search-control" for="task-search">
-            <span>Search Directions</span>
-            <input id="task-search" name="q" type="search" autocomplete="off" placeholder="Try S15, camera_transform, or 相机…">
-          </label>
-          <label class="task-control" for="task-mode-filter">
-            <span>Mode</span>
-            <select id="task-mode-filter" name="mode">
-              <option value="all">Static &amp; Dynamic</option>
-              <option value="Static">Static</option>
-              <option value="Dynamic">Dynamic</option>
-            </select>
-          </label>
-          <label class="task-control" for="task-operator-filter">
-            <span>Operator</span>
-            <select id="task-operator-filter" name="operator">
-              <option value="all">All Operators</option>
-            </select>
-          </label>
-          <label class="task-control" for="task-status-filter">
-            <span>Status</span>
-            <select id="task-status-filter" name="status">
-              <option value="all">All Statuses</option>
-              <option value="published">Published</option>
-              <option value="runtime-only">Runtime-only</option>
-            </select>
-          </label>
-        </form>
-
-        <p class="task-result-summary" id="task-result-summary" aria-live="polite">Loading catalog…</p>
-
-        <div class="task-workbench">
-          <div class="task-directory">
-            <div class="task-table-wrap" tabindex="0" role="region" aria-label="Perturbation directions table">
-              <table class="task-table">
-                <thead>
-                  <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Mode</th>
-                    <th scope="col">Direction</th>
-                    <th scope="col">Operator</th>
-                    <th scope="col">Variant</th>
-                    <th scope="col">Trigger</th>
-                    <th scope="col">Status</th>
-                  </tr>
-                </thead>
-                <tbody id="task-catalog-body">
-                  <tr><td class="task-table-state" colspan="7">Loading catalog…</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <aside class="task-detail" id="task-direction-detail" aria-label="Direction detail" aria-live="polite" tabindex="-1">
-            <p class="task-detail-state">Select a direction to inspect its specification.</p>
-          </aside>
-        </div>
-      </div>
-    </section>
-
-    <section class="task-section task-registry-section" aria-labelledby="registry-title">
-      <div class="benchmark-container">
-        <div class="task-section-head">
-          <div>
-            <h2 id="registry-title">Generated Task Registry</h2>
-            <p>The task-level registry remains a reserved interface until the public manifest fields are finalized.</p>
-          </div>
-        </div>
-        <div class="task-registry-empty">
-          <div>
-            <strong>No task-level entries published</strong>
-            <p>Direction definitions are available above. Concrete task IDs, seeds, parameter vectors, rollout media, and manifest links are intentionally not inferred.</p>
-          </div>
-          <dl>
-            <div><dt>Task Rows</dt><dd>0</dd></div>
-            <div><dt>Direction Scope</dt><dd>Single perturbation</dd></div>
-            <div><dt>Manifest Status</dt><dd>Not exposed here</dd></div>
-          </dl>
-        </div>
-      </div>
-    </section>
-
-    <section class="task-section task-notes-section">
-      <div class="benchmark-container">
-        <details class="task-notes">
-          <summary>
-            <span>Catalog Scope &amp; Reading Guide</span>
-            <span>How to interpret modes and status</span>
-          </summary>
-          <div class="task-notes-body">
-            <dl>
-              <div><dt>Static</dt><dd>Injected after reset and held fixed through the rollout.</dd></div>
-              <div><dt>Dynamic</dt><dd>Injected at an event trigger; persistence and recovery follow the direction implementation.</dd></div>
-              <div><dt>Published</dt><dd>Included in the current 42-direction task matrix.</dd></div>
-              <div><dt>Runtime-only</dt><dd>Implemented in code but absent from the current published manifest.</dd></div>
-            </dl>
-            <p>The catalog excludes physical changes to mass, inertia, friction, stiffness, damping, and mechanism resistance. <code translate="no">BASE</code> is the clean baseline and is not counted as a perturbation direction.</p>
-          </div>
-        </details>
-      </div>
-    </section>
-  </main>
+  <div class="container" id="app"><main id="content"><p class="loading" role="status">Loading benchmark…</p></main></div>
+  <noscript><p class="noscript">Enable JavaScript to browse the interactive benchmark. <a href="data/results.json">Download the success-rate data</a>.</p></noscript>
+  <footer class="container footer"><span>LIBERO-Pro · Robust embodied intelligence</span><div><a href="docs.html#protocol">Evaluation protocol</a> &nbsp; / &nbsp; <a href="https://github.com/racingemperor/demo">GitHub</a> &nbsp; / &nbsp; <a href="docs.html#sources">Sources</a></div></footer>
 </body>
 </html>

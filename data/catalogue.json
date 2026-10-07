@@ -1,0 +1,523 @@
+{
+  "source": "Current paper source, downloaded 2026-10-07",
+  "categories": [
+    {
+      "id": "condition",
+      "name": "Condition",
+      "description": "Task geometry, object poses and interaction constraints.",
+      "static": [
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "S05",
+        "S07",
+        "S08",
+        "S09"
+      ],
+      "dynamic": [
+        "D01",
+        "D02",
+        "D03",
+        "D04",
+        "D05",
+        "D06"
+      ]
+    },
+    {
+      "id": "environment",
+      "name": "Environment",
+      "description": "Scene composition, appearance and visual context.",
+      "static": [
+        "S06",
+        "S10",
+        "S11",
+        "S12",
+        "S13",
+        "S14",
+        "S22"
+      ],
+      "dynamic": [
+        "D07",
+        "D08",
+        "D09"
+      ]
+    },
+    {
+      "id": "observation",
+      "name": "Observation",
+      "description": "Image formation, sensor quality and observation timing.",
+      "static": [
+        "S15",
+        "S16",
+        "S19"
+      ],
+      "dynamic": [
+        "D10",
+        "D11",
+        "D12",
+        "D13"
+      ]
+    },
+    {
+      "id": "execution",
+      "name": "Execution",
+      "description": "Control timing, command delivery and action execution.",
+      "static": [
+        "S20"
+      ],
+      "dynamic": [
+        "D14",
+        "D15",
+        "D16"
+      ]
+    },
+    {
+      "id": "robot",
+      "name": "Robot",
+      "description": "Robot state, calibration and recoverable execution outcomes.",
+      "static": [
+        "S17",
+        "S18"
+      ],
+      "dynamic": [
+        "D17",
+        "D18",
+        "D19"
+      ]
+    },
+    {
+      "id": "language",
+      "name": "Language",
+      "description": "Equivalent instructions with the original task goal preserved.",
+      "static": [
+        "S21"
+      ],
+      "dynamic": [
+        "D20"
+      ]
+    }
+  ],
+  "perturbations": [
+    {
+      "id": "S01",
+      "sourceId": "S01",
+      "mode": "static",
+      "category": "condition",
+      "name": "Target planar pose",
+      "description": "Translate the target in the horizontal plane and rotate it in yaw.",
+      "constraint": "Preserve the target identity and intended goal.",
+      "image": "assets/perturbations/S01.webp"
+    },
+    {
+      "id": "S02",
+      "sourceId": "S02",
+      "mode": "static",
+      "category": "condition",
+      "name": "Receiver planar pose",
+      "description": "Translate or rotate the receiver to change the placement destination and approach.",
+      "constraint": "Preserve receiver identity and task goal.",
+      "image": "assets/perturbations/S02.webp"
+    },
+    {
+      "id": "S03",
+      "sourceId": "S03",
+      "mode": "static",
+      "category": "condition",
+      "name": "Receiver or support height",
+      "description": "Change receiver or support elevation using a support platform or a coupled layout adjustment.",
+      "constraint": "Retain a collision-free initial layout and feasible placement.",
+      "image": "assets/perturbations/S03.webp"
+    },
+    {
+      "id": "S04",
+      "sourceId": "S04",
+      "mode": "static",
+      "category": "condition",
+      "name": "Object position swap",
+      "description": "Swap the planar positions of two objects; use a safe layout offset when a direct swap is unsuitable.",
+      "constraint": "Keep object identities, task roles, and goal unchanged.",
+      "image": "assets/perturbations/S04.webp"
+    },
+    {
+      "id": "S05",
+      "sourceId": "S05",
+      "mode": "static",
+      "category": "condition",
+      "name": "Restricted approach or path",
+      "description": "Add geometry that constrains approach or transport.",
+      "constraint": "Retain valid inverse kinematics and a complete collision-free route.",
+      "image": "assets/perturbations/S05.webp"
+    },
+    {
+      "id": "S06",
+      "sourceId": "S06",
+      "mode": "static",
+      "category": "environment",
+      "name": "Instance replacement",
+      "description": "Replace the target with a same-class or unseen asset specified by the task configuration.",
+      "constraint": "Preserve semantic class and graspability.",
+      "image": "assets/perturbations/S06.webp"
+    },
+    {
+      "id": "S07",
+      "sourceId": "S07",
+      "mode": "static",
+      "category": "condition",
+      "name": "Functional-part geometry",
+      "description": "Change an opening, rim, or receiving region used for grasping or placement.",
+      "constraint": "Retain the intended functional role.",
+      "image": "assets/perturbations/S07.webp"
+    },
+    {
+      "id": "S08",
+      "sourceId": "S08",
+      "mode": "static",
+      "category": "condition",
+      "name": "Size or aspect ratio",
+      "description": "Apply uniform or anisotropic target scaling.",
+      "constraint": "Change geometric extent while preserving target identity.",
+      "image": "assets/perturbations/S08.webp"
+    },
+    {
+      "id": "S09",
+      "sourceId": "S09",
+      "mode": "static",
+      "category": "condition",
+      "name": "Opening clearance and pose",
+      "description": "Jointly change object/container geometry and the relative insertion configuration.",
+      "constraint": "Use collision geometry with full containment, positive clearance, and sufficient depth.",
+      "image": "assets/perturbations/S09.webp"
+    },
+    {
+      "id": "S10",
+      "sourceId": "S10",
+      "mode": "static",
+      "category": "environment",
+      "name": "Irrelevant clutter",
+      "description": "Add irrelevant objects or change their spatial density.",
+      "constraint": "Preserve target and receiver; support clutter without interpenetration.",
+      "image": "assets/perturbations/S10.webp"
+    },
+    {
+      "id": "S11",
+      "sourceId": "S11",
+      "mode": "static",
+      "category": "environment",
+      "name": "Similar distractors",
+      "description": "Add objects of the same class or similar color or shape.",
+      "constraint": "The intended target remains the same.",
+      "image": "assets/perturbations/S11.webp"
+    },
+    {
+      "id": "S12",
+      "sourceId": "S12",
+      "mode": "static",
+      "category": "environment",
+      "name": "Persistent occlusion",
+      "description": "Place and retain a foreground occluder between the camera and the target region.",
+      "constraint": "Keep the occlusion intervention active during the rollout.",
+      "image": "assets/perturbations/S12.webp"
+    },
+    {
+      "id": "S13",
+      "sourceId": "S13",
+      "mode": "static",
+      "category": "environment",
+      "name": "Object appearance",
+      "description": "Change target or receiver color, texture, reflectance, or visual surface state.",
+      "constraint": "Preserve task semantics; do not vary physical material parameters.",
+      "image": "assets/perturbations/S13.webp"
+    },
+    {
+      "id": "S14",
+      "sourceId": "S14",
+      "mode": "static",
+      "category": "environment",
+      "name": "Contrast or scene domain",
+      "description": "Change object-background contrast or the visual scene domain.",
+      "constraint": "Preserve the intended manipulation task.",
+      "image": "assets/perturbations/S14.webp"
+    },
+    {
+      "id": "S15",
+      "sourceId": "S15",
+      "mode": "static",
+      "category": "observation",
+      "name": "Camera extrinsics",
+      "description": "Apply fixed camera position/orientation offsets or cross-camera calibration offsets.",
+      "constraint": "Offsets are fixed for the episode; affected cameras are case-specific.",
+      "image": "assets/perturbations/S15.webp"
+    },
+    {
+      "id": "S16",
+      "sourceId": "S16",
+      "mode": "static",
+      "category": "observation",
+      "name": "Camera image formation",
+      "description": "Change field of view, resolution, cropping, or lens distortion.",
+      "constraint": "The configured imaging transformation remains active.",
+      "image": "assets/perturbations/S16.webp"
+    },
+    {
+      "id": "S17",
+      "sourceId": "S17",
+      "mode": "static",
+      "category": "robot",
+      "name": "Initial robot state",
+      "description": "Change initial joints, end-effector pose/orientation, or gripper opening.",
+      "constraint": "Modify initialization; the robot then executes normally.",
+      "image": "assets/perturbations/S17.webp"
+    },
+    {
+      "id": "S18",
+      "sourceId": "S18",
+      "mode": "static",
+      "category": "robot",
+      "name": "Robot calibration",
+      "description": "Offset the base, tool center point, joint zero, or grasp center.",
+      "constraint": "Keep the configured calibration error fixed.",
+      "image": "assets/perturbations/S18.webp"
+    },
+    {
+      "id": "S19",
+      "sourceId": "S19",
+      "mode": "static",
+      "category": "observation",
+      "name": "Observation quality",
+      "description": "Apply compression artifacts, noise, blur, exposure contamination, or missing depth.",
+      "constraint": "Affect only the configured observation channels.",
+      "image": "assets/perturbations/S19.webp"
+    },
+    {
+      "id": "S20",
+      "sourceId": "S20",
+      "mode": "static",
+      "category": "execution",
+      "name": "Fixed timing or action window",
+      "description": "Apply a fixed delay or change control rate, replanning rate, or the action execution window.",
+      "constraint": "Use the configured timing intervention; distinguish it from model defaults.",
+      "image": "assets/perturbations/S20.webp"
+    },
+    {
+      "id": "S21",
+      "sourceId": "S21",
+      "mode": "static",
+      "category": "language",
+      "name": "Instruction paraphrase",
+      "description": "Replace the instruction with a semantic paraphrase.",
+      "constraint": "Preserve goal, referenced objects, and action order.",
+      "image": "assets/perturbations/S21.webp"
+    },
+    {
+      "id": "S22",
+      "sourceId": "S22",
+      "mode": "static",
+      "category": "environment",
+      "name": "Support texture",
+      "description": "Replace the visual texture of the work surface.",
+      "constraint": "Preserve collision geometry, friction, and initial object poses.",
+      "image": "assets/perturbations/S22.webp"
+    },
+    {
+      "id": "D01",
+      "sourceId": "D01",
+      "mode": "dynamic",
+      "category": "condition",
+      "name": "Target pose update",
+      "description": "Change target horizontal position or yaw, requiring updated localization and approach.",
+      "constraint": "Approach/pre-grasp; retain the update as configured.",
+      "image": "assets/perturbations/D01.webp"
+    },
+    {
+      "id": "D02",
+      "sourceId": "D02",
+      "mode": "dynamic",
+      "category": "condition",
+      "name": "Receiver pose update",
+      "description": "Move or rotate the receiver without changing the task goal.",
+      "constraint": "Post-grasp/pre-place; retain the update as configured.",
+      "image": "assets/perturbations/D02.webp"
+    },
+    {
+      "id": "D03",
+      "sourceId": "D03",
+      "mode": "dynamic",
+      "category": "condition",
+      "name": "Receiver occupation",
+      "description": "Introduce an occupying or blocking object near the receiving region.",
+      "constraint": "Pre-place; occupation/release follows the case configuration.",
+      "image": "assets/perturbations/D03.webp"
+    },
+    {
+      "id": "D04",
+      "sourceId": "D04",
+      "mode": "dynamic",
+      "category": "condition",
+      "name": "Temporary occlusion",
+      "description": "Insert an occluder between camera and target, then remove it.",
+      "constraint": "Task phase; enter, hold for a window, then exit.",
+      "image": "assets/perturbations/D04.webp"
+    },
+    {
+      "id": "D05",
+      "sourceId": "D05",
+      "mode": "dynamic",
+      "category": "condition",
+      "name": "Path obstacle",
+      "description": "Place an obstacle on the upcoming transport route while preserving an alternative collision-free path.",
+      "constraint": "Transport; persistence follows the case configuration.",
+      "image": "assets/perturbations/D05.webp"
+    },
+    {
+      "id": "D06",
+      "sourceId": "D06",
+      "mode": "dynamic",
+      "category": "condition",
+      "name": "Distractor rearrangement",
+      "description": "Move irrelevant objects or rearrange local clutter; exclude the target and receiver.",
+      "constraint": "Task phase; apply the configured scene update.",
+      "image": "assets/perturbations/D06.webp"
+    },
+    {
+      "id": "D07",
+      "sourceId": "D07",
+      "mode": "dynamic",
+      "category": "environment",
+      "name": "Camera motion",
+      "description": "Change camera position to represent shake, drift, or a persistent offset.",
+      "constraint": "Task phase; transient or persistent, as configured.",
+      "image": "assets/perturbations/D07.webp"
+    },
+    {
+      "id": "D08",
+      "sourceId": "D08",
+      "mode": "dynamic",
+      "category": "environment",
+      "name": "Camera dropout",
+      "description": "Invalidate a selected camera observation stream.",
+      "constraint": "Task phase; restore the stream after the event.",
+      "image": "assets/perturbations/D08.webp"
+    },
+    {
+      "id": "D09",
+      "sourceId": "D09",
+      "mode": "dynamic",
+      "category": "environment",
+      "name": "Lighting or exposure",
+      "description": "Change RGB illumination, shadow, or exposure.",
+      "constraint": "Task phase; restore after the event window.",
+      "image": "assets/perturbations/D09.webp"
+    },
+    {
+      "id": "D10",
+      "sourceId": "D10",
+      "mode": "dynamic",
+      "category": "observation",
+      "name": "Frame-stream fault",
+      "description": "Drop, repeat, or freeze configured RGB/depth frames.",
+      "constraint": "Task phase; apply the fault during the configured window.",
+      "image": "assets/perturbations/D10.webp"
+    },
+    {
+      "id": "D11",
+      "sourceId": "D11",
+      "mode": "dynamic",
+      "category": "observation",
+      "name": "Modality misalignment",
+      "description": "Offset timestamps or freeze a modality while other modalities may continue to update.",
+      "constraint": "Task phase; configured modality and event window.",
+      "image": "assets/perturbations/D11.webp"
+    },
+    {
+      "id": "D12",
+      "sourceId": "D12",
+      "mode": "dynamic",
+      "category": "observation",
+      "name": "Latency spike",
+      "description": "Temporarily delay observation delivery or inference results.",
+      "constraint": "Task phase; restore normal timing after the spike.",
+      "image": "assets/perturbations/D12.webp"
+    },
+    {
+      "id": "D13",
+      "sourceId": "D13",
+      "mode": "dynamic",
+      "category": "observation",
+      "name": "Arm–gripper desynchronization",
+      "description": "Apply different delays or timing variations to arm and gripper commands.",
+      "constraint": "Task phase; configured timing window.",
+      "image": "assets/perturbations/D13.webp"
+    },
+    {
+      "id": "D14",
+      "sourceId": "D14",
+      "mode": "dynamic",
+      "category": "execution",
+      "name": "Command loss or repetition",
+      "description": "Disrupt the action stream; the listed implementation repeats the previous action.",
+      "constraint": "Task phase; short command-fault window.",
+      "image": "assets/perturbations/D14.webp"
+    },
+    {
+      "id": "D15",
+      "sourceId": "D15",
+      "mode": "dynamic",
+      "category": "execution",
+      "name": "Stale action chunk",
+      "description": "Replay an old action chunk or interrupt replanning, temporarily executing outdated actions.",
+      "constraint": "State change; configurable chunk length and stale duration.",
+      "image": "assets/perturbations/D15.webp"
+    },
+    {
+      "id": "D16",
+      "sourceId": "D16",
+      "mode": "dynamic",
+      "category": "execution",
+      "name": "Bounded takeover",
+      "description": "Inject contact-free bounded actions or a reachable state offset, respecting joint/workspace limits.",
+      "constraint": "Task phase; temporary intervention, then return control.",
+      "image": "assets/perturbations/D16.webp"
+    },
+    {
+      "id": "D17",
+      "sourceId": "D17",
+      "mode": "dynamic",
+      "category": "robot",
+      "name": "Grasp failure result",
+      "description": "Hold the gripper open on the first grasp attempt while retaining the possibility of retrying.",
+      "constraint": "Grasp attempt; release after about 0.07 m of retreat or window expiry.",
+      "image": "assets/perturbations/D17.webp"
+    },
+    {
+      "id": "D18",
+      "sourceId": "D18",
+      "mode": "dynamic",
+      "category": "robot",
+      "name": "Reachable drop state",
+      "description": "Place the transported target at a reachable, collision-free recovery location; do not simulate falling forces.",
+      "constraint": "Transport; inject a recoverable outcome state.",
+      "image": "assets/perturbations/D18.webp"
+    },
+    {
+      "id": "D19",
+      "sourceId": "D20",
+      "mode": "dynamic",
+      "category": "robot",
+      "name": "Robot joint displacement",
+      "description": "Inject one reachable joint displacement without self-collision and within joint/workspace limits.",
+      "constraint": "Robot in motion; one state displacement, not a force simulation.",
+      "image": "assets/perturbations/D19.webp"
+    },
+    {
+      "id": "D20",
+      "sourceId": "D21",
+      "mode": "dynamic",
+      "category": "language",
+      "name": "Instruction restatement",
+      "description": "Restate or clarify the instruction while preserving goal, objects, and required action order.",
+      "constraint": "Task phase; apply the equivalent instruction update.",
+      "image": "assets/perturbations/D20.webp"
+    }
+  ]
+}

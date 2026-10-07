@@ -1,5 +1,68 @@
 {
-  "baseTasks": [],
-  "generatedEvaluationTasks": [],
-  "evaluationTaskIdFormat": "<base_task_id>-<perturbation_id>-<submode>-<seed_or_index>"
+  "tasks": [
+    {
+      "id": "libero_spatial-0",
+      "suite": "libero_spatial",
+      "suiteName": "Spatial",
+      "taskId": 0,
+      "instruction": "Pick the akita black bowl between the plate and the ramekin and place it on the plate",
+      "media": {}
+    },
+    {
+      "id": "libero_spatial-8",
+      "suite": "libero_spatial",
+      "suiteName": "Spatial",
+      "taskId": 8,
+      "instruction": "Pick the akita black bowl next to the plate and place it on the plate",
+      "media": {}
+    },
+    {
+      "id": "libero_object-1",
+      "suite": "libero_object",
+      "suiteName": "Object",
+      "taskId": 1,
+      "instruction": "Pick the cream cheese and place it in the basket",
+      "media": {}
+    },
+    {
+      "id": "libero_object-8",
+      "suite": "libero_object",
+      "suiteName": "Object",
+      "taskId": 8,
+      "instruction": "Pick the chocolate pudding and place it in the basket",
+      "media": {}
+    },
+    {
+      "id": "libero_goal-3",
+      "suite": "libero_goal",
+      "suiteName": "Goal",
+      "taskId": 3,
+      "instruction": "Open the top layer of the drawer and put the bowl inside",
+      "media": {}
+    },
+    {
+      "id": "libero_goal-6",
+      "suite": "libero_goal",
+      "suiteName": "Goal",
+      "taskId": 6,
+      "instruction": "Put the cream cheese on the bowl",
+      "media": {}
+    },
+    {
+      "id": "libero_10-5",
+      "suite": "libero_10",
+      "suiteName": "Long",
+      "taskId": 5,
+      "instruction": "pick up the book and place it in the back compartment of the caddy",
+      "media": {}
+    },
+    {
+      "id": "libero_10-8",
+      "suite": "libero_10",
+      "suiteName": "Long",
+      "taskId": 8,
+      "instruction": "put both moka pots on the stove",
+      "media": {}
+    }
+  ]
 }
