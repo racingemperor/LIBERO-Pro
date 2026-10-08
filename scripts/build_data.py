@@ -1,6 +1,6 @@
 """Build the public, success-rate-only benchmark catalogue.
 
-Usage: python scripts/build_data.py --paper PATH --figures PATH
+Usage: python scripts/build_data.py --paper PATH --figures PATH --private-data PATH
 Optional refresh: --refresh-sheet --sheet-url PRIVATE_SOURCE_URL
 Reads only the four named non-RQ sheets. Never edits the source spreadsheet.
 """
@@ -16,6 +16,7 @@ import urllib.request
 from urllib.parse import urlsplit
 from pathlib import Path
 from PIL import Image
+from public_data import private_directory, public_results
 
 ROOT = Path(__file__).resolve().parents[1]
 SHEET_SNAPSHOT = 'data/sheet-success-rates.json'
@@ -82,8 +83,11 @@ def get_sheet(label, names, sheet_url):
     return cells
 
 def build(args):
-    old = read_json('data/archive/leaderboard-before-paper-taxonomy.json')
-    completed = read_json(COMPLETED_SOURCE)
+    private = private_directory(args.private_data)
+    def read_private(name):
+        return json.loads((private / name).read_text(encoding='utf-8-sig'))
+    old = read_private('data/archive/leaderboard-before-paper-taxonomy.json')
+    completed = read_private(COMPLETED_SOURCE)
     entries = {e['model']: e for e in old['entries']}
     for model in completed['models']:
         entries[model['model']] = model
@@ -93,8 +97,8 @@ def build(args):
     if args.refresh_sheet:
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
             batches = list(pool.map(lambda label: get_sheet(label, sheet_names, args.sheet_url), SUITES))
-        write_json(SHEET_SNAPSHOT, dict(accessed=date.today().isoformat(), source=SHEET_PROVENANCE, cells=sum(batches, [])))
-    snapshot = read_json(SHEET_SNAPSHOT)
+        (private / SHEET_SNAPSHOT).write_text(json.dumps(dict(accessed=date.today().isoformat(), source=SHEET_PROVENANCE, cells=sum(batches, [])), ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    snapshot = read_private(SHEET_SNAPSHOT)
     categories = [dict(id=id, name=name, description=desc,
                        static=[f'S{i:02}' for i in static], dynamic=[f'D{i:02}' for i in dynamic])
                   for id,name,desc,static,dynamic in CATEGORIES]
@@ -158,7 +162,9 @@ def build(args):
                     'date':completed['accessed'][:10] if source else snapshot['accessed'],
                     'url':COMPLETED_SOURCE if source else SHEET_SNAPSHOT,
                     'granularity':'task' if source else 'suite'}))
-    write_json('data/results.json', dict(metric='Success rate', aggregation='Mean of available suite × perturbation success rates, including S22. Pool task counts within each suite × perturbation before averaging. Missing values are excluded, never zero-filled.', models=models))
+    internal = dict(metric='Success rate', aggregation='Mean of available suite × perturbation success rates, including S22. Pool task counts within each suite × perturbation before averaging. Missing values are excluded, never zero-filled.', models=models)
+    (private / 'data/results-internal.json').write_text(json.dumps(internal, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    write_json('data/results.json', public_results(internal))
     for name in ['overview','taxonomy']:
         image = Image.open(args.figures / f'{name}.png').convert('RGB')
         (ROOT/'assets/paper').mkdir(parents=True, exist_ok=True)
@@ -172,6 +178,7 @@ if __name__ == '__main__':
     parser=argparse.ArgumentParser()
     parser.add_argument('--paper', type=Path, required=True)
     parser.add_argument('--figures', type=Path, required=True)
+    parser.add_argument('--private-data', type=Path, required=True, help='Internal input directory outside this public repository')
     parser.add_argument('--refresh-sheet', action='store_true')
     parser.add_argument('--sheet-url', help='Private source URL for an authorized refresh; never saved to public data')
     args = parser.parse_args()

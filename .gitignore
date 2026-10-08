@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+# Internal evaluation inputs must remain outside the public website repository.
+/data/sheet-success-rates.json
+/data/completed-evaluations-*.json
+/data/archive/
+/data/*-internal.json
+/_private/

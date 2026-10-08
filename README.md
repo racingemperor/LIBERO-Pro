@@ -49,28 +49,29 @@ Open `scripts/taxonomy-test.html` for chart interaction checks, including exact 
 - `eval.html`: evaluation setup, execution and result reporting. No online evaluation or submission service is claimed.
 - `data/task-designs.json`: eight task designs and applicability exclusions, checked against the BASE scene definitions and paper. This editorial file is separate from the generated task manifest.
 
-## Data and reproducibility
+## Display data and private evaluation inputs
 
 `data/catalogue.json` uses public paper IDs. Paper D19 maps to internal D20, paper D20 maps to internal D21, and internal D19 is excluded. S06 belongs to Environment.
 
-`data/results.json` contains 18 models. Average success rates include S22 and average available suite × perturbation cells, pooling task counts within a cell first. There are 87 static and 80 dynamic cells per model. Missing data is never zero-filled. Δ is Average − Base.
+`data/results.json` contains only the rates and labels needed to render 18 models on the website. Average success rates include S22 and average available suite × perturbation cells, pooling task counts privately before calculating the displayed rates. Missing data is never zero-filled. Δ is Average − Base.
 
-Ten models use the approved non-RQ evaluation snapshot from 2026-10-07. Its source cells from four suites, without contributor names or a private worksheet URL, are in `data/sheet-success-rates.json`. Eight models (OpenVLA, OpenVLA-OFT_w, OpenVLA-OFT_m, OpenVLA-OFT+, RIPT-VLA, NORA, UniVLA and π0-FAST) use `data/completed-evaluations-2026-10-08.json` trial counts. The four previously published models retain exactly the same case counts as the preserved October 4 source. Each has 339 cases, including nominal cases, and 10,170 episodes. Those eight expose individual task rates. The earlier aggregate snapshot is retained under `data/archive/` for reproducibility.
+The site has no evaluation snapshot or raw-data download links. Internal trial counts, source worksheet cells, historical evaluation files and rollout provenance are kept outside this public repository. Public task entries contain success rates only; suite-level results are not used to infer unavailable task rates.
 
-Visitors access the published JSON snapshots directly from this site without signing into the private evaluation worksheet. The leaderboard reads these committed files, not a live spreadsheet. To publish an update, review the approved export, rebuild and validate the results, then commit and deploy the snapshot. Private worksheet links are not included in the site or generated data.
+`scripts/public_data.py` applies explicit field allowlists to the private input before writing the display files. Displayed values necessarily reach the visitor's browser; the generated files must never contain internal records. The data verifier checks this separation before publishing.
 
 To rebuild from an authorized paper-source download and rendered overview/taxonomy PNGs:
 
 ```sh
-python scripts/build_data.py --paper PATH_TO_PAPER_SOURCE --figures PATH_TO_RENDERED_FIGURES
+python scripts/build_data.py --paper PATH_TO_PAPER_SOURCE --figures PATH_TO_RENDERED_FIGURES --private-data PRIVATE_DIRECTORY
 # Optional authorized refresh: add --refresh-sheet --sheet-url PRIVATE_SOURCE_URL.
 python scripts/build_assets.py
 node scripts/verify-data.mjs
+node scripts/verify-data.mjs --private-data PRIVATE_DIRECTORY
 ```
 
 Builders require Pillow. The site itself does not require Python or Node.
 
-Offline builds use the committed snapshot. A refresh requires the maintainer to supply an accessible export URL locally; it does not change worksheet sharing or grant access. The builder never records this URL in public artifacts. If direct export requires sign-in, use an authorized local export and review its approved rates before updating the snapshot.
+The private directory uses a `data/` subdirectory for internal inputs and must be outside this repository. Obtain it separately from the maintainer; it is not distributed with the website. Builders read raw records there and write only display fields here. An optional source refresh requires authorized access and saves its raw result only in the private directory. After reviewing updated internal results and Home media records, `python scripts/public_data.py --private-data PRIVATE_DIRECTORY` can regenerate just the display files.
 
 ## Add rollout media
 
@@ -82,9 +83,9 @@ Place GIF, WebP, MP4 or WebM files under `assets/rollouts/`. In `data/tasks.json
 
 Use only genuine evaluation media for the matching model, task and perturbation. Missing media renders as a reserved slot. S04 is not applicable to the two Spatial evaluation tasks; D06 is not applicable to Long task 8. These slots show N/A rather than missing scores.
 
-Home uses a separate `data/home-rollouts.json`: exactly one illustrative rollout per perturbation, matching the task shown in its paper illustration, rather than restricting examples to the eight evaluation tasks. These clips are not evidence for any leaderboard score. The manifest preserves the task, public/internal IDs, policy, trial seed, source archive, experiment date and original SHA-256, without private server paths.
+Home uses a separate `data/home-rollouts.json` containing only each public perturbation ID and its video/poster URLs. These illustrative clips are not evidence for any leaderboard score. Trial seeds, outcomes, source archive names and hashes remain in the external local review directory.
 
-All 42 examples use the latest available task/perturbation batch: five Spatial examples from the September 13 archive and 37 Object/Goal/Long examples from September 11. Seed 143 matches the illustrations where available; D06's illustration seed 145 is absent, so it uses seed 142 of the same task in the latest batch. Selection never uses success/failure as a criterion. Videos and posters are rotated 180° to display upright; original duration and playback speed are preserved. Silent H.264 MP4 loops provide the animated-image effect with a WebP poster and about 3.55 MB for all 42 clips and posters.
+All 42 examples use the latest available task/perturbation batch and preserve the paper illustration's task. Selection never uses success/failure as a criterion. Videos and posters are rotated 180° to display upright; original duration and playback speed are preserved. Silent H.264 MP4 loops provide the animated-image effect with a WebP poster.
 
 To rebuild these assets from authorized local archives and illustration manifests (OpenCV, Pillow and imageio-ffmpeg required):
 
@@ -92,7 +93,7 @@ To rebuild these assets from authorized local archives and illustration manifest
 python scripts/build_home_rollouts.py --source ARCHIVE_DIRECTORY --review-dir LOCAL_REVIEW_DIRECTORY --static-manifest STATIC_MANIFEST_JSON --dynamic-manifest DYNAMIC_MANIFEST_JSON --build
 ```
 
-Without `--build`, the script only prepares local contact sheets and a source-selection audit. Static manifest entries resolve their original `render.json`; dynamic manifest entries carry the source task directly. Original archives remain untouched. The public/internal D19/D20 remapping is applied before matching. Older batches are never substituted when a task has no video in the latest suite revision.
+`LOCAL_REVIEW_DIRECTORY` must be outside the public repository. Without `--build`, the script only prepares local contact sheets and a source-selection audit. With `--build`, the full `home-rollouts-internal.json` stays in that review directory; the website gets only media references. Original archives remain untouched. Older batches are never substituted when a task has no video in the latest suite revision.
 
 ## People and institution logos
 

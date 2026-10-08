@@ -15,6 +15,7 @@ import zipfile
 import cv2
 import imageio_ffmpeg
 from PIL import Image, ImageDraw, ImageFont
+from public_data import public_home_rollouts
 
 ROOT = Path(__file__).resolve().parents[1]
 PATTERN = re.compile(r'(pi05?)_(libero_\w+)_task(\d+)_([SD]\d+)_seed(\d+)_init(\d+)\.mp4$')
@@ -28,6 +29,8 @@ def main():
     parser.add_argument('--dynamic-manifest', type=Path, required=True)
     parser.add_argument('--build', action='store_true')
     args = parser.parse_args()
+    if args.review_dir.resolve() == ROOT or ROOT in args.review_dir.resolve().parents:
+        parser.error('--review-dir must be outside the public repository')
     catalogue = json.loads((ROOT / 'data/catalogue.json').read_text(encoding='utf-8'))['perturbations']
     illustrations = {}
     for row in json.loads(args.static_manifest.read_text(encoding='utf-8'))['rows']:
@@ -139,7 +142,8 @@ def main():
                 'rotationDegrees': 180,
             })
         payload = {'description': 'One illustrative rollout per perturbation, using the same task as its paper illustration. Not an aggregate success-rate sample.', 'selection': 'Newest batch per task and perturbation. Prefer the illustration seed within the same run, otherwise the lowest available seed. No outcome selection or fallback to older suite revisions.', 'clips': public_records}
-        (ROOT / 'data/home-rollouts.json').write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+        (args.review_dir / 'home-rollouts-internal.json').write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+        (ROOT / 'data/home-rollouts.json').write_text(json.dumps(public_home_rollouts(payload), ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     print(json.dumps({'pairs': len(audit), 'current': sum(r['currentBatch'] for r in audit), 'olderOnly': [{k: r[k] for k in ['task', 'perturbation', 'archive']} for r in audit if not r['currentBatch']], 'homeClips': len(chosen), 'batches': dict(collections.Counter(r['archive'] for r in chosen))}, ensure_ascii=False))
 
 
