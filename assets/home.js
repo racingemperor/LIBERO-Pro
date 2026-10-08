@@ -30,15 +30,15 @@ export function homeGallery(catalogue, mode, media) {
   const entries = catalogue.perturbations.filter(p=>p.mode===mode);
   const card = (p, duplicate) => {
     const clip = media.clips.find(c=>c.perturbation===p.id);
-    return `<a class="gallery-item" href="docs.html?perturbation=${p.id}" ${duplicate?'tabindex="-1"':''} aria-label="${p.id}: ${escape(p.name)} — open perturbation design"><video class="gallery-video" data-src="${escape(clip.src)}" poster="${escape(clip.poster)}" width="256" height="256" muted loop playsinline preload="none" aria-hidden="true" disablepictureinpicture></video><span class="gallery-caption"><small>${p.id}</small><span>${escape(p.name)}</span><span aria-hidden="true">↗</span></span></a>`;
+    return `<a class="gallery-item" href="docs.html?perturbation=${p.id}" ${duplicate?'tabindex="-1"':''} aria-label="${p.id}: ${escape(p.name)} — open perturbation design"><video class="gallery-video" data-src="${escape(clip.src)}" poster="${escape(clip.poster)}" width="256" height="256" muted loop playsinline preload="none" aria-hidden="true" disablepictureinpicture></video></a>`;
   };
-  // Keep each perturbation once in the reading order. A second visual copy
-  // bridges the marquee seam without duplicating keyboard or screen-reader stops.
+  // Keep each perturbation once in the reading order. Two visual copies cover
+  // the full viewport through the seam even for the shortest six-card row.
   let offset = 0;
   const rows = Array.from({length:3}, (_,i)=>{
     const count = Math.ceil((entries.length-offset)/(3-i));
     const items = entries.slice(offset,offset+count);offset+=count;
-    return `<div class="gallery-viewport" data-gallery-row data-direction="${i===1?'left':'right'}" tabindex="0" role="region" aria-label="${mode} examples, row ${i+1}, scroll to explore"><div class="gallery-track">${[false,true].map(duplicate=>`<div class="gallery-group" ${duplicate?'aria-hidden="true"':''}>${items.map(p=>card(p,duplicate)).join('')}</div>`).join('')}</div></div>`;
+    return `<div class="gallery-viewport" data-gallery-row data-direction="${i===1?'left':'right'}" tabindex="0" role="region" aria-label="${mode} examples, row ${i+1}, scroll to explore"><div class="gallery-track">${[false,true,true].map(duplicate=>`<div class="gallery-group" ${duplicate?'aria-hidden="true"':''}>${items.map(p=>card(p,duplicate)).join('')}</div>`).join('')}</div></div>`;
   }).join('');
   return `<section class="section gallery-section" id="${mode}-gallery" data-gallery="${mode}"><div class="section-head"><div><h2>${mode==='static'?'Static shifts':'Dynamic interventions'}</h2><p class="caption">${entries.length} perturbations in motion · one example per perturbation</p></div><button class="motion-control" data-gallery-toggle="${mode}" aria-pressed="false">Pause gallery</button></div><div class="gallery-rows">${rows}</div><a class="text-link gallery-all" href="docs.html#${mode}-perturbations">View all ${entries.length} ${mode} perturbations ↗</a></section>`;
 }
