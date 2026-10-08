@@ -1,21 +1,25 @@
 """Build the public, success-rate-only benchmark catalogue.
 
-Usage: python scripts/build_data.py --paper PATH --figures PATH [--refresh-sheet]
+Usage: python scripts/build_data.py --paper PATH --figures PATH
+Optional refresh: --refresh-sheet --sheet-url PRIVATE_SOURCE_URL
 Reads only the four named non-RQ sheets. Never edits the source spreadsheet.
 """
 import argparse
 import collections
 import concurrent.futures
 import csv
+from datetime import date
 import io
 import json
 import re
 import urllib.request
+from urllib.parse import urlsplit
 from pathlib import Path
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
-SHEET = 'https://docs.google.com/spreadsheets/d/1Lfu3m6Dmh2nj3JeC9hBio1beL1yAJ6GTqXX7jFNuHaE'
+SHEET_SNAPSHOT = 'data/sheet-success-rates.json'
+SHEET_PROVENANCE = 'Approved non-RQ success rates exported from the private evaluation worksheet.'
 SUITES = {'Spatial': 'libero_spatial', 'Object': 'libero_object', 'Goal': 'libero_goal', 'Long': 'libero_10'}
 COMPLETED_SOURCE = 'data/completed-evaluations-2026-10-08.json'
 CATEGORIES = [
@@ -49,9 +53,9 @@ def public_id(direction):
         return None
     return {'D20': 'D19', 'D21': 'D20'}.get(direction, direction)
 
-def get_sheet(label, names):
+def get_sheet(label, names, sheet_url):
     sheet_name = {'Spatial':'libero-spatial', 'Object':'libero-object', 'Goal':'libero-goal', 'Long':'libero-10'}[label]
-    rows = list(csv.reader(io.StringIO(fetch(SHEET + '/gviz/tq?tqx=out:csv&sheet=' + sheet_name).decode('utf-8-sig'))))
+    rows = list(csv.reader(io.StringIO(fetch(sheet_url + '/gviz/tq?tqx=out:csv&sheet=' + sheet_name).decode('utf-8-sig'))))
     found = collections.Counter()
     cells = []
     for line, row in enumerate(rows, 1):
@@ -88,9 +92,9 @@ def build(args):
     sheet_names = all_names - counted_names
     if args.refresh_sheet:
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-            batches = list(pool.map(lambda label: get_sheet(label, sheet_names), SUITES))
-        write_json('data/sheet-success-rates.json', dict(accessed='2026-10-07', source=SHEET + '/edit', cells=sum(batches, [])))
-    snapshot = read_json('data/sheet-success-rates.json')
+            batches = list(pool.map(lambda label: get_sheet(label, sheet_names, args.sheet_url), SUITES))
+        write_json(SHEET_SNAPSHOT, dict(accessed=date.today().isoformat(), source=SHEET_PROVENANCE, cells=sum(batches, [])))
+    snapshot = read_json(SHEET_SNAPSHOT)
     categories = [dict(id=id, name=name, description=desc,
                        static=[f'S{i:02}' for i in static], dynamic=[f'D{i:02}' for i in dynamic])
                   for id,name,desc,static,dynamic in CATEGORIES]
@@ -150,9 +154,9 @@ def build(args):
         scores['overall'] = mean(c['rate'] for c in cells if c['direction']!='BASE')
         slug = name.lower().replace('π','pi').replace('+','-plus').replace('_','-').replace(' ','-').replace('.','-')
         models.append(dict(id=slug, name=name, type=entry['category'], scores=scores, cells=cells, cases=cases,
-            source={'label':'Completed evaluation counts' if source else 'Evaluation spreadsheet',
+            source={'label':'Completed evaluation counts' if source else 'Published evaluation snapshot',
                     'date':completed['accessed'][:10] if source else snapshot['accessed'],
-                    'url':COMPLETED_SOURCE if source else SHEET+'/edit',
+                    'url':COMPLETED_SOURCE if source else SHEET_SNAPSHOT,
                     'granularity':'task' if source else 'suite'}))
     write_json('data/results.json', dict(metric='Success rate', aggregation='Mean of available suite × perturbation success rates, including S22. Pool task counts within each suite × perturbation before averaging. Missing values are excluded, never zero-filled.', models=models))
     for name in ['overview','taxonomy']:
@@ -169,4 +173,14 @@ if __name__ == '__main__':
     parser.add_argument('--paper', type=Path, required=True)
     parser.add_argument('--figures', type=Path, required=True)
     parser.add_argument('--refresh-sheet', action='store_true')
-    build(parser.parse_args())
+    parser.add_argument('--sheet-url', help='Private source URL for an authorized refresh; never saved to public data')
+    args = parser.parse_args()
+    if args.refresh_sheet:
+        if not args.sheet_url:
+            parser.error('--refresh-sheet requires --sheet-url; offline builds use the published snapshot')
+        parts = urlsplit(args.sheet_url)
+        match = re.fullmatch(r'/spreadsheets/d/([A-Za-z0-9_-]+)(?:/edit)?/?', parts.path)
+        if parts.scheme != 'https' or parts.netloc != 'docs.google.com' or not match:
+            parser.error('--sheet-url must be a Google Sheets base or edit URL')
+        args.sheet_url = f'https://{parts.netloc}/spreadsheets/d/{match[1]}'
+    build(args)

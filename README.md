@@ -55,18 +55,22 @@ Open `scripts/taxonomy-test.html` for chart interaction checks, including exact 
 
 `data/results.json` contains 18 models. Average success rates include S22 and average available suite × perturbation cells, pooling task counts within a cell first. There are 87 static and 80 dynamic cells per model. Missing data is never zero-filled. Δ is Average − Base.
 
-Ten models use the four named non-RQ Google Sheets retrieved on 2026-10-07. Their source cells, without contributor names, are in `data/sheet-success-rates.json`. Eight models (OpenVLA, OpenVLA-OFT_w, OpenVLA-OFT_m, OpenVLA-OFT+, RIPT-VLA, NORA, UniVLA and π0-FAST) use `data/completed-evaluations-2026-10-08.json` trial counts. The four previously published models retain exactly the same case counts as the preserved October 4 source. Each has 339 cases, including nominal cases, and 10,170 episodes. Those eight expose individual task rates. The earlier aggregate snapshot is retained under `data/archive/` for reproducibility.
+Ten models use the approved non-RQ evaluation snapshot from 2026-10-07. Its source cells from four suites, without contributor names or a private worksheet URL, are in `data/sheet-success-rates.json`. Eight models (OpenVLA, OpenVLA-OFT_w, OpenVLA-OFT_m, OpenVLA-OFT+, RIPT-VLA, NORA, UniVLA and π0-FAST) use `data/completed-evaluations-2026-10-08.json` trial counts. The four previously published models retain exactly the same case counts as the preserved October 4 source. Each has 339 cases, including nominal cases, and 10,170 episodes. Those eight expose individual task rates. The earlier aggregate snapshot is retained under `data/archive/` for reproducibility.
+
+Visitors access the published JSON snapshots directly from this site without signing into the private evaluation worksheet. The leaderboard reads these committed files, not a live spreadsheet. To publish an update, review the approved export, rebuild and validate the results, then commit and deploy the snapshot. Private worksheet links are not included in the site or generated data.
 
 To rebuild from an authorized paper-source download and rendered overview/taxonomy PNGs:
 
 ```sh
 python scripts/build_data.py --paper PATH_TO_PAPER_SOURCE --figures PATH_TO_RENDERED_FIGURES
-# Add --refresh-sheet only when intentionally updating the source snapshot.
+# Optional authorized refresh: add --refresh-sheet --sheet-url PRIVATE_SOURCE_URL.
 python scripts/build_assets.py
 node scripts/verify-data.mjs
 ```
 
 Builders require Pillow. The site itself does not require Python or Node.
+
+Offline builds use the committed snapshot. A refresh requires the maintainer to supply an accessible export URL locally; it does not change worksheet sharing or grant access. The builder never records this URL in public artifacts. If direct export requires sign-in, use an authorized local export and review its approved rates before updating the snapshot.
 
 ## Add rollout media
 
