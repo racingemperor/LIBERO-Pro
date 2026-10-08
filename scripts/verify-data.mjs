@@ -5,6 +5,7 @@ const {categories,perturbations}=read('catalogue');
 const {models}=read('results');
 const {tasks}=read('tasks');
 const assets=read('model-assets');
+const profiles=read('model-profiles');
 const designs=read('task-designs').tasks;
 const people=read('people');
 const completed=read('completed-evaluations-2026-10-04');
@@ -40,9 +41,11 @@ for(const institution of people.affiliations){
 }
 for(const author of people.authors)for(const id of author.affiliations||[])assert(people.affiliations.some(a=>a.id===id));
 for(const m of models){
+  assert(profiles[m.id]?.description&&/^https:\/\//.test(profiles[m.id].source),`Missing sourced model introduction ${m.id}`);
   assert(assets[m.id],`Missing model image ${m.id}`);
   assert(fs.existsSync(new URL('../assets/models/'+assets[m.id].asset,import.meta.url)));
   assert.equal(m.scores.static.cells,87);assert.equal(m.scores.dynamic.cells,80);
+  close(m.scores.overall,avg(m.cells.filter(c=>c.direction!=='BASE').map(c=>c.rate)));
   for(const mode of ['static','dynamic']){
     const group=perturbations.filter(p=>p.mode===mode).map(p=>p.id);
     close(m.scores[mode].average,avg(m.cells.filter(c=>group.includes(c.direction)).map(c=>c.rate)));

@@ -1,0 +1,16 @@
+{
+  "lingbot-va": {"description":"Robbyant’s autoregressive video-action model jointly learns future visual dynamics and robot actions for closed-loop control.","source":"https://technology.robbyant.com/lingbot-va"},
+  "molmoact2": {"description":"Ai2’s action reasoning model connects an embodied vision-language backbone to a continuous flow-matching action expert for robot manipulation.","source":"https://github.com/allenai/molmoact2"},
+  "cosmos-policy": {"description":"NVIDIA’s video-model policy generates robot actions, predicts future states and estimates their value for visuomotor control and planning.","source":"https://github.com/NVlabs/cosmos-policy"},
+  "pi0-5": {"description":"Physical Intelligence’s π0.5 builds on π0, using knowledge insulation to improve open-world generalization in a vision-language-action policy.","source":"https://github.com/Physical-Intelligence/openpi"},
+  "pi0": {"description":"Physical Intelligence’s flow-based vision-language-action model combines visual observations and language instructions to generate robot actions.","source":"https://github.com/Physical-Intelligence/openpi"},
+  "xvla": {"description":"X-VLA uses soft prompts and a flow-matching Transformer to learn robot policies across different embodiments and data sources.","source":"https://thu-air-dream.github.io/X-VLA/"},
+  "fastwam": {"description":"Fast-WAM co-trains video and action prediction, then generates actions directly at inference without explicitly generating future video.","source":"https://yuantianyuan01.github.io/FastWAM/"},
+  "gr00t-n1-7": {"description":"NVIDIA’s cross-embodiment vision-language-action model pairs a vision-language backbone with a diffusion Transformer that generates continuous actions.","source":"https://github.com/NVIDIA/Isaac-GR00T"},
+  "openvla-oft": {"description":"OpenVLA with Optimized Fine-Tuning combines parallel decoding, action chunking and continuous actions trained with an L1 regression objective.","source":"https://openvla-oft.github.io/"},
+  "openvla-oft-m": {"description":"The OpenVLA-OFT_m evaluation variant in this benchmark, based on the OpenVLA optimized fine-tuning family. Scores use the supplied completed rollout counts.","source":"https://openvla-oft.github.io/"},
+  "openvla-oft-w": {"description":"The OpenVLA-OFT_w evaluation variant in this benchmark, based on the OpenVLA optimized fine-tuning family. Scores use the supplied completed rollout counts.","source":"https://openvla-oft.github.io/"},
+  "openvla-oft-plus": {"description":"The OpenVLA-OFT+ evaluation entry in this benchmark. The OFT project introduces FiLM language conditioning in its OFT+ recipe; these scores use the supplied rollout counts.","source":"https://openvla-oft.github.io/"},
+  "anchor-align": {"description":"Anchor-Align fine-tunes VLA policies with representation anchoring and language-action alignment to preserve pretrained visual and semantic knowledge.","source":"https://anchoralignvla.github.io/"},
+  "ript-vla": {"description":"RIPT-VLA post-trains vision-language-action policies through robot interaction, using sparse binary task-success rewards.","source":"https://github.com/Ariostgx/ript-vla"}
+}

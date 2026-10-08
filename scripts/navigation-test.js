@@ -27,7 +27,9 @@ const load = async path => {
 };
 const click = selector => {
   assert(query(selector), 'Missing control: ' + selector);
-  query(selector).click();
+  const target=query(selector);
+  if(typeof target.click==='function')target.click();
+  else target.dispatchEvent(new (win().MouseEvent)('click',{bubbles:true,button:0}));
 };
 const select = (selector, value) => {
   query(selector).value = value;
@@ -43,6 +45,83 @@ async function change(action, ready) {
 }
 
 const tests = [
+  ['Model chips toggle lines without reloads and retain selection through independent table changes', async () => {
+    await load('leaderboard.html#capabilities');
+    const {models}=await (await fetch('../data/results.json')).json();
+    const chosen=()=>[...doc().querySelectorAll('[data-chart-model][aria-pressed="true"]')].map(el=>el.dataset.chartModel);
+    assert(chosen().length===3,'Default comparison should contain the top three models');
+    assert(!query('#capabilities select'),'Chart selection uses a dropdown');
+    assert(doc().querySelectorAll('[data-chart-model] img').length===models.length,'Every chip needs its model image');
+    const chart=query('.capability-svg'),scroll=win().scrollY;
+    query('[data-chart-model="pi0"]').focus({preventScroll:true});
+    await change(()=>click('[data-chart-model="pi0"]'),()=>chosen().includes('pi0'));
+    assert(doc().activeElement===query('[data-chart-model="pi0"]'),'Toggle lost keyboard focus');
+    assert(query('.capability-svg')===chart&&Math.abs(win().scrollY-scroll)<2,'Chart or scroll reset');
+    const selection=chosen().join(',');
+    await change(()=>select('[data-query="type"]','World Action Models'),()=>doc().querySelectorAll('#rankings tbody tr').length===3);
+    await change(()=>click('#perturbation-rankings .tab[href*="perturbationMode=dynamic"]'),()=>!!query('[data-perturbation-sort="D20"]'));
+    assert(chosen().join(',')===selection&&new URL(win().location).searchParams.get('compare')===selection,'Table controls changed chart selection');
+    await load(win().location.href);
+    assert(chosen().join(',')===selection,'Reload lost selected models');
+    await change(()=>click('[data-chart-select="all"]'),()=>chosen().length===models.length);
+    assert(doc().querySelectorAll('[data-series]:not([hidden])').length===models.length,'Some selected models have no lines');
+    await change(()=>click('[data-chart-select="none"]'),()=>chosen().length===0);
+    assert(!query('.capability-empty').hidden&&!doc().querySelectorAll('[data-series]:not([hidden])').length,'Empty selection is misleading');
+    await load(win().location.href);
+    assert(chosen().length===0,'An empty deep-link selection reset to defaults');
+    await change(()=>click('[data-chart-model="molmoact2"]'),()=>chosen().length===1);
+    assert(doc().documentElement.scrollWidth<=win().innerWidth,'Chart causes horizontal page overflow');
+  }],
+  ['All 42 chart points and accessible table scores match the original aggregate data', async () => {
+    await load('leaderboard.html');
+    click('[data-chart-select="all"]');
+    const {models}=await (await fetch('../data/results.json')).json();
+    const rows=[...doc().querySelectorAll('.capability-data tbody tr')];
+    for(const m of models){
+      const series=query(`[data-series="${m.id}"]`),points=[...series.querySelectorAll('[data-metric]')];
+      const expected=[m.scores.overall,m.scores.dynamic.average,m.scores.static.average];
+      assert(points.map(p=>p.dataset.metric).join(',')==='overall,dynamic,static','Wrong metric order');
+      points.forEach((point,i)=>assert(Math.abs(Number(point.dataset.value)-expected[i])<1e-10,m.name+' chart point is wrong'));
+      const cells=m.cells.filter(c=>c.direction!=='BASE');
+      assert(Math.abs(expected[0]-cells.reduce((s,c)=>s+c.rate,0)/cells.length)<1e-10,'Overall no longer averages available cells');
+      const row=rows.find(r=>new URL(r.querySelector('a').href).searchParams.get('id')===m.id);
+      assert([...row.querySelectorAll('td')].map(c=>c.textContent).join(',')===expected.map(v=>(v*100).toFixed(1)+'%').join(','),'Accessible table differs from chart');
+    }
+    const grid=query('.capability-grid').textContent;
+    assert(grid.includes('100%')&&grid.includes('0'),'Shared success-rate scale is missing');
+  }],
+  ['Line hover, keyboard and touch reveal sourced introductions and preserve model drill-down history', async () => {
+    await load('leaderboard.html?compare=lingbot-va,pi0#capabilities');
+    const card=()=>query('#capability-preview');
+    const series=query('[data-series="lingbot-va"]');
+    series.dispatchEvent(new (win().PointerEvent)('pointerover',{bubbles:true,pointerType:'mouse',clientX:150,clientY:300}));
+    assert(!card().hidden&&card().textContent.includes('autoregressive'),'Hover did not show the model introduction');
+    assert(card().textContent.includes('75.0%')&&card().querySelector('a[target="_blank"]'),'Missing real score or official source');
+    series.dispatchEvent(new (win().KeyboardEvent)('keydown',{bubbles:true,key:'Escape'}));
+    assert(card().hidden,'Escape failed to dismiss hover details');
+    const pi=query('[data-series="pi0"]');pi.focus({preventScroll:true});
+    assert(!card().hidden&&card().textContent.includes('flow-based'),'Keyboard focus did not expose details');
+    pi.dispatchEvent(new (win().KeyboardEvent)('keydown',{bubbles:true,key:'Enter'}));
+    assert(doc().activeElement===card().querySelector('a'),'Keyboard activation did not reach model details');
+    pi.dispatchEvent(new (win().PointerEvent)('pointerout',{bubbles:true,pointerType:'mouse'}));
+    await new Promise(resolve=>setTimeout(resolve,230));
+    assert(!card().hidden,'Pinned details disappeared');
+    card().querySelector('a').dispatchEvent(new (win().KeyboardEvent)('keydown',{bubbles:true,key:'Escape'}));
+    assert(card().hidden&&doc().activeElement===pi,'Escape did not return focus to the model line');
+    pi.dispatchEvent(new (win().KeyboardEvent)('keydown',{bubbles:true,key:'Enter'}));
+    click('[data-close-preview]');assert(card().hidden,'Close did not dismiss details');
+    pi.dispatchEvent(new (win().PointerEvent)('pointerover',{bubbles:true,pointerType:'touch'}));
+    click('[data-series="pi0"]');assert(!card().hidden,'Tap did not expose details');
+    const previous=win().location.href;
+    click('#capability-preview a[href*="model.html"]');
+    await waitFor(()=>query('.model-title')?.textContent.includes('π0'));
+    assert(new URL(win().location).searchParams.get('id')==='pi0','Opened the wrong model profile');
+    win().history.back();
+    await waitFor(()=>win().location.href===previous&&!!query('.capability-chart'));
+    assert(doc().querySelectorAll('[data-chart-model][aria-pressed="true"]').length===2,'Back lost selected models');
+    win().history.forward();
+    await waitFor(()=>query('.model-title')?.textContent.includes('π0'));
+  }],
   ['Model S01 → S02 keeps the document, profile, directory and scroll position', async () => {
     await load('model.html?id=openvla-oft-m&perturbation=S01');
     win().scrollTo(0, 550);
@@ -63,14 +142,14 @@ const tests = [
     const charts = query('#capabilities'), scroll = win().scrollY;
     await change(() => select('[data-query="type"]', 'World Action Models'), () => doc().querySelectorAll('#rankings tbody tr').length === 3);
     await change(() => click('[data-sort="environment"]'), () => query('[data-sort="environment"]').closest('th').getAttribute('aria-sort') === 'descending');
-    const tableScroll = query('.table-scroll');
+    const tableScroll = query('#rankings .table-scroll');
     tableScroll.scrollLeft = 80;
     const left = tableScroll.scrollLeft;
-    await change(() => click('.tab[href*="mode=dynamic"]'), () => query('.table-scroll').getAttribute('aria-label').startsWith('Dynamic'));
+    await change(() => click('.tab[href*="mode=dynamic"]'), () => query('#rankings .table-scroll').getAttribute('aria-label').startsWith('Dynamic'));
     assert(query('[data-query="type"]').value === 'World Action Models', 'Model type reset');
     assert(query('[data-sort="environment"]').closest('th').getAttribute('aria-sort') === 'descending', 'Sort reset on setting change');
     assert(query('#capabilities') === charts, 'Capability charts were replaced');
-    assert(Math.abs(win().scrollY-scroll) < 2 && query('.table-scroll').scrollLeft === left, 'Page/table scroll jumped');
+    assert(Math.abs(win().scrollY-scroll) < 2 && query('#rankings .table-scroll').scrollLeft === left, 'Page/table scroll jumped');
     assert(!query('thead small'), 'Perturbation IDs remain in the header');
     await load(win().location.href);
     assert(query('.tab.active').textContent.includes('Dynamic') && query('[data-query="type"]').value === 'World Action Models', 'Deep link did not restore filters');

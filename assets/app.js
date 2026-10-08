@@ -1,6 +1,7 @@
 import {homeShowcase, homeGallery, bindHomeMotion, bindHomePresentation} from './home.js';
 import {taxonomyFigure, bindTaxonomy} from './taxonomy.js';
 import {updateView, isLocalViewLink} from './navigation.js';
+import {createCapabilities} from './capabilities.js';
 
 const app = document.querySelector('#app');
 const page = document.body.dataset.page;
@@ -13,6 +14,7 @@ const modeLabel = mode => mode === 'dynamic' ? 'Dynamic' : 'Static';
 const typeClass = type => type === 'World Action Models' ? 'wam' : type === 'Robustness-oriented' ? 'robust' : 'vla';
 const typeLabel = type => type === 'World Action Models' ? 'World Action' : type === 'Robustness-oriented' ? 'Robustness' : 'VLA';
 let catalogue, results, tasks, assets, news, designs, people, publication, homeRollouts;
+let capabilities;
 const url = (file, values={}, hash='') => `${file}.html${Object.keys(values).length ? `?${new URLSearchParams(Object.entries(values).filter(([,v])=>v !== null && v !== undefined))}` : ''}${hash ? '#'+hash : ''}`;
 const modelUrl = (m, extra={}, hash='') => url('model',{id:m.id,...extra},hash);
 const directionUrl = (p, m=null) => m ? modelUrl(m,{perturbation:p.id,mode:p.mode,category:p.category},'rollouts') : url('perturbation',{id:p.id});
@@ -103,7 +105,7 @@ function leaderboardPage() {
   const entries=rankedModels(mode,type,sort,asc);
   return layout(`${head('Leaderboard','Success rates under static shifts and dynamic interventions. Select a model or a domain score to inspect its tasks.')}
     ${newsSection()}
-    <section class="section" id="capabilities">${sectionHead('Model capabilities')}<div class="chart-grid">${chart('static')}${chart('dynamic')}</div><div class="legend"><span style="--bar:#c99742">Static success rate</span><span style="--bar:#269d92">Dynamic success rate</span><p>Shared 0–100% scale. Click any model to explore its results.</p></div></section>
+    <section class="section" id="capabilities">${sectionHead('Model capabilities')}${capabilities.render(params)}</section>
     <section class="section" id="rankings">${sectionHead('Model comparison',`<span class="count-label">${entries.length} models · success rate (%)</span>`)}<div class="controls">${tabs(mode,m=>url('leaderboard',{...Object.fromEntries(params),mode:m,type,sort,order:asc?'asc':'desc'},'rankings'))}<label class="control">Model type <select data-query="type" data-anchor="rankings"><option value="all">All models</option>${['Mainstream VLA','World Action Models','Robustness-oriented'].map(t=>`<option ${type===t?'selected':''}>${t}</option>`).join('')}</select></label></div>${leaderboardTable(mode,entries,sort,asc)}<p class="table-note">Average includes every applicable suite × perturbation result in the selected setting. Δ = Average − Base, in percentage points. Missing values remain blank (—). <a class="text-link" href="docs.html#taxonomy">Domain definitions ↗</a> · <a class="text-link" href="docs.html#scoring">Scoring details ↗</a></p></section>
     ${perturbationRankings()}
     <section class="section" id="protocol">${sectionHead('Evaluation protocol')}<div class="mode-guide"><div><h3>42 perturbations, 8 base tasks</h3><p style="margin-top:12px">S01–S22 are static; D01–D20 are dynamic. Evaluation uses two held-out tasks from each of four LIBERO suites. A single perturbation is applied to each evaluated case.</p></div><div><h3>Success rate only</h3><p style="margin-top:12px">A rollout succeeds when it satisfies the original task goal. Scores exclude RQ experiments and combined perturbation suites. No additional composite score is used.</p></div></div></section>
@@ -350,6 +352,7 @@ function revealPerturbationColumn() {
 function updateCurrentView(next, {anchor=false, top=false, replace=true}={}) {
   const changed=params.toString()!==next.searchParams.toString();
   const perturbationChanged=['perturbationMode','perturbationSort'].some(key=>params.get(key)!==next.searchParams.get(key));
+  const comparisonChanged=params.get('compare')!==next.searchParams.get('compare');
   const position={left:window.scrollX,top:window.scrollY};
   const focused=document.activeElement;
   // A filter/task choice is state of this view, not another stop in Back history.
@@ -366,7 +369,9 @@ function updateCurrentView(next, {anchor=false, top=false, replace=true}={}) {
     }
     window.scrollTo({...position,behavior:'instant'});
     const status=document.querySelector('#view-status');
-    if(page==='leaderboard'){
+    if(page==='leaderboard'&&comparisonChanged){
+      status.textContent=`Model comparison updated. ${document.querySelectorAll('[data-chart-model][aria-pressed="true"]').length} models selected.`;
+    }else if(page==='leaderboard'){
       const table=document.querySelector(`${next.hash==='#perturbation-rankings'?'#perturbation-rankings':'#rankings'} .table-scroll`);
       status.textContent=`${table.getAttribute('aria-label').split(',')[0]} updated. ${table.querySelectorAll('tbody tr').length} models.`;
     }else status.textContent=document.querySelector('.nav-item.active')?.textContent||document.querySelector('#content h1')?.textContent||'View updated';
@@ -443,13 +448,24 @@ try {
     if(!response.ok)throw new Error('Unable to load Home rollouts');
     homeRollouts=await response.json();
   }
+  if(page==='leaderboard') {
+    const response=await fetch('data/model-profiles.json');
+    if(!response.ok)throw new Error('Unable to load model introductions');
+    capabilities=createCapabilities(results.models,assets,await response.json(),{esc,pct,modelUrl,updateView});
+  }
   // Accept the previous public model deep link while the new profile route settles.
   if(page==='leaderboard'&&params.get('model')){
     const old=results.models.find(m=>m.name===params.get('model')||m.id===params.get('model'));
     if(old){location.replace(modelUrl(old,{mode:params.get('metric')==='dynamic'?'dynamic':'static'}));}
   }
   app.innerHTML=(renderers[page]||homePage)();bindInteractions();bindHomeMotion();bindHomePresentation();bindTaxonomy(catalogue);
-  if(page==='leaderboard')revealPerturbationColumn();
+  if(page==='leaderboard'){
+    capabilities.bind(ids=>{
+      const next=new URL(location.href);next.searchParams.set('compare',ids.join(','));
+      updateCurrentView(next);
+    });
+    revealPerturbationColumn();
+  }
 } catch(error) {
   console.error(error);
   app.innerHTML='<main id="content"><div class="error"><h1>Results could not be loaded</h1><p>Please reload the page or open the public data files.</p><a class="text-link" href="data/results.json">View result data ↗</a></div></main>';
