@@ -8,11 +8,20 @@ const assets=read('model-assets');
 const profiles=read('model-profiles');
 const designs=read('task-designs').tasks;
 const people=read('people');
-const completed=read('completed-evaluations-2026-10-04');
+const completed=read('completed-evaluations-2026-10-08');
 const sheet=read('sheet-success-rates');
 const avg=vs=>vs.length?vs.reduce((a,b)=>a+b,0)/vs.length:null;
 const close=(actual,expected)=>assert(Math.abs(actual-expected)<1e-10,`${actual} != ${expected}`);
-assert.equal(models.length,14);assert.equal(tasks.length,8);assert.equal(perturbations.length,42);
+assert.equal(models.length,18);assert.equal(tasks.length,8);assert.equal(perturbations.length,42);
+assert.equal(new Set(models.map(m=>m.id)).size,models.length);
+assert.deepEqual(completed.models.map(m=>m.model).sort(),['OpenVLA','OpenVLA-OFT_w','OpenVLA-OFT_m','OpenVLA-OFT+','RIPT-VLA','NORA','UniVLA','π0-FAST'].sort());
+assert(!models.some(m=>/worldvla/i.test(m.name)));
+const sortedCases=cases=>[...cases].sort((a,b)=>JSON.stringify([a.suite,a.taskId,a.direction]).localeCompare(JSON.stringify([b.suite,b.taskId,b.direction])));
+const priorModels=read('completed-evaluations-2026-10-04').models;
+const expectedCaseKeys=priorModels[0].cases.map(c=>`${c.suite}-${c.taskId}/${({'D20':'D19','D21':'D20'})[c.direction]||c.direction}`).sort();
+for(const prior of priorModels){
+  assert.deepEqual(sortedCases(completed.models.find(m=>m.model===prior.model).cases),sortedCases(prior.cases),'Previously published case counts changed');
+}
 assert.equal(new Set(perturbations.map(p=>p.id)).size,42);
 assert.deepEqual(perturbations.filter(p=>p.mode==='static').map(p=>p.id),Array.from({length:22},(_,i)=>`S${String(i+1).padStart(2,'0')}`));
 assert.deepEqual(perturbations.filter(p=>p.mode==='dynamic').map(p=>p.id),Array.from({length:20},(_,i)=>`D${String(i+1).padStart(2,'0')}`));
@@ -45,6 +54,8 @@ for(const m of models){
   assert(assets[m.id],`Missing model image ${m.id}`);
   assert(fs.existsSync(new URL('../assets/models/'+assets[m.id].asset,import.meta.url)));
   assert.equal(m.scores.static.cells,87);assert.equal(m.scores.dynamic.cells,80);
+  assert.equal(new Set(m.cells.map(c=>c.suite+'/'+c.direction)).size,m.cells.length);
+  close(m.scores.base,avg(m.cells.filter(c=>c.direction==='BASE').map(c=>c.rate)));
   close(m.scores.overall,avg(m.cells.filter(c=>c.direction!=='BASE').map(c=>c.rate)));
   for(const mode of ['static','dynamic']){
     const group=perturbations.filter(p=>p.mode===mode).map(p=>p.id);
@@ -54,7 +65,19 @@ for(const m of models){
   assert(m.cells.every(c=>c.rate>=0&&c.rate<=1));
   const raw=completed.models.find(c=>c.model===m.name);
   if(raw){
+    assert.equal(m.cells.length,171);
     assert.equal(m.cases.length,339);assert.equal(m.cases.reduce((n,c)=>n+c.episodes,0),10170);
+    assert.equal(raw.completedEpisodes,10170);
+    assert.equal(m.source.url,'data/completed-evaluations-2026-10-08.json');
+    assert.equal(m.source.date,'2026-10-08');
+    assert.deepEqual(m.cases.map(c=>c.task+'/'+c.direction).sort(),expectedCaseKeys,'Completed models must use the same evaluated task/case scope');
+    for(const c of m.cases){
+      assert.equal(c.episodes,30);
+      assert(Number.isInteger(c.successes)&&c.successes>=0&&c.successes<=30);
+      const task=tasks.find(t=>t.id===c.task),internal=perturbations.find(p=>p.id===c.direction)?.sourceId||'BASE';
+      const source=raw.cases.find(r=>r.suite===task.suite&&r.taskId===task.taskId&&r.direction===internal);
+      assert(source);assert.equal(c.successes,source.successes);assert.equal(c.episodes,source.episodes);
+    }
     // Independently pool original internal-ID counts and check every public cell.
     for(const cell of m.cells){
       const internal=perturbations.find(p=>p.id===cell.direction)?.sourceId||'BASE';
@@ -81,5 +104,5 @@ for(const clip of clips){
   assert(clip.duration>0&&/^[a-f0-9]{64}$/.test(clip.sourceSha256));
   for(const path of [clip.src,clip.poster])assert(fs.existsSync(new URL('../'+path,import.meta.url)),`Missing Home media ${path}`);
 }
-for(const file of ['results','catalogue','tasks','sheet-success-rates','home-rollouts'])assert(!JSON.stringify(read(file)).match(/(?:[CD]:\\|\/data[0-9]*\/|PRIVATE KEY|ghp_)/i));
-console.log('PASS: 14 model images; 42 paper IDs and latest Home rollouts; eight tasks; all aggregate/source cells; task counts; paper controls; empty news.');
+for(const file of ['results','catalogue','tasks','sheet-success-rates','home-rollouts','completed-evaluations-2026-10-08'])assert(!JSON.stringify(read(file)).match(/(?:[CD]:\\|\/data[0-9]*\/|PRIVATE KEY|ghp_)/i));
+console.log('PASS: 18 model images; eight complete count sources; 42 paper IDs and latest Home rollouts; eight tasks; all aggregate/source cells; task counts; paper controls; empty news.');

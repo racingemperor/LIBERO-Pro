@@ -72,7 +72,7 @@ const tests = [
     await change(()=>click('[data-chart-model="molmoact2"]'),()=>chosen().length===1);
     assert(doc().documentElement.scrollWidth<=win().innerWidth,'Chart causes horizontal page overflow');
   }],
-  ['All 42 chart points and accessible table scores match the original aggregate data', async () => {
+  ['All chart points and accessible table scores match the original aggregate data', async () => {
     await load('leaderboard.html');
     click('[data-chart-select="all"]');
     const {models}=await (await fetch('../data/results.json')).json();
@@ -89,6 +89,9 @@ const tests = [
     }
     const grid=query('.capability-grid').textContent;
     assert(grid.includes('100%')&&grid.includes('0'),'Shared success-rate scale is missing');
+    const labels=[...doc().querySelectorAll('.capability-series:not([hidden]) .capability-end-label text')];
+    const ys=labels.map(label=>Number(label.getAttribute('y'))).sort((a,b)=>a-b);
+    assert(ys.every((y,i)=>y>=30&&y<query('.capability-svg').viewBox.baseVal.height-30&&(!i||y-ys[i-1]>=21.9)),'Selected model labels overlap or leave the chart');
   }],
   ['Line hover, keyboard and touch reveal sourced introductions and preserve model drill-down history', async () => {
     await load('leaderboard.html?compare=lingbot-va,pi0#capabilities');
@@ -154,7 +157,7 @@ const tests = [
     await load(win().location.href);
     assert(query('.tab.active').textContent.includes('Dynamic') && query('[data-query="type"]').value === 'World Action Models', 'Deep link did not restore filters');
   }],
-  ['All 588 perturbation scores and detail links match the published suite results', async () => {
+  ['All perturbation scores and detail links match the published suite results', async () => {
     const [{models},{perturbations}]=await Promise.all(['results','catalogue'].map(async name=>(await fetch('../data/'+name+'.json')).json()));
     for(const mode of ['static','dynamic']){
       await load('leaderboard.html?perturbationMode='+mode+'#perturbation-rankings');
@@ -162,7 +165,7 @@ const tests = [
       const table=query('.perturbation-table');
       const ids=[...table.querySelectorAll('[data-perturbation-sort]')].map(el=>el.dataset.perturbationSort).slice(1);
       assert(JSON.stringify(ids)===JSON.stringify(directions.map(p=>p.id)), 'Perturbations missing or out of public ID order');
-      assert(table.querySelectorAll('tbody tr').length===14, 'Missing models');
+      assert(table.querySelectorAll('tbody tr').length===models.length, 'Missing models');
       for(const model of models){
         const row=table.querySelector(`[data-model="${model.id}"]`);
         assert(row.querySelector('.model-link img')?.getAttribute('src'), 'Model image missing');

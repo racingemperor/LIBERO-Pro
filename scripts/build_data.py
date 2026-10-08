@@ -17,6 +17,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 SHEET = 'https://docs.google.com/spreadsheets/d/1Lfu3m6Dmh2nj3JeC9hBio1beL1yAJ6GTqXX7jFNuHaE'
 SUITES = {'Spatial': 'libero_spatial', 'Object': 'libero_object', 'Goal': 'libero_goal', 'Long': 'libero_10'}
+COMPLETED_SOURCE = 'data/completed-evaluations-2026-10-08.json'
 CATEGORIES = [
     ('condition', 'Condition', 'Task geometry, object poses and interaction constraints.', [1,2,3,4,5,7,8,9], list(range(1,7))),
     ('environment', 'Environment', 'Scene composition, appearance and visual context.', [6,10,11,12,13,14,22], [7,8,9]),
@@ -78,8 +79,11 @@ def get_sheet(label, names):
 
 def build(args):
     old = read_json('data/archive/leaderboard-before-paper-taxonomy.json')
-    completed = read_json('data/completed-evaluations-2026-10-04.json')
-    all_names = {e['model'] for e in old['entries']}
+    completed = read_json(COMPLETED_SOURCE)
+    entries = {e['model']: e for e in old['entries']}
+    for model in completed['models']:
+        entries[model['model']] = model
+    all_names = set(entries)
     counted_names = {e['model'] for e in completed['models']}
     sheet_names = all_names - counted_names
     if args.refresh_sheet:
@@ -118,7 +122,7 @@ def build(args):
     write_json('data/tasks.json', {'tasks':tasks})
     write_json('data/catalogue.json', {'source':'Current paper source, downloaded 2026-10-07', 'categories':categories, 'perturbations':directions})
     models = []
-    for entry in old['entries']:
+    for entry in entries.values():
         name = entry['model']
         source = next((m for m in completed['models'] if m['model']==name), None)
         cases = []
@@ -147,8 +151,8 @@ def build(args):
         slug = name.lower().replace('π','pi').replace('+','-plus').replace('_','-').replace(' ','-').replace('.','-')
         models.append(dict(id=slug, name=name, type=entry['category'], scores=scores, cells=cells, cases=cases,
             source={'label':'Completed evaluation counts' if source else 'Evaluation spreadsheet',
-                    'date':'2026-10-04' if source else snapshot['accessed'],
-                    'url':'data/completed-evaluations-2026-10-04.json' if source else SHEET+'/edit',
+                    'date':completed['accessed'][:10] if source else snapshot['accessed'],
+                    'url':COMPLETED_SOURCE if source else SHEET+'/edit',
                     'granularity':'task' if source else 'suite'}))
     write_json('data/results.json', dict(metric='Success rate', aggregation='Mean of available suite × perturbation success rates, including S22. Pool task counts within each suite × perturbation before averaging. Missing values are excluded, never zero-filled.', models=models))
     for name in ['overview','taxonomy']:

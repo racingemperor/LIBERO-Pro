@@ -12,5 +12,9 @@
   "openvla-oft-w": {"description":"The OpenVLA-OFT_w evaluation variant in this benchmark, based on the OpenVLA optimized fine-tuning family. Scores use the supplied completed rollout counts.","source":"https://openvla-oft.github.io/"},
   "openvla-oft-plus": {"description":"The OpenVLA-OFT+ evaluation entry in this benchmark. The OFT project introduces FiLM language conditioning in its OFT+ recipe; these scores use the supplied rollout counts.","source":"https://openvla-oft.github.io/"},
   "anchor-align": {"description":"Anchor-Align fine-tunes VLA policies with representation anchoring and language-action alignment to preserve pretrained visual and semantic knowledge.","source":"https://anchoralignvla.github.io/"},
-  "ript-vla": {"description":"RIPT-VLA post-trains vision-language-action policies through robot interaction, using sparse binary task-success rewards.","source":"https://github.com/Ariostgx/ript-vla"}
+  "ript-vla": {"description":"RIPT-VLA post-trains vision-language-action policies through robot interaction, using sparse binary task-success rewards.","source":"https://github.com/Ariostgx/ript-vla"},
+  "openvla": {"description":"OpenVLA is an open 7B vision-language-action model pretrained on robot demonstrations to map images and language instructions to robot actions.","source":"https://github.com/openvla/openvla"},
+  "nora": {"description":"NORA is an open generalist vision-language-action model that predicts robot actions from visual observations and language instructions.","source":"https://github.com/declare-lab/nora"},
+  "univla": {"description":"UniVLA learns task-centric latent actions from cross-embodiment videos, then adapts its generalist policy to robot control and navigation tasks.","source":"https://github.com/OpenDriveLab/UniVLA"},
+  "pi0-fast": {"description":"Physical Intelligence’s autoregressive vision-language-action model uses FAST action tokenization to generate robot action sequences.","source":"https://github.com/Physical-Intelligence/openpi"}
 }

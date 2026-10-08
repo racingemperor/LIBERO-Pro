@@ -12,5 +12,9 @@
   "openvla-oft": {"asset":"openvla.webp","source":"https://avatars.githubusercontent.com/u/168038499?v=4","project":"https://openvla-oft.github.io/","credit":"Official OpenVLA family project icon","kind":"family logo"},
   "openvla-oft-w": {"asset":"openvla.webp","source":"https://avatars.githubusercontent.com/u/168038499?v=4","project":"https://openvla-oft.github.io/","credit":"Official OpenVLA family icon, shared by local OFT variants","kind":"family logo"},
   "openvla-oft-m": {"asset":"openvla.webp","source":"https://avatars.githubusercontent.com/u/168038499?v=4","project":"https://openvla-oft.github.io/","credit":"Official OpenVLA family icon, shared by local OFT variants","kind":"family logo"},
-  "openvla-oft-plus": {"asset":"openvla.webp","source":"https://avatars.githubusercontent.com/u/168038499?v=4","project":"https://openvla-oft.github.io/","credit":"Official OpenVLA family icon, shared by local OFT variants","kind":"family logo"}
+  "openvla-oft-plus": {"asset":"openvla.webp","source":"https://avatars.githubusercontent.com/u/168038499?v=4","project":"https://openvla-oft.github.io/","credit":"Official OpenVLA family icon, shared by local OFT variants","kind":"family logo"},
+  "openvla": {"asset":"openvla.webp","source":"https://avatars.githubusercontent.com/u/168038499?v=4","project":"https://github.com/openvla/openvla","credit":"Official OpenVLA project icon","kind":"project logo"},
+  "nora": {"asset":"nora.webp","source":"https://raw.githubusercontent.com/declare-lab/nora/main/assets/nora-logo.png","project":"https://declare-lab.github.io/nora","credit":"Official NORA project logo","kind":"project logo"},
+  "univla": {"asset":"opendrivelab.webp","source":"https://avatars.githubusercontent.com/u/121048976?v=4","project":"https://github.com/OpenDriveLab/UniVLA","credit":"OpenDriveLab official organization mark","kind":"organization logo"},
+  "pi0-fast": {"asset":"physical-intelligence.webp","source":"https://avatars.githubusercontent.com/u/162759805?v=4","project":"https://github.com/Physical-Intelligence/openpi","credit":"Physical Intelligence official organization mark","kind":"organization logo"}
 }

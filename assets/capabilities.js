@@ -5,7 +5,8 @@ const colors = {
   'lingbot-va':'#2064ce', 'molmoact2':'#b74379', 'cosmos-policy':'#25856c',
   'pi0-5':'#965616', 'xvla':'#7753b5', 'fastwam':'#007e9b', 'gr00t-n1-7':'#677c19',
   'openvla-oft-m':'#ad4a3a', 'openvla-oft':'#5365a1', 'openvla-oft-plus':'#866440',
-  'anchor-align':'#ac5a00', 'openvla-oft-w':'#537b7f', 'ript-vla':'#a03949', 'pi0':'#586371'
+  'anchor-align':'#ac5a00', 'openvla-oft-w':'#537b7f', 'ript-vla':'#a03949', 'pi0':'#586371',
+  'openvla':'#824394', 'nora':'#397849', 'univla':'#4966bd', 'pi0-fast':'#97694c'
 };
 
 export function createCapabilities(models, assets, profiles, {esc, pct, modelUrl, updateView}) {
@@ -18,7 +19,8 @@ export function createCapabilities(models, assets, profiles, {esc, pct, modelUrl
 
   function svg() {
     const compact = width < 620, left = compact?42:54, right = width-(compact?28:210);
-    const x = [left,(left+right)/2,right], top = 30, bottom = compact?274:334;
+    const x = [left,(left+right)/2,right], top = 30;
+    const bottom = compact?274:Math.max(334,top+(selected.size-1)*22);
     const y = v => bottom-v*(bottom-top);
     const labelPositions = new Map();
     const endpoints = ordered.filter(m=>selected.has(m.id)&&Number.isFinite(values(m)[2])).sort((a,b)=>values(b)[2]-values(a)[2]);
