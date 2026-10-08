@@ -126,16 +126,15 @@ function perturbationRankings() {
   },'perturbation-rankings');
   return `<section class="section" id="perturbation-rankings">
     ${sectionHead('Perturbation comparison',`<span class="count-label">${entries.length} models · ${perturbations.length} perturbations · success rate (%)</span>`)}
-    <div class="controls perturbation-controls">${tabs(mode,modeHref)}<div class="perturbation-selects">
-      <label class="control">Rank by <select data-query="perturbationSort" data-anchor="perturbation-rankings"><option value="average">Average</option>${perturbations.map(p=>`<option value="${p.id}" ${selected===p?'selected':''}>${p.id} · ${esc(p.name)}</option>`).join('')}</select></label>
+    <div class="controls">${tabs(mode,modeHref)}
       <label class="control">Model type <select data-query="perturbationType" data-anchor="perturbation-rankings"><option value="all">All models</option>${types.map(t=>`<option ${type===t?'selected':''}>${t}</option>`).join('')}</select></label>
-    </div></div>
-    <div class="perturbation-table-context"><p>${selected?`<a class="text-link" href="docs.html?perturbation=${selected.id}">${selected.id} · ${esc(selected.name)} ↗</a>`:`${modeLabel(mode)} average`}<span> · ${asc?'Lowest':'Highest'} first</span></p><p>Scroll horizontally to compare all ${perturbations.length} perturbations <span aria-hidden="true">→</span></p></div>
+    </div>
     <div class="table-scroll" tabindex="0" role="region" aria-label="${modeLabel(mode)} perturbation leaderboard, horizontally scrollable"><table class="leaderboard-table perturbation-table">
       <caption class="sr-only">${modeLabel(mode)} success rates by perturbation. Sorted by ${selected?esc(selected.id+' '+selected.name):'Average'}, ${asc?'ascending':'descending'}. Select a column heading to rank models or a score to view task details.</caption>
       <thead><tr><th scope="col" class="rank-column">#</th><th scope="col" class="model-column">Model</th><th scope="col">Type</th>${heading('average','Average')}${perturbations.map(p=>heading(p.id,p.id,p.id+' · '+p.name)).join('')}<th scope="col">Details</th></tr></thead>
       <tbody>${entries.map((m,i)=>`<tr data-model="${m.id}" data-href="${profile(m)}"><td class="rank-column">${i+1}</td><th scope="row" class="model-cell model-column"><a class="model-link" href="${profile(m)}">${logo(m)}${esc(m.name)}</a></th><td>${tag(m)}</td><td class="average">${pct(m.scores[mode].average)}</td>${perturbations.map(p=>{const v=directionRate(m,p);return `<td class="score-cell" data-perturbation="${p.id}"><a style="--heat:${v===null?0:(.04+v*.22).toFixed(3)}" href="${directionUrl(p,m)}" aria-label="${esc(m.name)}, ${p.id} ${esc(p.name)}, ${pct(v)}, view tasks">${pct(v)}</a></td>`;}).join('')}<td><a href="${profile(m)}" aria-label="View ${esc(m.name)} ${selected?selected.id:mode} details">↗</a></td></tr>`).join('')}</tbody>
     </table></div>
+    <p class="table-note">${selected?`<a class="text-link" href="docs.html?perturbation=${selected.id}">${selected.id} · ${esc(selected.name)} ↗</a>`:`${modeLabel(mode)} average`} · ${asc?'Lowest':'Highest'} first. Scroll horizontally to compare all ${perturbations.length} perturbations; click a column heading to sort.</p>
     <p class="table-note">Each perturbation score averages its available suite results, using the same calculation as model details. Average covers all applicable suite × perturbation results in the setting. Missing values remain —. Select a score to inspect its tasks. <a class="text-link" href="docs.html#taxonomy">Perturbation definitions ↗</a></p>
   </section>`;
 }
@@ -419,7 +418,6 @@ function bindInteractions() {
     if(!select)return;
     const next=new URL(location.href),key=select.dataset.query||'model';
     if(select.value)next.searchParams.set(key,select.value);else next.searchParams.delete(key);
-    if(key==='perturbationSort')next.searchParams.set('perturbationOrder','desc');
     if(select.dataset.anchor)next.hash=select.dataset.anchor;
     updateCurrentView(next);
   });

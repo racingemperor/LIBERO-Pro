@@ -104,7 +104,7 @@ const tests = [
     await load('leaderboard.html?mode=dynamic&type=World+Action+Models&sort=environment#perturbation-rankings');
     const original=query('#rankings .leaderboard-table').innerHTML,tableScroll=query('#perturbation-rankings .table-scroll');
     const position=win().scrollY;
-    await change(()=>select('[data-query="perturbationSort"]','S22'),()=>!!query('[data-perturbation-sort="S22"]').closest('th').getAttribute('aria-sort'));
+    await change(()=>click('[data-perturbation-sort="S22"]'),()=>query('[data-perturbation-sort="S22"]').closest('th').getAttribute('aria-sort')==='descending');
     assert(tableScroll.scrollLeft>0, 'Selected far column was not revealed');
     const values=()=>[...doc().querySelectorAll('#perturbation-rankings [data-perturbation="S22"]')].map(el=>parseFloat(el.textContent));
     const descending=values();
@@ -118,18 +118,18 @@ const tests = [
     assert(!query('[data-perturbation-sort="S22"]'), 'Static column survived in dynamic mode');
     assert(query('[data-query="perturbationType"]').value==='Robustness-oriented', 'Type filter was lost on mode change');
     assert(Math.abs(win().scrollY-position)<2, 'Page jumped during perturbation selections');
-    await change(()=>select('[data-query="perturbationSort"]','D19'),()=>query('[data-perturbation-sort="D19"]').closest('th').getAttribute('aria-sort')==='descending');
+    await change(()=>click('[data-perturbation-sort="D19"]'),()=>query('[data-perturbation-sort="D19"]').closest('th').getAttribute('aria-sort')==='descending');
     await change(()=>click('#rankings .tab[href*="mode=static"]'),()=>query('#rankings .tab.active').textContent.includes('Static'));
-    assert(query('[data-query="perturbationSort"]').value==='D19'&&query('#perturbation-rankings .tab.active').textContent.includes('Dynamic'), 'Domain setting discarded perturbation state');
+    assert(query('[data-perturbation-sort="D19"]').closest('th').getAttribute('aria-sort')==='descending'&&query('#perturbation-rankings .tab.active').textContent.includes('Dynamic'), 'Domain setting discarded perturbation state');
     await load(win().location.href);
-    assert(query('[data-query="perturbationSort"]').value==='D19'&&query('[data-query="perturbationType"]').value==='Robustness-oriented', 'Deep link lost selections');
+    assert(query('[data-perturbation-sort="D19"]').closest('th').getAttribute('aria-sort')==='descending'&&query('[data-query="perturbationType"]').value==='Robustness-oriented', 'Deep link lost selections');
     const previous=win().location.href,first=query('#perturbation-rankings [data-perturbation="D19"] a'),target=new URL(first.href);
     first.click();
     await waitFor(()=>query('.nav-item.active')?.textContent.includes('D19'));
     assert(win().location.search===target.search&&query('#rollouts h2').textContent==='Robot joint displacement', 'Wrong dynamic mapping or model detail');
     win().history.back();
     await waitFor(()=>win().location.href===previous&&!!query('.perturbation-table'));
-    assert(query('[data-query="perturbationSort"]').value==='D19', 'Back lost selected perturbation');
+    assert(query('[data-perturbation-sort="D19"]').closest('th').getAttribute('aria-sort')==='descending', 'Back lost selected perturbation');
   }],
   ['Task catalogue switches domains and settings without navigation', async () => {
     await load('tasks.html');
