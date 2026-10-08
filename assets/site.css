@@ -370,3 +370,8 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
 @media(prefers-reduced-motion:reduce){
   .showcase-slide,.slide-dots span{transition:none;transform:none}
 }
+
+/* Paper-inspired wordmark; preserve the header's left edge and center line. */
+.brand{display:inline-flex;align-items:center;flex:none;min-height:44px}
+.brand-wordmark{display:block;width:144px;height:auto}
+@media(max-width:760px){.brand-wordmark{width:132px}}
