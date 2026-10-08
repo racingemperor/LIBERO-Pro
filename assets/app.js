@@ -393,7 +393,7 @@ function bindInteractions() {
   document.addEventListener('click',event=>{
     const link=event.target.closest('a[href]');
     if(isLocalViewLink(event,link,location.href)){
-      const next=new URL(link.href);
+      const next=new URL(link.getAttribute('href'),location.href);
       const changed=next.search!==location.search;
       event.preventDefault();
       updateCurrentView(next,{

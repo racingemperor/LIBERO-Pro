@@ -46,8 +46,10 @@ function syncNode(current, next) {
 
 export function isLocalViewLink(event, link, currentURL) {
   if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return false;
-  if (link.hasAttribute('download') || (link.target && link.target !== '_self')) return false;
-  const next = new URL(link.href, currentURL);
+  const target = link.getAttribute('target');
+  if (link.hasAttribute('download') || (target && target !== '_self')) return false;
+  // SVG anchors expose href/target as SVGAnimatedString, unlike HTML anchors.
+  const next = new URL(link.getAttribute('href'), currentURL);
   const current = new URL(currentURL);
   return next.origin === current.origin && next.pathname === current.pathname;
 }

@@ -54,7 +54,7 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
 .capability-series.muted{opacity:.16}
 .capability-series.highlighted{opacity:1}
 .capability-line{stroke:var(--series);stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
-.capability-hit{stroke:transparent;stroke-width:22;fill:none;pointer-events:stroke}
+.capability-hit{stroke:transparent;stroke-width:32;fill:none;stroke-linecap:round;stroke-linejoin:round;pointer-events:stroke;vector-effect:non-scaling-stroke}
 .capability-point{fill:#fff;stroke:var(--series);stroke-width:2.4;pointer-events:none}
 .capability-series.highlighted .capability-line,.capability-series:focus-visible .capability-line{stroke-width:3.5}
 .capability-series:focus-visible .capability-point{stroke-width:4;stroke-dasharray:2 2}
@@ -62,7 +62,7 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
 .capability-series.highlighted .capability-value,.capability-series:focus-visible .capability-value{opacity:1}
 .capability-connector{stroke:var(--series);stroke-width:1;fill:none;opacity:.5}
 .capability-end-label text{font-size:12px;fill:color-mix(in srgb,var(--series) 85%,black);font-weight:600}
-.capability-end-label image{pointer-events:none}
+.capability-end-label{pointer-events:bounding-box}
 .capability-help{font-size:12px;margin:5px 0 16px;color:var(--muted)}
 .capability-foot{border-top:1px solid var(--line);padding-top:14px;font-size:12px;color:var(--muted)}
 .capability-foot>p{margin:0 0 10px;max-width:760px}
@@ -74,27 +74,22 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
 .capability-data thead th{font-weight:600;background:#f8fafc}
 .capability-data .table-scroll{margin-top:10px}
 .capability-empty{position:absolute;left:15%;right:15%;top:46%;text-align:center;background:#fff;padding:12px;color:var(--muted);font-size:14px;pointer-events:none}
-.capability-preview{position:absolute;z-index:5;width:316px;max-width:calc(100% - 16px);padding:16px;background:#fff;border:1px solid #d5dde6;border-radius:8px;box-shadow:0 8px 28px #1b304322;color:var(--ink);font-size:12px;line-height:1.55}
+.capability-preview{position:absolute;z-index:5;width:316px;max-width:calc(100% - 16px);padding:16px;background:#fff;border:1px solid #d5dde6;border-radius:8px;box-shadow:0 8px 28px #1b304322;color:var(--ink);font-size:12px;line-height:1.55;pointer-events:none}
 .capability-preview-head{display:flex;align-items:center;gap:9px}
 .capability-preview-head>img{width:34px;height:34px;border-radius:5px;border:1px solid #edf0f3}
 .capability-preview-head>div{flex:1;min-width:0}
 .capability-preview-head strong{display:block;font-size:14px}
 .capability-preview-head span{display:block;font-size:11px;color:var(--muted)}
-.capability-preview-head button{align-self:flex-start;border:0;background:none;color:var(--muted);font-size:22px;line-height:1;cursor:pointer;padding:0 2px 8px 8px}
 .capability-preview p{font-size:12px;line-height:1.6;margin:12px 0;color:#506070}
 .capability-preview dl{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0;padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .capability-preview dt{color:var(--muted);font-size:11px}
 .capability-preview dd{margin:2px 0 0;font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
-.capability-preview-links{display:flex;justify-content:space-between;gap:12px;padding-top:10px}
-.capability-preview-links a{color:var(--blue);font-size:12px}
 @media(max-width:760px){
   .model-chip{min-height:44px;font-size:12px;padding-right:10px;gap:6px}
   .capability-selection-head button{min-height:44px}
   .capability-models{gap:8px;margin-bottom:24px}
   .capability-selection-head{margin-bottom:4px}
   .capability-preview{position:relative;left:auto!important;top:auto!important;width:100%;max-width:100%;box-shadow:none;margin:8px 0 12px}
-  .capability-preview-head button{min-width:44px;min-height:44px;padding:0}
-  .capability-preview-links a{min-height:44px;display:flex;align-items:center}
   .capability-preview p{font-size:13px}
   .capability-empty{left:9%;right:9%;font-size:13px}
   .capability-data summary{min-height:44px;padding-top:12px}

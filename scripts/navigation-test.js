@@ -93,32 +93,75 @@ const tests = [
     const ys=labels.map(label=>Number(label.getAttribute('y'))).sort((a,b)=>a-b);
     assert(ys.every((y,i)=>y>=30&&y<query('.capability-svg').viewBox.baseVal.height-30&&(!i||y-ys[i-1]>=21.9)),'Selected model labels overlap or leave the chart');
   }],
-  ['Line hover, keyboard and touch reveal sourced introductions and preserve model drill-down history', async () => {
+  ['Whole lines preview models, accept nearby clicks and open results directly with Back restoring selection', async () => {
+    await load('leaderboard.html#capabilities');
+    for(const id of ['lingbot-va','molmoact2','cosmos-policy']){
+      const series=query(`[data-series="${id}"]`),points=series.querySelectorAll('.capability-point');
+      for(let segment=0;segment<2;segment++){
+        const a=points[segment],b=points[segment+1];
+        const local=new (win().DOMPoint)(a.cx.baseVal.value*.8+b.cx.baseVal.value*.2,a.cy.baseVal.value*.8+b.cy.baseVal.value*.2);
+        let point=local.matrixTransform(series.getScreenCTM());
+        win().scrollBy(0,point.y-win().innerHeight/2);
+        point=local.matrixTransform(series.getScreenCTM());
+        doc().elementFromPoint(point.x,point.y).dispatchEvent(new (win().PointerEvent)('pointermove',{bubbles:true,pointerType:'mouse',clientX:point.x,clientY:point.y}));
+        assert(query('[data-series].highlighted')===series,'An overlapping line stole the hover preview');
+        assert(doc().elementFromPoint(point.x,point.y)?.closest('[data-series]')===series,'An overlapping line would open the wrong model');
+      }
+    }
+    const crossingLines=['lingbot-va','molmoact2'].map(id=>[...query(`[data-series="${id}"]`).querySelectorAll('.capability-point')].slice(1));
+    const [a,b]=crossingLines;
+    const start=a[0].cy.baseVal.value-b[0].cy.baseVal.value,end=a[1].cy.baseVal.value-b[1].cy.baseVal.value,t=start/(start-end);
+    const crossing=new (win().DOMPoint)(a[0].cx.baseVal.value+(a[1].cx.baseVal.value-a[0].cx.baseVal.value)*t,a[0].cy.baseVal.value+(a[1].cy.baseVal.value-a[0].cy.baseVal.value)*t).matrixTransform(a[0].getScreenCTM());
+    let crossingModel;
+    for(let i=0;i<4;i++){
+      doc().elementFromPoint(crossing.x,crossing.y).dispatchEvent(new (win().PointerEvent)('pointermove',{bubbles:true,pointerType:'mouse',clientX:crossing.x,clientY:crossing.y}));
+      const current=query('[data-series].highlighted').dataset.series;
+      if(i)assert(current===crossingModel,'Hover flickers at an exact line crossing');
+      crossingModel=current;
+    }
+    // Touch can land on a lower-painted line before any hover has promoted it.
+    await load('leaderboard.html#capabilities');
+    const touchSeries=query('[data-series="lingbot-va"]'),touchPoints=touchSeries.querySelectorAll('.capability-point');
+    const localTouch=new (win().DOMPoint)(touchPoints[0].cx.baseVal.value*.8+touchPoints[1].cx.baseVal.value*.2,touchPoints[0].cy.baseVal.value*.8+touchPoints[1].cy.baseVal.value*.2);
+    let touch=localTouch.matrixTransform(touchSeries.getScreenCTM());
+    win().scrollBy(0,touch.y-win().innerHeight/2);
+    touch=localTouch.matrixTransform(touchSeries.getScreenCTM());
+    doc().elementFromPoint(touch.x,touch.y).dispatchEvent(new (win().MouseEvent)('click',{bubbles:true,cancelable:true,button:0,detail:1,clientX:touch.x,clientY:touch.y}));
+    await waitFor(()=>query('.model-title')?.textContent.includes('Lingbot-VA'));
+    assert(new URL(win().location).searchParams.get('id')==='lingbot-va','Tap without hover followed the overlapping model');
     await load('leaderboard.html?compare=lingbot-va,pi0#capabilities');
     const card=()=>query('#capability-preview');
     const series=query('[data-series="lingbot-va"]');
-    series.dispatchEvent(new (win().PointerEvent)('pointerover',{bubbles:true,pointerType:'mouse',clientX:150,clientY:300}));
-    assert(!card().hidden&&card().textContent.includes('autoregressive'),'Hover did not show the model introduction');
-    assert(card().textContent.includes('75.0%')&&card().querySelector('a[target="_blank"]'),'Missing real score or official source');
+    const points=[...series.querySelectorAll('.capability-point')];
+    for(let segment=0;segment<2;segment++){
+      for(const fraction of [.2,.5,.8]){
+        const a=points[segment],b=points[segment+1];
+        const local=new (win().DOMPoint)(a.cx.baseVal.value+(b.cx.baseVal.value-a.cx.baseVal.value)*fraction,a.cy.baseVal.value+(b.cy.baseVal.value-a.cy.baseVal.value)*fraction);
+        let point=local.matrixTransform(series.getScreenCTM());
+        win().scrollBy(0,point.y-win().innerHeight/2);
+        point=local.matrixTransform(series.getScreenCTM());
+        // Exercise real SVG hit testing between points, 12px away from the thin visible line.
+        const hit=doc().elementFromPoint(point.x,point.y+12);
+        assert(hit?.closest('[data-series]')===series,'A line segment is hard to target');
+        hit.dispatchEvent(new (win().PointerEvent)('pointerover',{bubbles:true,pointerType:'mouse',clientX:point.x,clientY:point.y+12}));
+        assert(!card().hidden&&card().textContent.includes('autoregressive'),'Hover did not show the model introduction');
+        assert(doc().elementFromPoint(point.x,point.y+12)?.closest('[data-series]')===series,'The preview intercepted a line click');
+      }
+    }
+    assert(card().textContent.includes('75.0%'),'Missing real model score');
+    assert(!card().querySelector('a,button'),'The preview still requires a second interactive target');
     series.dispatchEvent(new (win().KeyboardEvent)('keydown',{bubbles:true,key:'Escape'}));
     assert(card().hidden,'Escape failed to dismiss hover details');
     const pi=query('[data-series="pi0"]');pi.focus({preventScroll:true});
     assert(!card().hidden&&card().textContent.includes('flow-based'),'Keyboard focus did not expose details');
-    pi.dispatchEvent(new (win().KeyboardEvent)('keydown',{bubbles:true,key:'Enter'}));
-    assert(doc().activeElement===card().querySelector('a'),'Keyboard activation did not reach model details');
-    pi.dispatchEvent(new (win().PointerEvent)('pointerout',{bubbles:true,pointerType:'mouse'}));
-    await new Promise(resolve=>setTimeout(resolve,230));
-    assert(!card().hidden,'Pinned details disappeared');
-    card().querySelector('a').dispatchEvent(new (win().KeyboardEvent)('keydown',{bubbles:true,key:'Escape'}));
-    assert(card().hidden&&doc().activeElement===pi,'Escape did not return focus to the model line');
-    pi.dispatchEvent(new (win().KeyboardEvent)('keydown',{bubbles:true,key:'Enter'}));
-    click('[data-close-preview]');assert(card().hidden,'Close did not dismiss details');
+    assert(pi.localName==='a'&&new URL(pi.getAttribute('href'),win().location).searchParams.get('id')==='pi0','The line is not a native model link');
+    pi.dispatchEvent(new (win().KeyboardEvent)('keydown',{bubbles:true,key:'Escape'}));
+    assert(card().hidden&&doc().activeElement===pi,'Escape moved focus away from the model line');
     pi.dispatchEvent(new (win().PointerEvent)('pointerover',{bubbles:true,pointerType:'touch'}));
-    click('[data-series="pi0"]');assert(!card().hidden,'Tap did not expose details');
     const previous=win().location.href;
-    click('#capability-preview a[href*="model.html"]');
+    click('[data-series="pi0"] .capability-hit');
     await waitFor(()=>query('.model-title')?.textContent.includes('π0'));
-    assert(new URL(win().location).searchParams.get('id')==='pi0','Opened the wrong model profile');
+    assert(new URL(win().location).searchParams.get('id')==='pi0','A single line click did not open the correct profile');
     win().history.back();
     await waitFor(()=>win().location.href===previous&&!!query('.capability-chart'));
     assert(doc().querySelectorAll('[data-chart-model][aria-pressed="true"]').length===2,'Back lost selected models');
