@@ -1,6 +1,6 @@
 # LIBERO-Pro benchmark website
 
-Experimental deployment: https://racingemperor.github.io/demo/
+Website: https://racingemperor.github.io/LIBERO-Pro/
 
 A standalone static site for the current LIBERO-Pro benchmark. The frontend is rebuilt around the paper's six-domain taxonomy, 22 static shifts, 20 dynamic interventions and eight held-out tasks. The Home introduction summarizes the original LIBERO-Pro study's motivation; its pages, scripts, media and numerical results are not reused.
 
@@ -112,4 +112,4 @@ The layout and interaction reference is [RoboDojo](https://robodojo-benchmark.co
 
 ## Deployment
 
-GitHub Pages publishes the root of `site-framework-experiment`, the default branch of `racingemperor/demo`. Only `origin` is updated. The original upstream website and `master` branch are unchanged.
+GitHub Pages publishes the root of `site-framework-experiment`, the default branch of `racingemperor/LIBERO-Pro`. Only `origin` is updated. The original upstream website and `master` branch are unchanged.

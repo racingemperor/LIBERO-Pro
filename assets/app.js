@@ -68,7 +68,7 @@ function peopleSection() {
   const affiliations=institutions.length?`<div class="institution-logos">${institutions.map((a,i)=>`<figure><img src="${esc(a.logo)}" alt="${esc(a.name)}" loading="lazy"><figcaption><sup>${i+1}</sup> ${esc(a.name)}</figcaption></figure>`).join('')}</div>`:'';
   const report=/^https:\/\//.test(publication.report?.url||'')?`<a href="${esc(publication.report.url)}" target="_blank" rel="noopener">${esc(publication.report.label||'Read the paper')} ↗</a>`:'';
   const email=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(publication.email||'')?`<a href="mailto:${esc(publication.email)}">${esc(publication.email)}</a>`:'';
-  return `<dl class="paper-meta" aria-label="Paper information">${row('Authors',authors,'paper-meta-authors')}${row('Affiliations',affiliations,'paper-meta-affiliations')}${row('Published',esc(publication.published))}${row('Report',report)}${row('Repository','<a href="https://github.com/racingemperor/demo" target="_blank" rel="noopener">racingemperor/demo ↗</a>')}${row('Leaderboard','<a href="leaderboard.html">View leaderboard ↗</a>')}${row('Email',email,'paper-meta-contact')}</dl>`;
+  return `<dl class="paper-meta" aria-label="Paper information">${row('Authors',authors,'paper-meta-authors')}${row('Affiliations',affiliations,'paper-meta-affiliations')}${row('Published',esc(publication.published))}${row('Report',report)}${row('Repository','<a href="https://github.com/racingemperor/LIBERO-Pro" target="_blank" rel="noopener">racingemperor/LIBERO-Pro ↗</a>')}${row('Leaderboard','<a href="leaderboard.html">View leaderboard ↗</a>')}${row('Email',email,'paper-meta-contact')}</dl>`;
 }
 
 function citationSection() {
