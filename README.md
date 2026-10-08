@@ -112,4 +112,4 @@ The layout and interaction reference is [RoboDojo](https://robodojo-benchmark.co
 
 ## Deployment
 
-GitHub Pages publishes the root of `codex/site-framework-experiment` in `racingemperor/demo`. Only `origin` is updated. The original upstream website and `master` branch are unchanged.
+GitHub Pages publishes the root of `site-framework-experiment`, the default branch of `racingemperor/demo`. Only `origin` is updated. The original upstream website and `master` branch are unchanged.
