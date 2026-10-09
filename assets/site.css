@@ -73,6 +73,38 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
 .capability-data th:first-child{text-align:left}
 .capability-data thead th{font-weight:600;background:#f8fafc}
 .capability-data .table-scroll{margin-top:10px}
+
+/* Keep all Leaderboard tables dense without shrinking the score text. */
+body[data-page=leaderboard] .leaderboard-table{font-size:12px;line-height:1.4}
+body[data-page=leaderboard] .leaderboard-table th,
+body[data-page=leaderboard] .leaderboard-table td{height:40px;padding:3px 6px;vertical-align:middle}
+body[data-page=leaderboard] .leaderboard-table thead th{padding:4px 6px}
+body[data-page=leaderboard] .leaderboard-table th button{min-height:30px;min-width:28px}
+body[data-page=leaderboard] .leaderboard-table .model-cell{min-width:164px}
+body[data-page=leaderboard] .leaderboard-table .model-link{min-height:32px;gap:6px;font-size:12px}
+body[data-page=leaderboard] .leaderboard-table .logo{width:22px;height:22px;padding:1px}
+body[data-page=leaderboard] .leaderboard-table .type-tag{padding:2px 5px;line-height:1.4}
+body[data-page=leaderboard] .leaderboard-table .average{font-size:12px}
+body[data-page=leaderboard] .leaderboard-table .score-cell a{display:flex;align-items:center;justify-content:flex-end;min-height:28px;min-width:44px;padding:4px 6px}
+body[data-page=leaderboard] .leaderboard-table td:last-child>a{display:inline-flex;align-items:center;justify-content:center;min-width:28px;min-height:28px}
+body[data-page=leaderboard] .perturbation-table{--rank-width:30px;--model-width:164px}
+body[data-page=leaderboard] .perturbation-table .score-cell{min-width:64px}
+body[data-page=leaderboard] .perturbation-table th button{min-width:50px}
+body[data-page=leaderboard] .capability-data td,
+body[data-page=leaderboard] .capability-data th{height:32px;padding:4px 8px;line-height:1.4}
+body[data-page=leaderboard] .capability-data th a{display:inline-flex;align-items:center;min-height:24px}
+@media(max-width:760px),(pointer:coarse){
+  body[data-page=leaderboard] .leaderboard-table th,
+  body[data-page=leaderboard] .leaderboard-table td{height:48px;padding-top:1px;padding-bottom:1px}
+  body[data-page=leaderboard] .leaderboard-table .model-link,
+  body[data-page=leaderboard] .leaderboard-table .score-cell a,
+  body[data-page=leaderboard] .leaderboard-table th button,
+  body[data-page=leaderboard] .leaderboard-table td:last-child>a,
+  body[data-page=leaderboard] .capability-data th a{min-height:44px}
+  body[data-page=leaderboard] .leaderboard-table td:last-child>a{min-width:44px}
+  body[data-page=leaderboard] .capability-data td,
+  body[data-page=leaderboard] .capability-data th{padding-top:1px;padding-bottom:1px}
+}
 .capability-empty{position:absolute;left:15%;right:15%;top:46%;text-align:center;background:#fff;padding:12px;color:var(--muted);font-size:14px;pointer-events:none}
 .capability-preview{position:absolute;z-index:5;width:316px;max-width:calc(100% - 16px);padding:16px;background:#fff;border:1px solid #d5dde6;border-radius:8px;box-shadow:0 8px 28px #1b304322;color:var(--ink);font-size:12px;line-height:1.55;pointer-events:none}
 .capability-preview-head{display:flex;align-items:center;gap:9px}
@@ -208,6 +240,23 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
 .paper-meta dd{margin:0;min-width:0;font-size:17px;line-height:1.8;overflow-wrap:anywhere}
 .paper-meta dd>a{display:inline-block;color:var(--blue);padding:4px 0;min-height:40px}
 .paper-meta dd>a:hover{text-decoration:underline;text-underline-offset:4px}
+.repository-links{display:flex;flex-wrap:wrap;gap:8px 20px}
+.repository-link{display:inline-flex;align-items:center;gap:8px;min-height:40px;max-width:100%;font-size:14px;line-height:1.5;color:var(--ink);padding:4px 0}
+.repository-link img{flex:none;width:20px;height:20px}
+.repository-name{min-width:0;overflow-wrap:anywhere}
+.repository-link:hover .repository-name{text-decoration:underline;text-underline-offset:4px}
+.repository-status{flex:none;font-size:11px;line-height:1.5;padding:2px 6px;border-radius:4px;background:#eef0f2;color:#59616b}
+.repository-status.latest{background:#e4f3ec;color:#25654c}
+.news-list{list-style:none;padding:0;margin:12px 0 0}
+.news-list li{display:grid;grid-template-columns:92px minmax(0,1fr);gap:8px 20px;padding:7px 0;font-size:14px;line-height:1.65}
+.news-list time{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums;padding-top:2px}
+.news-list p{color:var(--ink)}
+.news-list a{color:var(--blue);white-space:nowrap;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:760px){
+  .repository-links{gap:4px 16px}
+  .repository-link{min-height:44px;font-size:13px}
+  .news-list li{grid-template-columns:1fr;gap:2px;padding:9px 0}
+}
 .paper-meta-empty{min-height:32px;border-bottom:1px solid var(--line)}
 .paper-meta-authors .paper-meta-empty{min-height:58px}
 .paper-meta-affiliations .paper-meta-empty{min-height:68px}
@@ -347,6 +396,7 @@ a.home-model-chip:focus-visible{outline:2px solid #215e52;outline-offset:3px}
   .paper-meta dt{font-size:10px;letter-spacing:.055em}
   .paper-meta dd{font-size:14px}
   .paper-meta dd>a{min-height:44px}
+  .paper-meta-repositories{grid-template-columns:1fr;gap:2px}
   .paper-meta-contact{padding-top:18px}
   .institution-logos{gap:18px}
   .institution-logos figure{max-width:100%}

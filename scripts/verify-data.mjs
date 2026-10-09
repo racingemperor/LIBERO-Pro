@@ -111,7 +111,13 @@ for(const m of models){
 for(const [name,s,d] of [['OpenVLA-OFT',58.9,64.6],['Lingbot-VA',68.7,81.8],['MolmoAct2',71.2,76.9],['Cosmos Policy',70.8,72.2],['FastWAM',55.9,70.1]]){
   const m=models.find(m=>m.name===name);assert.equal((m.scores.static.average*100).toFixed(1),s.toFixed(1));assert.equal((m.scores.dynamic.average*100).toFixed(1),d.toFixed(1));
 }
-assert.equal(read('news').entries.length,0);
+const announcements=read('news').entries;
+for(const [index,entry] of announcements.entries()){
+  assert(/^\d{4}-\d{2}-\d{2}$/.test(entry.date)&&Number.isFinite(Date.parse(entry.date)),`Invalid News date: ${entry.date}`);
+  assert((entry.title||entry.text)?.trim(),'News entries need readable text');
+  if(index)assert(announcements[index-1].date>=entry.date,'News must be newest first');
+  if(entry.link){assert(entry.link.label?.trim());assert(['https:','http:'].includes(new URL(entry.link.url).protocol),'News links must use HTTP(S)');}
+}
 const clips=read('home-rollouts').clips;
 if(privateRoot){
   const internal=readPrivate('home-rollouts-internal').clips;

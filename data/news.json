@@ -1,3 +1,34 @@
 {
-  "entries": []
+  "entries": [
+    {
+      "date": "2025-11-05",
+      "text": "All bddl and init files have been uploaded to Huggingface (supports fast parallel evaluation):",
+      "link": {"label": "Dataset", "url": "https://huggingface.co/datasets/zhouxueyang/LIBERO-Pro"}
+    },
+    {
+      "date": "2025-10-29",
+      "text": "We launched the official project website for LIBERO-Pro (with more demos & details):",
+      "link": {"label": "Webpage", "url": "https://zxy-mllab.github.io/LIBERO-PRO-Webpage/"}
+    },
+    {
+      "date": "2025-10-22",
+      "text": "We have shared a project promotion post on Xhs:",
+      "link": {"label": "Xhs", "url": "http://xhslink.com/o/5vmaip7wQCE/"}
+    },
+    {
+      "date": "2025-10-20",
+      "text": "We have created an official WeChat account (join discussions, get quick Q&A)",
+      "link": {"label": "WeChat", "url": "https://github.com/Zxy-MLlab/LIBERO-OOD/blob/master/images/wechat.png"}
+    },
+    {
+      "date": "2025-10-05",
+      "text": "We have released the full LIBERO-Pro code on GitHub:",
+      "link": {"label": "Code", "url": "https://github.com/Zxy-MLlab/LIBERO-PRO"}
+    },
+    {
+      "date": "2025-10-04",
+      "text": "Our paper, LIBERO-Pro: Towards Robust and Fair Evaluation of Vision-Language-Action Models Beyond Memorization is now available on arXiv:",
+      "link": {"label": "Paper", "url": "https://arxiv.org/pdf/2510.03827"}
+    }
+  ]
 }

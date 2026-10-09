@@ -32,7 +32,7 @@ const head = (title,desc='',crumb='') => `<header class="page-head">${crumb}<h1>
 const sectionHead = (title,link='') => `<div class="section-head"><h2>${title}</h2>${link}</div>`;
 const breadcrumb = links => `<nav class="breadcrumb" aria-label="Breadcrumb">${links.map(([label,href])=>href?`<a href="${esc(href)}">${esc(label)}</a>`:`<span aria-current="page">${esc(label)}</span>`).join('<span aria-hidden="true">/</span>')}</nav>`;
 const tabs = (mode,href) => `<div class="tabs" aria-label="Distribution shift">${['static','dynamic'].map(x=>`<a class="tab ${mode===x?'active':''}" ${mode===x?'aria-current="true"':''} href="${esc(href(x))}">${modeLabel(x)} <span class="count-label">${x==='static'?'22':'20'}</span></a>`).join('')}</div>`;
-const newsSection = () => `<section class="section news-section" id="news">${sectionHead('News')}${news.entries.map(n=>`<p><time>${esc(n.date)}</time> ${esc(n.title||n.text)}</p>`).join('')}</section>`;
+const newsSection = () => `<section class="section news-section" id="news">${sectionHead('News')}<ul class="news-list">${news.entries.map(n=>`<li><time datetime="${esc(n.date)}">${esc(n.date.replaceAll('-','/'))}</time><p>${esc(n.title||n.text)}${/^https?:\/\//.test(n.link?.url||'')?` <a href="${esc(n.link.url)}" target="_blank" rel="noopener">${esc(n.link.label)} ↗</a>`:''}</p></li>`).join('')}</ul></section>`;
 
 function layout(content, entries) {
   const links=entries.map(([id,name])=>`<a href="#${id}">${name}</a>`).join('');
@@ -68,7 +68,8 @@ function peopleSection() {
   const affiliations=institutions.length?`<div class="institution-logos">${institutions.map((a,i)=>`<figure><img src="${esc(a.logo)}" alt="${esc(a.name)}" loading="lazy"><figcaption><sup>${i+1}</sup> ${esc(a.name)}</figcaption></figure>`).join('')}</div>`:'';
   const report=/^https:\/\//.test(publication.report?.url||'')?`<a href="${esc(publication.report.url)}" target="_blank" rel="noopener">${esc(publication.report.label||'Read the paper')} ↗</a>`:'';
   const email=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(publication.email||'')?`<a href="mailto:${esc(publication.email)}">${esc(publication.email)}</a>`:'';
-  return `<dl class="paper-meta" aria-label="Paper information">${row('Authors',authors,'paper-meta-authors')}${row('Affiliations',affiliations,'paper-meta-affiliations')}${row('Published',esc(publication.published))}${row('Report',report)}${row('Repository','<a href="https://github.com/racingemperor/LIBERO-Pro" target="_blank" rel="noopener">racingemperor/LIBERO-Pro ↗</a>')}${row('Leaderboard','<a href="leaderboard.html">View leaderboard ↗</a>')}${row('Email',email,'paper-meta-contact')}</dl>`;
+  const repositories=`<div class="repository-links">${[['LIBERO-PRO','先前','previous'],['LIBERO-Pro2.0','最新','latest']].map(([name,label,version])=>`<a class="repository-link" href="https://github.com/Zxy-MLlab/${name}" target="_blank" rel="noopener"><img src="assets/icons/github.svg" width="20" height="20" alt="" aria-hidden="true"><span class="repository-name">Zxy-MLlab/${name}</span><span class="repository-status ${version}" lang="zh-CN">${label}</span></a>`).join('')}</div>`;
+  return `<dl class="paper-meta" aria-label="Paper information">${row('Authors',authors,'paper-meta-authors')}${row('Affiliations',affiliations,'paper-meta-affiliations')}${row('Published',esc(publication.published))}${row('Report',report)}${row('Repository',repositories,'paper-meta-repositories')}${row('Leaderboard','<a href="leaderboard.html">View leaderboard ↗</a>')}${row('Email',email,'paper-meta-contact')}</dl>`;
 }
 
 function citationSection() {
