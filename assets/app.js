@@ -53,8 +53,8 @@ function homePage() {
     <section class="section paper-overview home-centered" id="paper-overview">${sectionHead('Benchmark overview')}<figure><a href="assets/paper/overview.webp" target="_blank" rel="noopener" aria-label="Open the full LIBERO-Pro overview figure"><img src="assets/paper/overview.webp" width="2000" height="1125" loading="lazy" alt="LIBERO-Pro overview showing 22 static and 20 dynamic perturbations across six domains"></a><figcaption class="caption">LIBERO-Pro evaluates robustness across 22 static shifts and 20 runtime interventions in six perturbation domains.</figcaption></figure></section>
     <section class="section home-centered" id="domains">${sectionHead('Perturbation domains')}<p class="home-section-intro">Six domains organize the benchmark. Each perturbation has a mechanism illustration and a gallery for the eight evaluation tasks.</p><div class="home-domains"><div class="home-domain-column home-domain-left">${catalogue.categories.slice(0,3).map(domainLink).join('')}</div>${taxonomyFigure(catalogue)}<div class="home-domain-column home-domain-right">${catalogue.categories.slice(3).map(domainLink).join('')}</div></div><a class="text-link home-domains-explore" href="docs.html#taxonomy">Explore all 42 perturbations ↗</a></section>
     ${homeGallery(catalogue,'static',homeRollouts)}${homeGallery(catalogue,'dynamic',homeRollouts)}
-    <section class="section" id="evaluation-tasks">${sectionHead('Evaluation tasks','<a class="text-link" href="docs.html#task-designs">Read task designs ↗</a>')}<p style="margin-bottom:15px">Eight held-out tasks, with two tasks from each LIBERO suite. Open a task to read its instruction, scene design and success conditions.</p>${documentTaskList()}</section>
-    <section class="section" id="leaderboard">${sectionHead('Leaderboard','<a class="text-link" href="leaderboard.html">Full leaderboard ↗</a>')}<div class="chart-grid">${chart('static',5)}${chart('dynamic',5)}</div></section>
+    <section class="section home-evaluation-tasks" id="evaluation-tasks">${sectionHead('Evaluation tasks','<a class="text-link" href="docs.html#task-designs">Read task designs ↗</a>')}${documentTaskList({compact:true})}</section>
+    <section class="section home-leaderboard" id="leaderboard">${sectionHead('Leaderboard','<a class="text-link" href="leaderboard.html">Full leaderboard ↗</a>')}<div class="chart-grid">${chart('static',10)}${chart('dynamic',10)}</div></section>
     ${homeModels(results.models,upcomingModels.models,assets,modelUrl)}
     ${citationSection()}
   </main>`;
@@ -216,8 +216,8 @@ function findingsPage() {
     <section class="section" id="failure-analysis">${sectionHead('Failure analysis')}<div class="empty-section">Examples coming soon.</div></section>`,[['static-dynamic','Static & dynamic'],['domain-analysis','Domain analysis'],['failure-analysis','Failure analysis']]);
 }
 
-function documentTaskList() {
-  return `<div class="task-list">${tasks.map(t=>`<a class="base-task" href="${url('docs',{task:t.id})}"><span class="task-index">${esc(t.suiteName)}<br>${t.taskId}</span><div><h3>${esc(designs.tasks[t.id].title)}</h3><p>${esc(designs.tasks[t.id].focus)}</p></div><span class="arrow" aria-hidden="true">↗</span></a>`).join('')}</div>`;
+function documentTaskList({compact=false}={}) {
+  return `<div class="task-list">${tasks.map(t=>`<a class="base-task" href="${url('docs',{task:t.id})}"><span class="task-index">${esc(t.suiteName)}${compact?' ':'<br>'}${t.taskId}</span><div><h3>${esc(designs.tasks[t.id].title)}</h3>${compact?'':`<p>${esc(designs.tasks[t.id].focus)}</p>`}</div><span class="arrow" aria-hidden="true">↗</span></a>`).join('')}</div>`;
 }
 
 function documentLayout(content) {
