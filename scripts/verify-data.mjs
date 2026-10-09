@@ -127,7 +127,22 @@ for(const clip of clips){
   assert.deepEqual(Object.keys(clip).sort(),['perturbation','poster','src'],'Internal rollout metadata must stay private');
   for(const path of [clip.src,clip.poster])assert(fs.existsSync(new URL('../'+path,import.meta.url)),`Missing Home media ${path}`);
 }
-const publicFiles=['catalogue','home-rollouts','model-assets','model-profiles','news','people','publication','results','task-designs','tasks'];
+const upcoming=read('upcoming-models');
+assert.deepEqual(Object.keys(upcoming),['models'],'Upcoming models contain only public names and IDs');
+assert(Array.isArray(upcoming.models));
+assert.equal(new Set(upcoming.models.map(m=>m.id)).size,upcoming.models.length,'Duplicate upcoming models');
+for(const model of upcoming.models){
+  assert.deepEqual(Object.keys(model).sort(),['id','name'],'Do not publish internal evaluation plans');
+  assert(/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(model.id)&&typeof model.name==='string'&&model.name.trim());
+  assert(assets[model.id]&&/^https:\/\//.test(assets[model.id].source),'Upcoming models need a public provenance source');
+  if(assets[model.id].kind==='pending'){
+    assert.equal(assets[model.id].asset,null,'Unverified logos must not use unrelated imagery');
+    continue;
+  }
+  assert(/^[\w-]+\.(webp|png|jpg|svg)$/.test(assets[model.id].asset));
+  assert(fs.existsSync(new URL('../assets/models/'+assets[model.id].asset,import.meta.url)),'Missing upcoming model image');
+}
+const publicFiles=['catalogue','home-rollouts','model-assets','model-profiles','news','people','publication','results','task-designs','tasks','upcoming-models'];
 const dataFiles=fs.readdirSync(new URL('../data/',import.meta.url),{recursive:true,withFileTypes:true}).filter(entry=>entry.isFile());
 assert.deepEqual(dataFiles.map(entry=>entry.name).sort(),publicFiles.map(name=>name+'.json').sort(),'Only display data may be distributed');
 for(const file of publicFiles)assert(!JSON.stringify(read(file)).match(/(?:[CD]:\\|\/data[0-9]*\/|PRIVATE KEY|ghp_|docs\.google\.com\/spreadsheets)/i));

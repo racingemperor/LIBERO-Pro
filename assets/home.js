@@ -43,6 +43,23 @@ export function homeGallery(catalogue, mode, media) {
   return `<section class="section gallery-section" id="${mode}-gallery" data-gallery="${mode}"><div class="section-head"><h2>${mode==='static'?'Static shifts':'Dynamic interventions'}</h2></div><div class="gallery-rows">${rows}</div><a class="text-link gallery-all" href="docs.html#${mode}-perturbations">View all ${entries.length} ${mode} perturbations ↗</a></section>`;
 }
 
+export function homeModels(models, upcoming, assets, modelUrl) {
+  const tested = [...models].sort((a,b)=>(b.scores.overall??-1)-(a.scores.overall??-1));
+  const planned = upcoming.filter(model=>!models.some(tested=>tested.id===model.id));
+  const label = model => {
+    const asset = assets[model.id];
+    const image = asset.asset ? `<img src="assets/models/${escape(asset.asset)}" width="32" height="32" alt="" aria-hidden="true" title="${escape(asset.credit)}" loading="lazy">` : '<span class="home-model-logo-pending" aria-hidden="true"></span>';
+    return `${image}<span>${escape(model.name)}</span>`;
+  };
+  return `<section class="section home-models" id="models">
+    <div class="section-head"><h2 id="tested-models-heading">Tested models</h2><span class="count-label">${tested.length} models</span></div>
+    <ul class="home-model-list" aria-labelledby="tested-models-heading">${tested.map(model=>`<li><a class="home-model-chip" href="${modelUrl(model)}">${label(model)}</a></li>`).join('')}</ul>
+    <div class="home-models-upcoming"><h3 id="upcoming-models-heading">Upcoming models</h3>
+      ${planned.length?`<ul class="home-model-list" aria-labelledby="upcoming-models-heading">${planned.map(model=>`<li><span class="home-model-chip is-upcoming">${label(model)}</span></li>`).join('')}</ul>`:'<p class="home-models-empty">To be announced.</p>'}
+    </div>
+  </section>`;
+}
+
 export function bindHomePresentation() {
   if (!document.querySelector('.home-showcase')) return;
   const copy = document.querySelector('[data-copy-citation]');

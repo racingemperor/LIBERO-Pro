@@ -1,4 +1,4 @@
-import {homeShowcase, homeGallery, bindHomeMotion, bindHomePresentation} from './home.js';
+import {homeShowcase, homeGallery, homeModels, bindHomeMotion, bindHomePresentation} from './home.js';
 import {taxonomyFigure, bindTaxonomy} from './taxonomy.js';
 import {updateView, isLocalViewLink} from './navigation.js';
 import {createCapabilities} from './capabilities.js';
@@ -13,7 +13,7 @@ const mean = values => { const valid = values.filter(Number.isFinite); return va
 const modeLabel = mode => mode === 'dynamic' ? 'Dynamic' : 'Static';
 const typeClass = type => type === 'World Action Models' ? 'wam' : type === 'Robustness-oriented' ? 'robust' : 'vla';
 const typeLabel = type => type === 'World Action Models' ? 'World Action' : type === 'Robustness-oriented' ? 'Robustness' : 'VLA';
-let catalogue, results, tasks, assets, news, designs, people, publication, homeRollouts;
+let catalogue, results, tasks, assets, news, designs, people, publication, homeRollouts, upcomingModels;
 let capabilities;
 const url = (file, values={}, hash='') => `${file}.html${Object.keys(values).length ? `?${new URLSearchParams(Object.entries(values).filter(([,v])=>v !== null && v !== undefined))}` : ''}${hash ? '#'+hash : ''}`;
 const modelUrl = (m, extra={}, hash='') => url('model',{id:m.id,...extra},hash);
@@ -55,7 +55,7 @@ function homePage() {
     ${homeGallery(catalogue,'static',homeRollouts)}${homeGallery(catalogue,'dynamic',homeRollouts)}
     <section class="section" id="evaluation-tasks">${sectionHead('Evaluation tasks','<a class="text-link" href="docs.html#task-designs">Read task designs ↗</a>')}<p style="margin-bottom:15px">Eight held-out tasks, with two tasks from each LIBERO suite. Open a task to read its instruction, scene design and success conditions.</p>${documentTaskList()}</section>
     <section class="section" id="leaderboard">${sectionHead('Leaderboard','<a class="text-link" href="leaderboard.html">Full leaderboard ↗</a>')}<p class="caption" style="margin:0 0 24px">Top five models in each setting · success rate (%) · all 42 published perturbations</p><div class="chart-grid">${chart('static',5)}${chart('dynamic',5)}</div></section>
-    <section class="section" id="resources">${sectionHead('Resources')}<div class="mode-guide"><div><h3>Evaluation protocol</h3><p style="margin:10px 0">Understand the task split, success-rate aggregation and public perturbation numbering.</p><a class="text-link" href="docs.html#protocol">Read the protocol ↗</a></div><div><h3>Results and examples</h3><p style="margin:10px 0">Browse model results and inspect task success rates where available. Rollout media will be added to the reserved galleries.</p><a class="text-link" href="leaderboard.html">Browse results ↗</a></div></div></section>
+    ${homeModels(results.models,upcomingModels.models,assets,modelUrl)}
     ${citationSection()}
   </main>`;
 }
@@ -443,9 +443,11 @@ try {
     const response=await fetch(`data/${name}.json`);if(!response.ok)throw new Error(`Unable to load ${name}`);return response.json();
   }));
   if(page==='index') {
-    const response=await fetch('data/home-rollouts.json');
-    if(!response.ok)throw new Error('Unable to load Home rollouts');
-    homeRollouts=await response.json();
+    [homeRollouts,upcomingModels]=await Promise.all(['home-rollouts','upcoming-models'].map(async name=>{
+      const response=await fetch(`data/${name}.json`);
+      if(!response.ok)throw new Error(`Unable to load ${name}`);
+      return response.json();
+    }));
   }
   if(page==='leaderboard') {
     const response=await fetch('data/model-profiles.json');
