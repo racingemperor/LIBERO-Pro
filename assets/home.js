@@ -3,7 +3,7 @@ const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp
 export function homeShowcase(catalogue) {
   const example = id => {
     const p = catalogue.perturbations.find(item => item.id === id);
-    return `<a class="hero-example" href="docs.html?perturbation=${id}"><img src="${p.image}" alt="${escape(p.name)} — paper mechanism illustration" width="1760" height="510"><span>${id} · ${escape(p.name)}</span></a>`;
+    return `<a class="hero-example" href="docs.html?perturbation=${id}"><img src="assets/home-examples/${id}.webp" alt="${id}: ${escape(p.name)} — paper mechanism illustration" width="1740" height="420"></a>`;
   };
   const collageIds = ['S01','S10','S15','D01','D04','D18'];
   const collage = `<figure class="showcase-collage" aria-label="Selected LIBERO-Pro perturbation examples"><div class="collage-canvas">${collageIds.map(id=>{const p=catalogue.perturbations.find(item=>item.id===id);return `<div class="collage-card"><img src="${p.image}" alt="${escape(p.id+' '+p.name)}" width="1760" height="510"></div>`;}).join('')}<div class="collage-tint" aria-hidden="true"></div><figcaption><span>LIBERO-Pro</span><small>Static shifts · Runtime interventions</small></figcaption></div></figure>`;
@@ -40,7 +40,7 @@ export function homeGallery(catalogue, mode, media) {
     const items = entries.slice(offset,offset+count);offset+=count;
     return `<div class="gallery-viewport" data-gallery-row data-direction="${i===1?'left':'right'}" tabindex="0" role="region" aria-label="${mode} examples, row ${i+1}, scroll to explore"><div class="gallery-track">${[false,true,true].map(duplicate=>`<div class="gallery-group" ${duplicate?'aria-hidden="true"':''}>${items.map(p=>card(p,duplicate)).join('')}</div>`).join('')}</div></div>`;
   }).join('');
-  return `<section class="section gallery-section" id="${mode}-gallery" data-gallery="${mode}"><div class="section-head"><div><h2>${mode==='static'?'Static shifts':'Dynamic interventions'}</h2><p class="caption">${entries.length} perturbations in motion · one example per perturbation</p></div><button class="motion-control" data-gallery-toggle="${mode}" aria-pressed="false">Pause gallery</button></div><div class="gallery-rows">${rows}</div><a class="text-link gallery-all" href="docs.html#${mode}-perturbations">View all ${entries.length} ${mode} perturbations ↗</a></section>`;
+  return `<section class="section gallery-section" id="${mode}-gallery" data-gallery="${mode}"><div class="section-head"><div><h2>${mode==='static'?'Static shifts':'Dynamic interventions'}</h2><p class="caption">${entries.length} perturbations in motion · one example per perturbation</p></div></div><div class="gallery-rows">${rows}</div><a class="text-link gallery-all" href="docs.html#${mode}-perturbations">View all ${entries.length} ${mode} perturbations ↗</a></section>`;
 }
 
 export function bindHomePresentation() {
@@ -93,13 +93,12 @@ export function bindHomeMotion() {
   const pause = root.querySelector('[data-carousel-pause]');
   let current = 0, stopped = preference.matches, elapsed = 0, last = 0;
   const galleries = [...document.querySelectorAll('[data-gallery]')].map(section => ({
-    section, button: section.querySelector('[data-gallery-toggle]'), stopped: preference.matches,
-    rows: [...section.querySelectorAll('[data-gallery-row]')].map(view=>({view, visible:false, position:0, span:0})),
+    rows: [...section.querySelectorAll('[data-gallery-row]')].map(view=>({view, visible:false, position:0, span:0, holdUntil:0})),
     videos: [...section.querySelectorAll('video')].map(video=>({video, visible:false, requested:false}))
   }));
   const syncVideos = () => {
     for (const gallery of galleries) for (const item of gallery.videos) {
-      const play = item.visible && !gallery.stopped && !document.hidden;
+      const play = item.visible && !preference.matches && !document.hidden;
       if (play && !item.requested) {
         item.requested=true;
         if (!item.video.getAttribute('src')) item.video.src=item.video.dataset.src;
@@ -121,10 +120,6 @@ export function bindHomeMotion() {
   const sync = () => {
     pause.textContent = stopped ? 'Play slideshow' : 'Pause slideshow';
     pause.setAttribute('aria-pressed',String(stopped));
-    for (const gallery of galleries) {
-      gallery.button.textContent = gallery.stopped ? 'Play gallery' : 'Pause gallery';
-      gallery.button.setAttribute('aria-pressed',String(gallery.stopped));
-    }
     syncVideos();
   };
   dots.forEach(dot=>dot.addEventListener('click',()=>{stopped=true;show(Number(dot.dataset.slide),true);sync();}));
@@ -152,25 +147,24 @@ export function bindHomeMotion() {
   };
   const resize=new ResizeObserver(entries=>entries.forEach(entry=>measure(rows.find(r=>r.view===entry.target))));
   for (const gallery of galleries) {
-    gallery.button.addEventListener('click',()=>{gallery.stopped=!gallery.stopped;gallery.rows.forEach(r=>r.position=r.view.scrollLeft);sync();});
     gallery.videos.forEach(item=>observer.observe(item.video));
     for(const row of gallery.rows) {
       measure(row);observer.observe(row.view);resize.observe(row.view);
-      // Hand horizontal browsing to the visitor without interrupting loops
-      // when they simply scroll down the page.
-      const stop=()=>{gallery.stopped=true;sync();};
-      row.view.addEventListener('keydown',event=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(event.key))stop();});
-      row.view.addEventListener('wheel',event=>{if(event.shiftKey||Math.abs(event.deltaX)>Math.abs(event.deltaY))stop();},{passive:true});
+      // Hold only the row being browsed, then resume automatically. Videos
+      // keep playing; vertical page scrolling does not interrupt either loop.
+      const hold=()=>{row.holdUntil=performance.now()+1800;};
+      row.view.addEventListener('keydown',event=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(event.key))hold();});
+      row.view.addEventListener('wheel',event=>{if(event.shiftKey||Math.abs(event.deltaX)>Math.abs(event.deltaY))hold();},{passive:true});
       let gesture=null;
       row.view.addEventListener('pointerdown',event=>{gesture={x:event.clientX,y:event.clientY};},{passive:true});
       row.view.addEventListener('pointermove',event=>{
-        if(gesture&&Math.abs(event.clientX-gesture.x)>12&&Math.abs(event.clientX-gesture.x)>Math.abs(event.clientY-gesture.y)){stop();gesture=null;}
+        if(gesture&&Math.abs(event.clientX-gesture.x)>12&&Math.abs(event.clientX-gesture.x)>Math.abs(event.clientY-gesture.y))hold();
       },{passive:true});
       for(const event of ['pointerup','pointercancel','pointerleave'])row.view.addEventListener(event,()=>{gesture=null;},{passive:true});
     }
   }
   document.addEventListener('visibilitychange',syncVideos);
-  preference.addEventListener('change',()=>{if(preference.matches){stopped=true;galleries.forEach(g=>g.stopped=true);sync();}});
+  preference.addEventListener('change',()=>{if(preference.matches)stopped=true;sync();});
   const tick = now => {
     const dt = last ? Math.min(now-last,100) : 0;last=now;
     if (!document.hidden) {
@@ -180,7 +174,7 @@ export function bindHomeMotion() {
       }
       for (const gallery of galleries) {
         for(const row of gallery.rows) {
-          if(gallery.stopped||!row.visible||row.view.matches(':hover,:focus-within')){row.position=row.view.scrollLeft;continue;}
+          if(preference.matches||!row.visible||now<row.holdUntil||row.view.matches(':hover,:focus-within')){row.position=row.view.scrollLeft;continue;}
           if(!row.span)continue;
           row.position+=dt*.022*(row.view.dataset.direction==='right'?-1:1);
           row.position=(row.position+row.span)%row.span;
