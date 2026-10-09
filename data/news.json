@@ -2,37 +2,31 @@
   "entries": [
     {
       "date": "2025-11-05",
-      "translation": "所有 BDDL 和 init 文件已上传至 Hugging Face，支持快速并行评估。",
       "text": "All bddl and init files have been uploaded to Huggingface (supports fast parallel evaluation):",
       "link": {"label": "Dataset", "url": "https://huggingface.co/datasets/zhouxueyang/LIBERO-Pro"}
     },
     {
       "date": "2025-10-29",
-      "translation": "LIBERO-Pro 官方项目网站已上线，提供更多演示和详细介绍。",
       "text": "We launched the official project website for LIBERO-Pro (with more demos & details):",
       "link": {"label": "Webpage", "url": "https://zxy-mllab.github.io/LIBERO-PRO-Webpage/"}
     },
     {
       "date": "2025-10-22",
-      "translation": "我们已在小红书发布项目介绍。",
       "text": "We have shared a project promotion post on Xhs:",
       "link": {"label": "Xhs", "url": "http://xhslink.com/o/5vmaip7wQCE/"}
     },
     {
       "date": "2025-10-20",
-      "translation": "我们已开通官方微信公众号，欢迎参与讨论和问答。",
       "text": "We have created an official WeChat account (join discussions, get quick Q&A)",
       "link": {"label": "WeChat", "url": "https://github.com/Zxy-MLlab/LIBERO-OOD/blob/master/images/wechat.png"}
     },
     {
       "date": "2025-10-05",
-      "translation": "LIBERO-Pro 完整代码已在 GitHub 发布。",
       "text": "We have released the full LIBERO-Pro code on GitHub:",
       "link": {"label": "Code", "url": "https://github.com/Zxy-MLlab/LIBERO-PRO"}
     },
     {
       "date": "2025-10-04",
-      "translation": "我们的论文《LIBERO-Pro：超越记忆，实现视觉—语言—动作模型稳健且公平的评估》已在 arXiv 上发布。",
       "text": "Our paper, LIBERO-Pro: Towards Robust and Fair Evaluation of Vision-Language-Action Models Beyond Memorization is now available on arXiv:",
       "link": {"label": "Paper", "url": "https://arxiv.org/pdf/2510.03827"}
     }

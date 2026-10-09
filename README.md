@@ -109,9 +109,9 @@ The two-paragraph Home introduction summarizes the memorization/generalization c
 
 ## News
 
-`data/news.json` contains Home's six original announcements from the [2025 LIBERO-PRO repository's News section](https://github.com/Zxy-MLlab/LIBERO-PRO#-news-), dated October 4 through November 5, 2025. Original English text, dates and links are retained, with Chinese translations alongside; decorative emoji are omitted. The Home-only timeline follows RoboDojo's 960px column, 320px scrolling window, two-line English dates, blue newest marker, pale background and bottom fade. Scrolling to the end removes the fade; keyboard focus keeps links unobscured.
+`data/news.json` contains Home's six original announcements from the [2025 LIBERO-PRO repository's News section](https://github.com/Zxy-MLlab/LIBERO-PRO#-news-), dated October 4 through November 5, 2025. News is English-only: original English text, dates and links are retained; decorative emoji are omitted. The Home-only timeline follows RoboDojo's 960px column, 320px maximum scrolling window, two-line English dates, blue newest marker, pale background and bottom fade. Content scrolls when it exceeds the window; scrolling to the end removes the fade, and keyboard focus keeps links unobscured.
 
-`data/leaderboard-news.json` is independent and currently empty, reserved for future evaluation announcements. Leaderboard does not load or display Home news. Add entries to the appropriate file newest first with an ISO `date`, `text` (or `title`) and optional `link: {label, url}`. Home entries may include a `translation` shown beneath the English text.
+`data/leaderboard-news.json` is independent and currently empty, reserved for future evaluation announcements. Leaderboard does not load or display Home news. Add English entries to the appropriate file newest first with an ISO `date`, `text` (or `title`) and optional `link: {label, url}`.
 
 Home News uses the same Google Sans Flex family as the reference, self-hosted as a Latin WOFF2 subset from Google Fonts (weights 400–600), with the SIL Open Font License in `assets/fonts/OFL-GoogleSansFlex.txt`. Other sections retain their existing typography.
 

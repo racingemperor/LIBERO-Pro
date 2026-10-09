@@ -2,13 +2,12 @@ const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp
 
 export function homeNews(entries) {
   const dateFormat = new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric',timeZone:'UTC'});
-  const bilingual = entries.some(entry=>entry.translation);
   const link = entry => /^https?:\/\//.test(entry.link?.url||'') ? ` <a href="${escape(entry.link.url)}" target="_blank" rel="noopener">${escape(entry.link.label)}</a>` : '';
   return `<section class="section home-news" id="news" aria-labelledby="home-news-title"><div class="home-news-inner">
-    <h2 id="home-news-title">News${bilingual?' <span lang="zh-CN">新闻</span>':''}</h2>
+    <h2 id="home-news-title">News</h2>
     <div class="home-news-card"><div class="home-news-scroll" tabindex="0" role="region" aria-label="Project news, scroll for earlier updates"><ul class="home-news-timeline">${entries.map((entry,index)=>`<li class="home-news-item${index===0?' is-latest':''}">
       <time class="home-news-date" datetime="${escape(entry.date)}"><span>${dateFormat.format(new Date(entry.date+'T00:00:00Z'))}</span><small>${escape(entry.date.slice(0,4))}</small></time>
-      <div class="home-news-body"><p>${escape(entry.title||entry.text)}${link(entry)}</p>${entry.translation?`<p class="home-news-translation" lang="zh-CN">${escape(entry.translation)}</p>`:''}</div>
+      <div class="home-news-body"><p>${escape(entry.title||entry.text)}${link(entry)}</p></div>
     </li>`).join('')}</ul></div></div>
   </div></section>`;
 }
