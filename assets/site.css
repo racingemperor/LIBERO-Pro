@@ -200,8 +200,6 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
 .slide-dots span{width:23px;height:6px;border-radius:4px;background:#a7afb8;transform:scaleX(.26);transition:transform .2s ease,background .2s ease}
 .slide-dots [aria-pressed=true] span{transform:scaleX(1);background:var(--ink)}
 .slide-count{font-size:12px;color:var(--muted);margin:0 10px;min-width:30px;font-variant-numeric:tabular-nums}
-.motion-control{font-size:12px;min-height:44px;padding:6px 10px;color:var(--muted);text-decoration:underline;text-underline-offset:4px;white-space:nowrap}
-.motion-control:hover{color:var(--blue)}
 .paper-intro{max-width:1080px;margin:52px auto 30px;text-align:center}
 .paper-intro h2{font-size:30px;line-height:1.35;letter-spacing:-.03em}
 .paper-meta{margin:38px 0 0;text-align:left}
@@ -238,7 +236,6 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
 }
 @media print{.home-reveal{opacity:1!important;transform:none!important;transition:none!important}}
 .gallery-section .section-head{align-items:center}
-.gallery-section .section-head .caption{margin-top:15px;max-width:680px}
 .gallery-rows{display:grid;gap:12px}
 .gallery-viewport{--gallery-fade:clamp(24px,5vw,64px);max-width:100%;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain;overflow-anchor:none;-webkit-mask-image:linear-gradient(to right,transparent,#000 var(--gallery-fade),#000 calc(100% - var(--gallery-fade)),transparent);mask-image:linear-gradient(to right,transparent,#000 var(--gallery-fade),#000 calc(100% - var(--gallery-fade)),transparent)}
 .gallery-viewport:focus-visible,.gallery-viewport:has(:focus-visible){-webkit-mask-image:none;mask-image:none}
@@ -329,7 +326,6 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
   .showcase-controls{gap:2px}
   .slide-dots button{width:29px}
   .slide-count{margin:0 7px}
-  .motion-control{font-size:11px;padding:6px}
   .paper-intro{margin-top:30px}
   .paper-intro h2{font-size:24px}
   .paper-meta{margin-top:26px}

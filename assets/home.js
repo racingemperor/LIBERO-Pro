@@ -21,7 +21,7 @@ export function homeShowcase(catalogue) {
         <div class="showcase-examples">${['D01','D04','D18'].map(example).join('')}</div>
       </article>
     </div>
-    <div class="showcase-controls"><button class="round-control" data-slide-step="-1" aria-label="Previous highlight">‹</button><div class="slide-dots" role="group" aria-label="Choose highlight">${['LIBERO-Pro','Static shifts','Dynamic interventions'].map((label,i)=>`<button data-slide="${i}" aria-label="Show ${label}" aria-pressed="${i===0}"><span></span></button>`).join('')}</div><button class="round-control" data-slide-step="1" aria-label="Next highlight">›</button><span class="slide-count" aria-live="off">1 / 3</span><button class="motion-control" data-carousel-pause aria-pressed="false">Pause slideshow</button></div>
+    <div class="showcase-controls"><button class="round-control" data-slide-step="-1" aria-label="Previous highlight">‹</button><div class="slide-dots" role="group" aria-label="Choose highlight">${['LIBERO-Pro','Static shifts','Dynamic interventions'].map((label,i)=>`<button data-slide="${i}" aria-label="Show ${label}" aria-pressed="${i===0}"><span></span></button>`).join('')}</div><button class="round-control" data-slide-step="1" aria-label="Next highlight">›</button><span class="slide-count" aria-live="off">1 / 3</span></div>
     <p class="sr-only" data-slide-status aria-live="polite"></p>
   </section>`;
 }
@@ -40,7 +40,7 @@ export function homeGallery(catalogue, mode, media) {
     const items = entries.slice(offset,offset+count);offset+=count;
     return `<div class="gallery-viewport" data-gallery-row data-direction="${i===1?'left':'right'}" tabindex="0" role="region" aria-label="${mode} examples, row ${i+1}, scroll to explore"><div class="gallery-track">${[false,true,true].map(duplicate=>`<div class="gallery-group" ${duplicate?'aria-hidden="true"':''}>${items.map(p=>card(p,duplicate)).join('')}</div>`).join('')}</div></div>`;
   }).join('');
-  return `<section class="section gallery-section" id="${mode}-gallery" data-gallery="${mode}"><div class="section-head"><div><h2>${mode==='static'?'Static shifts':'Dynamic interventions'}</h2><p class="caption">${entries.length} perturbations in motion · one example per perturbation</p></div></div><div class="gallery-rows">${rows}</div><a class="text-link gallery-all" href="docs.html#${mode}-perturbations">View all ${entries.length} ${mode} perturbations ↗</a></section>`;
+  return `<section class="section gallery-section" id="${mode}-gallery" data-gallery="${mode}"><div class="section-head"><h2>${mode==='static'?'Static shifts':'Dynamic interventions'}</h2></div><div class="gallery-rows">${rows}</div><a class="text-link gallery-all" href="docs.html#${mode}-perturbations">View all ${entries.length} ${mode} perturbations ↗</a></section>`;
 }
 
 export function bindHomePresentation() {
@@ -90,8 +90,7 @@ export function bindHomeMotion() {
   const preference = matchMedia('(prefers-reduced-motion: reduce)');
   const slides = [...root.querySelectorAll('.showcase-slide')];
   const dots = [...root.querySelectorAll('[data-slide]')];
-  const pause = root.querySelector('[data-carousel-pause]');
-  let current = 0, stopped = preference.matches, elapsed = 0, last = 0;
+  let current = 0, elapsed = 0, last = 0;
   const galleries = [...document.querySelectorAll('[data-gallery]')].map(section => ({
     rows: [...section.querySelectorAll('[data-gallery-row]')].map(view=>({view, visible:false, position:0, span:0, holdUntil:0})),
     videos: [...section.querySelectorAll('video')].map(video=>({video, visible:false, requested:false}))
@@ -117,17 +116,11 @@ export function bindHomeMotion() {
     if (manual) root.querySelector('[data-slide-status]').textContent = slides[current].getAttribute('aria-label');
     elapsed = 0;
   };
-  const sync = () => {
-    pause.textContent = stopped ? 'Play slideshow' : 'Pause slideshow';
-    pause.setAttribute('aria-pressed',String(stopped));
-    syncVideos();
-  };
-  dots.forEach(dot=>dot.addEventListener('click',()=>{stopped=true;show(Number(dot.dataset.slide),true);sync();}));
-  root.querySelectorAll('[data-slide-step]').forEach(button=>button.addEventListener('click',()=>{stopped=true;show(current+Number(button.dataset.slideStep),true);sync();}));
-  pause.addEventListener('click',()=>{stopped=!stopped;elapsed=0;sync();});
+  dots.forEach(dot=>dot.addEventListener('click',()=>show(Number(dot.dataset.slide),true)));
+  root.querySelectorAll('[data-slide-step]').forEach(button=>button.addEventListener('click',()=>show(current+Number(button.dataset.slideStep),true)));
   root.addEventListener('keydown',event=>{
     if(!['ArrowLeft','ArrowRight'].includes(event.key))return;
-    event.preventDefault();stopped=true;show(current+(event.key==='ArrowRight'?1:-1),true);sync();
+    event.preventDefault();show(current+(event.key==='ArrowRight'?1:-1),true);
   });
   const rows=galleries.flatMap(g=>g.rows), videos=galleries.flatMap(g=>g.videos);
   const observer = new IntersectionObserver(entries=>{
@@ -164,12 +157,12 @@ export function bindHomeMotion() {
     }
   }
   document.addEventListener('visibilitychange',syncVideos);
-  preference.addEventListener('change',()=>{if(preference.matches)stopped=true;sync();});
+  preference.addEventListener('change',()=>{elapsed=0;syncVideos();});
   const tick = now => {
     const dt = last ? Math.min(now-last,100) : 0;last=now;
     if (!document.hidden) {
       const bounds=root.getBoundingClientRect();
-      if (!stopped && bounds.bottom>0 && bounds.top<innerHeight && !root.matches(':hover,:focus-within')) {
+      if (!preference.matches && bounds.bottom>0 && bounds.top<innerHeight && !root.matches(':hover,:focus-within')) {
         elapsed+=dt;if(elapsed>=6500)show(current+1);
       }
       for (const gallery of galleries) {
@@ -184,5 +177,5 @@ export function bindHomeMotion() {
     }
     requestAnimationFrame(tick);
   };
-  sync();requestAnimationFrame(tick);
+  syncVideos();requestAnimationFrame(tick);
 }
