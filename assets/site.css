@@ -229,7 +229,6 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
 a.home-model-chip:hover{background:#dcefe6;border-color:#397a68;color:#174c40}
 a.home-model-chip:focus-visible{outline:2px solid #215e52;outline-offset:3px}
 .home-models-upcoming{margin-top:32px;padding-top:26px;border-top:1px solid var(--line)}
-.home-models-upcoming h3{font-size:20px;margin-bottom:18px}
 .home-model-chip.is-upcoming{background:#f5f6f7;border-color:#ced3d7;color:#626a72}
 .home-model-chip.is-upcoming img{filter:grayscale(1);opacity:.65}
 .home-models-empty{font-size:14px;color:var(--muted)}

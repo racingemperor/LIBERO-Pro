@@ -54,7 +54,7 @@ export function homeModels(models, upcoming, assets, modelUrl) {
   return `<section class="section home-models" id="models">
     <div class="section-head"><h2 id="tested-models-heading">Tested models</h2><span class="count-label">${tested.length} models</span></div>
     <ul class="home-model-list" aria-labelledby="tested-models-heading">${tested.map(model=>`<li><a class="home-model-chip" href="${modelUrl(model)}">${label(model)}</a></li>`).join('')}</ul>
-    <div class="home-models-upcoming"><h3 id="upcoming-models-heading">Upcoming models</h3>
+    <div class="home-models-upcoming"><div class="section-head"><h2 id="upcoming-models-heading">Upcoming models</h2></div>
       ${planned.length?`<ul class="home-model-list" aria-labelledby="upcoming-models-heading">${planned.map(model=>`<li><span class="home-model-chip is-upcoming">${label(model)}</span></li>`).join('')}</ul>`:'<p class="home-models-empty">To be announced.</p>'}
     </div>
   </section>`;
