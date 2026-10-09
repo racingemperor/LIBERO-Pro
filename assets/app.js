@@ -1,4 +1,4 @@
-import {homeShowcase, homeGallery, homeModels, bindHomeMotion, bindHomePresentation} from './home.js';
+import {homeShowcase, homeGallery, homeModels, homeNews, bindHomeNews, bindHomeMotion, bindHomePresentation} from './home.js';
 import {taxonomyFigure, bindTaxonomy} from './taxonomy.js';
 import {updateView, isLocalViewLink} from './navigation.js';
 import {createCapabilities} from './capabilities.js';
@@ -13,7 +13,7 @@ const mean = values => { const valid = values.filter(Number.isFinite); return va
 const modeLabel = mode => mode === 'dynamic' ? 'Dynamic' : 'Static';
 const typeClass = type => type === 'World Action Models' ? 'wam' : type === 'Robustness-oriented' ? 'robust' : 'vla';
 const typeLabel = type => type === 'World Action Models' ? 'World Action' : type === 'Robustness-oriented' ? 'Robustness' : 'VLA';
-let catalogue, results, tasks, assets, news, designs, people, publication, homeRollouts, upcomingModels;
+let catalogue, results, tasks, assets, news, leaderboardNews, designs, people, publication, homeRollouts, upcomingModels;
 let capabilities;
 const url = (file, values={}, hash='') => `${file}.html${Object.keys(values).length ? `?${new URLSearchParams(Object.entries(values).filter(([,v])=>v !== null && v !== undefined))}` : ''}${hash ? '#'+hash : ''}`;
 const modelUrl = (m, extra={}, hash='') => url('model',{id:m.id,...extra},hash);
@@ -32,7 +32,7 @@ const head = (title,desc='',crumb='') => `<header class="page-head">${crumb}<h1>
 const sectionHead = (title,link='') => `<div class="section-head"><h2>${title}</h2>${link}</div>`;
 const breadcrumb = links => `<nav class="breadcrumb" aria-label="Breadcrumb">${links.map(([label,href])=>href?`<a href="${esc(href)}">${esc(label)}</a>`:`<span aria-current="page">${esc(label)}</span>`).join('<span aria-hidden="true">/</span>')}</nav>`;
 const tabs = (mode,href) => `<div class="tabs" aria-label="Distribution shift">${['static','dynamic'].map(x=>`<a class="tab ${mode===x?'active':''}" ${mode===x?'aria-current="true"':''} href="${esc(href(x))}">${modeLabel(x)} <span class="count-label">${x==='static'?'22':'20'}</span></a>`).join('')}</div>`;
-const newsSection = () => `<section class="section news-section" id="news">${sectionHead('News')}<ul class="news-list">${news.entries.map(n=>`<li><time datetime="${esc(n.date)}">${esc(n.date.replaceAll('-','/'))}</time><p>${esc(n.title||n.text)}${/^https?:\/\//.test(n.link?.url||'')?` <a href="${esc(n.link.url)}" target="_blank" rel="noopener">${esc(n.link.label)} ↗</a>`:''}</p></li>`).join('')}</ul></section>`;
+const leaderboardNewsSection = () => `<section class="section news-section" id="news">${sectionHead('News')}${leaderboardNews.entries.length?`<ul class="news-list">${leaderboardNews.entries.map(n=>`<li><time datetime="${esc(n.date)}">${esc(n.date.replaceAll('-','/'))}</time><p>${esc(n.title||n.text)}${/^https?:\/\//.test(n.link?.url||'')?` <a href="${esc(n.link.url)}" target="_blank" rel="noopener">${esc(n.link.label)} ↗</a>`:''}</p></li>`).join('')}</ul>`:''}</section>`;
 
 function layout(content, entries) {
   const links=entries.map(([id,name])=>`<a href="#${id}">${name}</a>`).join('');
@@ -48,7 +48,7 @@ function homePage() {
   return `<main id="content">
     ${homeShowcase(catalogue)}
     <section class="paper-intro" id="overview"><h2>LIBERO-Pro: A Benchmark for Evaluating<br>Robust Embodied Intelligence</h2>${peopleSection()}</section>
-    ${newsSection()}
+    ${homeNews(news.entries)}
     <section class="section home-centered" id="benchmark">${sectionHead('Beyond familiar scenes')}<div class="home-summary"><p>High success rates on LIBERO do not always reveal how a policy will behave when familiar conditions change. The original LIBERO-Pro study highlighted that models can rely on memorized action sequences and scene layouts, leaving weaknesses in visual grounding and instruction understanding hidden by standard evaluation.</p><p>LIBERO-Pro evaluates robustness under 42 controlled perturbations: 22 static shifts at reset and 20 dynamic interventions during execution. Across eight tasks from four LIBERO suites, it varies conditions, environments, observations, execution, robot state and language while preserving the original task goals. This tests both generalization to changed scenes and recovery when an ongoing task is disturbed.</p></div></section>
     <section class="section paper-overview home-centered" id="paper-overview">${sectionHead('Benchmark overview')}<figure><a href="assets/paper/overview.webp" target="_blank" rel="noopener" aria-label="Open the full LIBERO-Pro overview figure"><img src="assets/paper/overview.webp" width="2000" height="1125" loading="lazy" alt="LIBERO-Pro overview showing 22 static and 20 dynamic perturbations across six domains"></a><figcaption class="caption">LIBERO-Pro evaluates robustness across 22 static shifts and 20 runtime interventions in six perturbation domains.</figcaption></figure></section>
     <section class="section home-centered" id="domains">${sectionHead('Perturbation domains')}<p class="home-section-intro">Six domains organize the benchmark. Each perturbation has a mechanism illustration and a gallery for the eight evaluation tasks.</p><div class="home-domains"><div class="home-domain-column home-domain-left">${catalogue.categories.slice(0,3).map(domainLink).join('')}</div>${taxonomyFigure(catalogue)}<div class="home-domain-column home-domain-right">${catalogue.categories.slice(3).map(domainLink).join('')}</div></div><a class="text-link home-domains-explore" href="docs.html#taxonomy">Explore all 42 perturbations ↗</a></section>
@@ -68,7 +68,7 @@ function peopleSection() {
   const affiliations=institutions.length?`<div class="institution-logos">${institutions.map((a,i)=>`<figure><img src="${esc(a.logo)}" alt="${esc(a.name)}" loading="lazy"><figcaption><sup>${i+1}</sup> ${esc(a.name)}</figcaption></figure>`).join('')}</div>`:'';
   const report=/^https:\/\//.test(publication.report?.url||'')?`<a href="${esc(publication.report.url)}" target="_blank" rel="noopener">${esc(publication.report.label||'Read the paper')} ↗</a>`:'';
   const email=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(publication.email||'')?`<a href="mailto:${esc(publication.email)}">${esc(publication.email)}</a>`:'';
-  const repositories=`<div class="repository-links">${[['LIBERO-PRO','先前','previous'],['LIBERO-Pro2.0','最新','latest']].map(([name,label,version])=>`<a class="repository-link" href="https://github.com/Zxy-MLlab/${name}" target="_blank" rel="noopener"><img src="assets/icons/github.svg" width="20" height="20" alt="" aria-hidden="true"><span class="repository-name">Zxy-MLlab/${name}</span><span class="repository-status ${version}" lang="zh-CN">${label}</span></a>`).join('')}</div>`;
+  const repositories=`<div class="repository-links">${[['LIBERO-PRO','Previous','previous'],['LIBERO-Pro2.0','Latest','latest']].map(([name,label,version])=>`<a class="repository-link" href="https://github.com/Zxy-MLlab/${name}" target="_blank" rel="noopener"><img src="assets/icons/github.svg" width="20" height="20" alt="" aria-hidden="true"><span class="repository-name">Zxy-MLlab/${name}</span><span class="repository-status ${version}">${label}</span></a>`).join('')}</div>`;
   return `<dl class="paper-meta" aria-label="Paper information">${row('Authors',authors,'paper-meta-authors')}${row('Affiliations',affiliations,'paper-meta-affiliations')}${row('Published',esc(publication.published))}${row('Report',report)}${row('Repository',repositories,'paper-meta-repositories')}${row('Leaderboard','<a href="leaderboard.html">View leaderboard ↗</a>')}${row('Email',email,'paper-meta-contact')}</dl>`;
 }
 
@@ -105,7 +105,7 @@ function leaderboardPage() {
   const asc=params.get('order')==='asc';
   const entries=rankedModels(mode,type,sort,asc);
   return layout(`${head('Leaderboard','Success rates under static shifts and dynamic interventions. Select a model or a domain score to inspect its tasks.')}
-    ${newsSection()}
+    ${leaderboardNewsSection()}
     <section class="section" id="capabilities">${sectionHead('Model capabilities')}${capabilities.render(params)}</section>
     <section class="section" id="rankings">${sectionHead('Model comparison',`<span class="count-label">${entries.length} models · success rate (%)</span>`)}<div class="controls">${tabs(mode,m=>url('leaderboard',{...Object.fromEntries(params),mode:m,type,sort,order:asc?'asc':'desc'},'rankings'))}<label class="control">Model type <select data-query="type" data-anchor="rankings"><option value="all">All models</option>${['Mainstream VLA','World Action Models','Robustness-oriented'].map(t=>`<option ${type===t?'selected':''}>${t}</option>`).join('')}</select></label></div>${leaderboardTable(mode,entries,sort,asc)}<p class="table-note">Average includes every applicable suite × perturbation result in the selected setting. Δ = Average − Base, in percentage points. Missing values remain blank (—). <a class="text-link" href="docs.html#taxonomy">Domain definitions ↗</a> · <a class="text-link" href="docs.html#scoring">Scoring details ↗</a></p></section>
     ${perturbationRankings()}
@@ -440,27 +440,31 @@ const navPage=page==='model'?'leaderboard':['task','perturbation','tasks'].inclu
 document.querySelector(`.site-nav a[href="${navPage}.html"]`)?.setAttribute('aria-current','page');
 
 try {
-  [catalogue,results,{tasks},assets,news,designs,people,publication]=await Promise.all(['catalogue','results','tasks','model-assets','news','task-designs','people','publication'].map(async name=>{
+  [catalogue,results,{tasks},assets,designs,people,publication]=await Promise.all(['catalogue','results','tasks','model-assets','task-designs','people','publication'].map(async name=>{
     const response=await fetch(`data/${name}.json`);if(!response.ok)throw new Error(`Unable to load ${name}`);return response.json();
   }));
   if(page==='index') {
-    [homeRollouts,upcomingModels]=await Promise.all(['home-rollouts','upcoming-models'].map(async name=>{
+    [homeRollouts,upcomingModels,news]=await Promise.all(['home-rollouts','upcoming-models','news'].map(async name=>{
       const response=await fetch(`data/${name}.json`);
       if(!response.ok)throw new Error(`Unable to load ${name}`);
       return response.json();
     }));
   }
   if(page==='leaderboard') {
-    const response=await fetch('data/model-profiles.json');
-    if(!response.ok)throw new Error('Unable to load model introductions');
-    capabilities=createCapabilities(results.models,assets,await response.json(),{esc,pct,modelUrl,updateView});
+    const [profiles,announcements]=await Promise.all(['model-profiles','leaderboard-news'].map(async name=>{
+      const response=await fetch(`data/${name}.json`);
+      if(!response.ok)throw new Error(`Unable to load ${name}`);
+      return response.json();
+    }));
+    leaderboardNews=announcements;
+    capabilities=createCapabilities(results.models,assets,profiles,{esc,pct,modelUrl,updateView});
   }
   // Accept the previous public model deep link while the new profile route settles.
   if(page==='leaderboard'&&params.get('model')){
     const old=results.models.find(m=>m.name===params.get('model')||m.id===params.get('model'));
     if(old){location.replace(modelUrl(old,{mode:params.get('metric')==='dynamic'?'dynamic':'static'}));}
   }
-  app.innerHTML=(renderers[page]||homePage)();bindInteractions();bindHomeMotion();bindHomePresentation();bindTaxonomy(catalogue);
+  app.innerHTML=(renderers[page]||homePage)();bindInteractions();bindHomeMotion();bindHomePresentation();bindHomeNews();bindTaxonomy(catalogue);
   if(page==='leaderboard'){
     capabilities.bind(ids=>{
       const next=new URL(location.href);next.searchParams.set('compare',ids.join(','));

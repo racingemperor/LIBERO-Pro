@@ -1,5 +1,30 @@
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+export function homeNews(entries) {
+  const dateFormat = new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric',timeZone:'UTC'});
+  const bilingual = entries.some(entry=>entry.translation);
+  const link = entry => /^https?:\/\//.test(entry.link?.url||'') ? ` <a href="${escape(entry.link.url)}" target="_blank" rel="noopener">${escape(entry.link.label)}</a>` : '';
+  return `<section class="section home-news" id="news" aria-labelledby="home-news-title"><div class="home-news-inner">
+    <h2 id="home-news-title">News${bilingual?' <span lang="zh-CN">新闻</span>':''}</h2>
+    <div class="home-news-card"><div class="home-news-scroll" tabindex="0" role="region" aria-label="Project news, scroll for earlier updates"><ul class="home-news-timeline">${entries.map((entry,index)=>`<li class="home-news-item${index===0?' is-latest':''}">
+      <time class="home-news-date" datetime="${escape(entry.date)}"><span>${dateFormat.format(new Date(entry.date+'T00:00:00Z'))}</span><small>${escape(entry.date.slice(0,4))}</small></time>
+      <div class="home-news-body"><p>${escape(entry.title||entry.text)}${link(entry)}</p>${entry.translation?`<p class="home-news-translation" lang="zh-CN">${escape(entry.translation)}</p>`:''}</div>
+    </li>`).join('')}</ul></div></div>
+  </div></section>`;
+}
+
+export function bindHomeNews() {
+  const scroller = document.querySelector('.home-news-scroll');
+  if (!scroller) return;
+  const card = scroller.closest('.home-news-card');
+  const updateFade = () => card.classList.toggle('is-at-end',scroller.scrollHeight-scroller.clientHeight-scroller.scrollTop<=2);
+  scroller.addEventListener('scroll',updateFade,{passive:true});
+  const resize = new ResizeObserver(updateFade);
+  resize.observe(scroller);
+  resize.observe(scroller.querySelector('ul'));
+  updateFade();
+}
+
 export function homeShowcase(catalogue) {
   const example = id => {
     const p = catalogue.perturbations.find(item => item.id === id);
