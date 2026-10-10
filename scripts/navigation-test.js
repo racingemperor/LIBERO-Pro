@@ -309,6 +309,34 @@ const tests = [
     win().history.forward();
     await waitFor(() => win().location.href === finalSelection && query('#rollouts h2')?.textContent === 'Receiver planar pose');
   }],
+  ['Report and Community share navigation, preserve Back, and accept old Eval bookmarks', async () => {
+    await load('report.html');
+    const links = [...doc().querySelectorAll('.site-nav a')].map(a => a.textContent);
+    assert(links.join(',') === 'Home,Document,Leaderboard,Report', 'Main navigation still includes Eval');
+    assert(query('.site-links a').href === 'https://github.com/Zxy-MLlab/LIBERO-Pro2.0', 'Code has the wrong repository');
+    assert(query('a[aria-current="page"]').textContent === 'Report', 'Report active link is missing');
+    assert(doc().querySelectorAll('.publication-row').length === 2, 'Both paper editions must be present');
+    assert(doc().documentElement.scrollWidth <= win().innerWidth, 'Report overflows the viewport');
+    click('.site-links a[href="community.html"]');
+    await waitFor(() => query('h1')?.textContent === 'Community');
+    assert(query('a[aria-current="page"]').textContent === 'Community', 'Community active link is missing');
+    assert(doc().querySelectorAll('.community-section').length === 4, 'Community sections are missing');
+    assert(doc().documentElement.scrollWidth <= win().innerWidth, 'Community overflows the viewport');
+    if (win().matchMedia('(max-width:760px)').matches) {
+      click('.menu-button');
+      assert(query('.site-nav').classList.contains('open'), 'Mobile menu failed to open');
+      doc().dispatchEvent(new (win().KeyboardEvent)('keydown', {key:'Escape', bubbles:true}));
+      assert(query('.menu-button').getAttribute('aria-expanded') === 'false', 'Escape failed to close the mobile menu');
+      assert(doc().activeElement === query('.menu-button'), 'Escape did not return keyboard focus');
+      click('.menu-button');
+    }
+    click('.site-nav a[href="report.html"]');
+    await waitFor(() => query('h1')?.textContent === 'Report');
+    win().history.back();
+    await waitFor(() => query('h1')?.textContent === 'Community');
+    await load('eval.html');
+    await waitFor(() => win().location.pathname.endsWith('/report.html') && query('h1')?.textContent === 'Report');
+  }],
 ];
 
 let failed = 0;

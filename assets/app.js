@@ -1,3 +1,4 @@
+import './site-navigation.js';
 import {homeShowcase, homeGallery, homeModels, homeNews, perturbationClip, bindHomeNews, bindHomeMotion, bindHomePresentation} from './home.js';
 import {taxonomyFigure, bindTaxonomy} from './taxonomy.js';
 import {updateView, isLocalViewLink} from './navigation.js';
@@ -399,19 +400,12 @@ function documentPerturbationIndex(mode) {
   return `<section class="section" id="${mode}-perturbations">${sectionHead(mode==='static'?'Static shifts':'Dynamic interventions',`<span class="count-label">${directionsFor(mode).length} perturbations</span>`)}<p>${mode==='static'?'Changes applied <strong>at initialization</strong>, before the first policy action.':'Interventions triggered <strong>during execution</strong> at task-relevant moments.'}</p><div class="doc-perturbation-index">${directionsFor(mode).map(p=>`<a href="${url('docs',{perturbation:p.id})}"><span class="id">${p.id}</span><span>${esc(p.name)}</span><span class="index-domain">${categoryFor(p.category).name}</span><span aria-hidden="true">↗</span></a>`).join('')}</div></section>`;
 }
 
-function evalPage() {
-  return layout(`${head('Eval','Evaluate robustness with a fixed task goal, one perturbation at a time.')}
-    <section class="section" id="setup">${sectionHead('Evaluation setup')}<div class="mode-guide"><div><h3>Choose a base task</h3><p>Use the eight-task evaluation split: two tasks each from Spatial, Object, Goal and Long. The task document specifies the instruction and success condition.</p><a class="text-link" href="docs.html#task-designs">Read task designs ↗</a></div><div><h3>Apply one perturbation</h3><p>Select an applicable paper ID, S01–S22 or D01–D20. Keep task semantics and feasibility intact. RQ experiments and combined suites are outside this leaderboard.</p><a class="text-link" href="tasks.html">Browse perturbations ↗</a></div></div></section>
-    <section class="section" id="execution">${sectionHead('Run the episode')}<div class="mode-guide"><div>${pill('static')}<h3>Set the condition at reset</h3><p>Apply the configured scene, sensor, robot, timing or language shift before the first policy action. Fixed fault settings remain active while the task executes.</p></div><div>${pill('dynamic')}<h3>Trigger during execution</h3><p>Apply the configured event at approach, grasp, transport or placement. Respect its duration and release rule, then continue toward the original task goal.</p></div></div><p class="table-note">This page documents the evaluation procedure. An online evaluation runner and submission service are not currently available.</p></section>
-    <section class="section reading" id="reporting">${sectionHead('Record and report')}<p>Record the task ID, paper perturbation ID, number of successful episodes and total evaluated episodes. Record BASE separately. Mark invalid or inapplicable combinations explicitly; do not record them as zero-success trials.</p>${designFacts([['Task success rate','Successful episodes ÷ evaluated episodes'],['Suite × perturbation','Pool successes and episodes across the available tasks in that suite.'],['Domain success rate','Arithmetic mean of the available suite × perturbation rates within a paper domain.'],['Average success rate','Arithmetic mean of all applicable suite × perturbation rates in the static or dynamic setting.']])}<p>Task-level success rates are displayed where available. Other models have suite-level rates only. Only available observations are used in the displayed aggregates.</p><a href="docs.html#scoring">Read scoring and coverage details ↗</a></section>
-    <section class="section" id="results">${sectionHead('Inspect results')}<p>Compare static and dynamic success rates, then select a model, domain or perturbation to inspect the available results.</p><div class="actions" style="justify-content:flex-start"><a class="button" href="leaderboard.html">Open leaderboard</a></div></section>`,[['setup','Setup'],['execution','Execution'],['reporting','Reporting'],['results','Results']]);
-}
 
 function notFound(kind,href) {
   return `<main id="content">${head(`${kind} not found`)}<p>The requested identifier is not part of the published catalogue.</p><div class="actions" style="justify-content:flex-start"><a class="button" href="${href}">Return to catalogue</a></div></main>`;
 }
 
-const renderers={index:homePage,leaderboard:leaderboardPage,tasks:tasksPage,model:modelPage,perturbation:perturbationPage,task:taskPage,findings:findingsPage,docs:docsPage,eval:evalPage};
+const renderers={index:homePage,leaderboard:leaderboardPage,tasks:tasksPage,model:modelPage,perturbation:perturbationPage,task:taskPage,findings:findingsPage,docs:docsPage};
 
 function revealSelected(container, selected, inset=0) {
   if(!container||!selected)return;
@@ -547,13 +541,6 @@ function bindInteractions() {
   updateSectionIndicator();
   if(location.hash&&performance.getEntriesByType('navigation')[0]?.type!=='back_forward')requestAnimationFrame(()=>scrollToAnchor(location.hash));
 }
-
-document.querySelector('.menu-button').addEventListener('click',event=>{
-  const open=event.currentTarget.getAttribute('aria-expanded')!=='true';event.currentTarget.setAttribute('aria-expanded',String(open));document.querySelector('.site-nav').classList.toggle('open',open);
-});
-document.addEventListener('keydown',event=>{if(event.key==='Escape'){document.querySelector('.site-nav').classList.remove('open');document.querySelector('.menu-button').setAttribute('aria-expanded','false');}});
-const navPage=page==='model'?'leaderboard':['task','perturbation','tasks'].includes(page)?'docs':page;
-document.querySelector(`.site-nav a[href="${navPage}.html"]`)?.setAttribute('aria-current','page');
 
 try {
   [catalogue,results,{tasks},assets,designs,people,publication]=await Promise.all(['catalogue','results','tasks','model-assets','task-designs','people','publication'].map(async name=>{
