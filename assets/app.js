@@ -39,10 +39,6 @@ function layout(content, entries) {
   return `<details class="toc-mobile"><summary>On this page</summary><nav aria-label="Page sections">${links}</nav></details><div class="page-layout"><aside class="toc"><p>On this page</p><nav aria-label="Page sections">${links}</nav></aside><main id="content">${content}</main></div>`;
 }
 
-function baseTaskList() {
-  return `<div class="task-list">${tasks.map(t=>`<a class="base-task" href="${url('task',{id:t.id})}"><span class="task-index">${esc(t.suiteName.slice(0,2))}${t.taskId}</span><div><h3>${esc(t.instruction)}</h3><p>LIBERO-${esc(t.suiteName)} · task ${t.taskId}</p></div><span class="arrow" aria-hidden="true">↗</span></a>`).join('')}</div>`;
-}
-
 function homePage() {
   const domainLink=c=>`<a class="home-domain" data-home-domain="${c.id}" href="docs.html#domain-${c.id}" ${domainStyle(c)}><h3 class="domain-name">${c.name}</h3><p>${esc(c.description)}</p><span>${c.static.length} static / ${c.dynamic.length} dynamic <span aria-hidden="true">↗</span></span></a>`;
   return `<main id="content">
@@ -166,22 +162,6 @@ function perturbationRankings() {
   </section>`;
 }
 
-function categoryFilters(mode,category,file='tasks') {
-  return `<nav class="domain-filter" aria-label="Perturbation domain"><a class="${category==='all'?'active':''}" href="${url(file,{mode})}">All domains</a>${catalogue.categories.map(c=>`<a class="${category===c.id?'active':''}" href="${url(file,{mode,category:c.id})}">${c.name} <small>${c[mode].length}</small></a>`).join('')}</nav>`;
-}
-
-function perturbationCard(p) {
-  return `<a class="perturbation-card" href="${directionUrl(p)}"><img src="${p.image}" width="1760" height="510" loading="lazy" alt="${esc(p.name)} mechanism example from the paper"><h3><span class="id">${p.id}</span>${esc(p.name)}</h3><p>${esc(p.description)}</p><div class="card-meta"><span class="domain-name" ${domainStyle(categoryFor(p.category))}>${categoryFor(p.category).name}</span><span>8 task slots ↗</span></div></a>`;
-}
-
-function tasksPage() {
-  const mode=selectedMode(),category=selectedCategory();
-  return layout(`${head('Tasks','Explore 42 perturbation types across six domains, with eight held-out manipulation tasks.')}
-    <section class="section" id="perturbations">${sectionHead('Perturbation catalogue')}<div class="controls">${tabs(mode,m=>url('tasks',{mode:m,category},'perturbations'))}<span class="count-label">${directionsFor(mode,category).length} perturbations</span></div>${categoryFilters(mode,category)}<div class="catalogue-grid">${directionsFor(mode,category).map(perturbationCard).join('')}</div></section>
-    <section class="section" id="base-tasks">${sectionHead('Base tasks')}<p style="margin-bottom:12px">The evaluation split contains two tasks per suite. Task identifiers are zero-based.</p>${baseTaskList()}</section>
-    <section class="section" id="taxonomy">${sectionHead('Benchmark taxonomy')}<div class="section-grid"><div><p>The taxonomy follows the current paper. Each domain includes its static shifts and corresponding runtime interventions.</p><div class="domain-list">${catalogue.categories.map(c=>`<a class="domain-link" href="${url('tasks',{category:c.id,mode})}"><strong class="domain-name" ${domainStyle(c)}>${c.name}</strong><p>${esc(c.description)}</p><span>${c.static.length+c.dynamic.length} types ↗</span></a>`).join('')}</div></div><figure class="taxonomy-figure"><img src="assets/paper/taxonomy.webp" width="1200" height="1200" loading="lazy" alt="42 perturbations grouped in the six paper categories"></figure></div></section>`,[['perturbations','Perturbations'],['base-tasks','Base tasks'],['taxonomy','Taxonomy']]);
-}
-
 function mediaSlot(task,p,m=null) {
   const rate=m?.taskRates.find(c=>c.task===task.id&&c.direction===p.id)?.rate??null;
   const applicable=!designs.tasks[task.id].excluded.includes(p.id);
@@ -218,19 +198,19 @@ function modelPage() {
 
 function perturbationPage() {
   const p=catalogue.perturbations.find(x=>x.id===params.get('id'));
-  if(!p)return notFound('Perturbation','tasks.html');
+  if(!p)return notFound('Perturbation','docs.html#taxonomy');
   const m=modelById(params.get('model'));
   document.title=`${p.id} ${p.name} · LIBERO-Pro`;
-  return `<main id="content">${head('Perturbation details','',breadcrumb([['Tasks','tasks.html'],[p.id+' '+p.name]]))}${modelSelect(m,p)}<div class="detail-layout">${catalogueNav(p,m)}${rolloutPanel(p,m)}</div></main>`;
+  return `<main id="content">${head('Perturbation details','',breadcrumb([['Document','docs.html#taxonomy'],[p.id+' '+p.name]]))}${modelSelect(m,p)}<div class="detail-layout">${catalogueNav(p,m)}${rolloutPanel(p,m)}</div></main>`;
 }
 
 function taskPage() {
   const t=tasks.find(t=>t.id===params.get('id'));
-  if(!t)return notFound('Task','tasks.html#base-tasks');
+  if(!t)return notFound('Task','docs.html#task-designs');
   const mode=selectedMode(),m=modelById(params.get('model'));
   const category=selectedCategory();
   const dirs=directionsFor(mode,category);
-  return `<main id="content">${head('Task details',esc(t.instruction),breadcrumb([['Tasks','tasks.html#base-tasks'],[`LIBERO-${t.suiteName} · task ${t.taskId}`]]))}<p style="margin-bottom:24px"><a class="text-link" href="${url('docs',{task:t.id})}">Read task design & success conditions ↗</a></p>${modelSelect(m)}<div class="controls">${tabs(mode,mode=>url('task',{id:t.id,mode,category,...(m?{model:m.id}:{})}))}<span class="count-label">${dirs.length} perturbations</span></div><nav class="domain-filter" aria-label="Perturbation domain">${[{id:'all',name:'All domains'},...catalogue.categories].map(c=>`<a class="${c.id===category?'active':''}" href="${url('task',{id:t.id,mode,category:c.id,...(m?{model:m.id}:{})})}">${c.name}</a>`).join('')}</nav><div class="task-detail-grid">${dirs.map(p=>`<div><h3 style="font-size:15px;margin-bottom:12px"><a href="${directionUrl(p,m)}">${p.id} · ${esc(p.name)} ↗</a></h3>${mediaSlot(t,p,m)}</div>`).join('')}</div><p class="table-note">Missing task rates are shown as —. Suite averages are never substituted for an individual task. Rollout media is reserved for future uploads.</p></main>`;
+  return `<main id="content">${head('Task details',esc(t.instruction),breadcrumb([['Document','docs.html#task-designs'],[`LIBERO-${t.suiteName} · task ${t.taskId}`]]))}<p style="margin-bottom:24px"><a class="text-link" href="${url('docs',{task:t.id})}">Read task design & success conditions ↗</a></p>${modelSelect(m)}<div class="controls">${tabs(mode,mode=>url('task',{id:t.id,mode,category,...(m?{model:m.id}:{})}))}<span class="count-label">${dirs.length} perturbations</span></div><nav class="domain-filter" aria-label="Perturbation domain">${[{id:'all',name:'All domains'},...catalogue.categories].map(c=>`<a class="${c.id===category?'active':''}" href="${url('task',{id:t.id,mode,category:c.id,...(m?{model:m.id}:{})})}">${c.name}</a>`).join('')}</nav><div class="task-detail-grid">${dirs.map(p=>`<div><h3 style="font-size:15px;margin-bottom:12px"><a href="${directionUrl(p,m)}">${p.id} · ${esc(p.name)} ↗</a></h3>${mediaSlot(t,p,m)}</div>`).join('')}</div><p class="table-note">Missing task rates are shown as —. Suite averages are never substituted for an individual task. Rollout media is reserved for future uploads.</p></main>`;
 }
 
 function findingsPage() {
@@ -247,7 +227,7 @@ function documentTaskList({compact=false}={}) {
 function documentLayout(content) {
   const taskId=params.get('task'),perturbationId=params.get('perturbation');
   const navLink=(href,label,active=false)=>`<a href="${href}" ${active?'aria-current="page"':''}>${label}</a>`;
-  const directory=`<nav aria-label="Document directory"><div class="doc-nav-group"><h2>${navLink('docs.html','Overview',!taskId&&!perturbationId)}</h2></div><div class="doc-nav-group"><h2>Evaluation tasks</h2>${['Spatial','Object','Goal','Long'].map(suite=>`<details ${tasks.find(t=>t.id===taskId)?.suiteName===suite?'open':''}><summary>LIBERO-${suite==='Long'?'10':suite}</summary>${tasks.filter(t=>t.suiteName===suite).map(t=>navLink(url('docs',{task:t.id}),`<small>${t.taskId}</small> ${esc(t.instruction)}`,t.id===taskId)).join('')}</details>`).join('')}</div><div class="doc-nav-group"><h2>Perturbation design</h2>${navLink('tasks.html','Visual catalogue ↗')}${catalogue.categories.map(c=>`<details data-domain="${c.id}" ${catalogue.perturbations.find(p=>p.id===perturbationId)?.category===c.id?'open':''}><summary>${c.name}</summary>${['static','dynamic'].map(mode=>`<p class="doc-nav-mode">${modeLabel(mode)}</p>${directionsFor(mode,c.id).map(p=>navLink(url('docs',{perturbation:p.id}),`<small>${p.id}</small> ${esc(p.name)}`,p.id===perturbationId)).join('')}`).join('')}</details>`).join('')}</div></nav>`;
+  const directory=`<nav aria-label="Document directory"><div class="doc-nav-group"><h2>${navLink('docs.html','Overview',!taskId&&!perturbationId)}</h2></div><div class="doc-nav-group"><h2>Evaluation tasks</h2>${['Spatial','Object','Goal','Long'].map(suite=>`<details ${tasks.find(t=>t.id===taskId)?.suiteName===suite?'open':''}><summary>LIBERO-${suite==='Long'?'10':suite}</summary>${tasks.filter(t=>t.suiteName===suite).map(t=>navLink(url('docs',{task:t.id}),`<small>${t.taskId}</small> ${esc(t.instruction)}`,t.id===taskId)).join('')}</details>`).join('')}</div><div class="doc-nav-group"><h2>Perturbation design</h2>${catalogue.categories.map(c=>`<details data-domain="${c.id}" ${catalogue.perturbations.find(p=>p.id===perturbationId)?.category===c.id?'open':''}><summary>${c.name}</summary>${['static','dynamic'].map(mode=>`<p class="doc-nav-mode">${modeLabel(mode)}</p>${directionsFor(mode,c.id).map(p=>navLink(url('docs',{perturbation:p.id}),`<small>${p.id}</small> ${esc(p.name)}`,p.id===perturbationId)).join('')}`).join('')}</details>`).join('')}</div></nav>`;
   return `<div class="docs-layout"><aside class="docs-sidebar"><details class="doc-directory" open><summary class="doc-directory-toggle">Document directory</summary>${directory}</details></aside><main id="content" class="doc-content">${content}</main></div>`;
 }
 
@@ -368,7 +348,7 @@ function perturbationDocument(p) {
   document.title=`${p.id} ${p.name} · Document · LIBERO-Pro`;
   const exclusions=tasks.filter(t=>designs.tasks[t.id].excluded.includes(p.id));
   const clip=perturbationClip(p.id);
-  return documentLayout(`${head(esc(p.name),'',breadcrumb([['Document','docs.html'],['Perturbation design','tasks.html'],[p.id]]))}
+  return documentLayout(`${head(esc(p.name),'',breadcrumb([['Document','docs.html'],[p.id]]))}
     <figure class="task-demo" id="examples"><video data-perturbation-demo src="${esc(clip.src)}" poster="${esc(clip.poster)}" width="256" height="256" controls muted loop playsinline preload="metadata" aria-label="${esc(p.id+': '+p.name)} perturbation demonstration"></video></figure>
     <figure class="mechanism-image"><img src="${p.image}" width="1760" height="510" loading="lazy" alt="${esc(p.name)} mechanism illustration"><figcaption>${p.id} · Illustration from the paper. Model-specific rollouts are shown separately.</figcaption></figure>
     <section class="section" id="design">${sectionHead('Perturbation design')}${designFacts([['Public ID',`<code>${p.id}</code>`],['Category',categoryFor(p.category).name],['Intervention',documentEmphasis(p.description,documentKeyPhrases[p.id])],[p.mode==='static'?'Validity constraint':'Trigger & lifetime',documentEmphasis(p.constraint,documentKeyPhrases[p.id])],['Task goal','Preserve the <strong>original goal and success predicate</strong>.'],['Scope','Single <strong>non-physical perturbation</strong>; mass, friction, inertia, stiffness and damping are not varied.']])}</section>
@@ -388,12 +368,12 @@ function docsPage() {
   }
   return documentLayout(`${head('Document','Task designs, perturbation mechanisms and evaluation definitions.')}
     <section class="section" id="task-designs">${sectionHead('Evaluation task designs')}<p><strong>Eight base tasks</strong> are selected from four LIBERO suites. Each document gives the original instruction, task setup, success condition and supported perturbations. Task IDs are <strong>zero-based</strong>.</p>${documentTaskList()}</section>
-    <section class="section reading" id="protocol">${sectionHead('Evaluation protocol')}<p>LIBERO-Pro evaluates robot-policy robustness while preserving the <strong>original task goal and feasibility</strong>. The held-out evaluation split contains <strong>eight tasks</strong>: two each from LIBERO-Spatial, LIBERO-Object, LIBERO-Goal and LIBERO-10.</p><p><strong>Static shifts</strong> are introduced at reset. <strong>Dynamic interventions</strong> are triggered during execution at task-relevant phases. Each case applies <strong>one perturbation</strong>. RQ experiments and combined perturbation suites are excluded from this website’s leaderboard.</p><a href="tasks.html#base-tasks">Explore the eight base tasks ↗</a></section>
+    <section class="section reading" id="protocol">${sectionHead('Evaluation protocol')}<p>LIBERO-Pro evaluates robot-policy robustness while preserving the <strong>original task goal and feasibility</strong>. The held-out evaluation split contains <strong>eight tasks</strong>: two each from LIBERO-Spatial, LIBERO-Object, LIBERO-Goal and LIBERO-10.</p><p><strong>Static shifts</strong> are introduced at reset. <strong>Dynamic interventions</strong> are triggered during execution at task-relevant phases. Each case applies <strong>one perturbation</strong>. RQ experiments and combined perturbation suites are excluded from this website’s leaderboard.</p></section>
     <section class="section reading" id="scoring">${sectionHead('Success-rate calculation')}<p>For results with trial counts, task success rate is <code>successes ÷ episodes</code>. Task counts are <strong>pooled within each suite × perturbation pair</strong>. The displayed average is the <strong>arithmetic mean</strong> of available suite × perturbation rates in the selected setting. Domain scores apply the same calculation to that domain.</p><p>The current taxonomy includes <code>S22</code>: there are <strong>87 applicable static suite cells</strong> and <strong>80 dynamic suite cells</strong> per model. <code>S04</code> is not applicable to LIBERO-Spatial. Missing and inapplicable observations are <strong>not converted to zero</strong>. The earlier website excluded <code>S22</code>; its static and overall averages therefore differ.</p><p><code>Base</code> is the average of available nominal suite rates. <code>Δ = Average − Base</code>, in <strong>percentage points</strong>; a negative value indicates lower success under perturbation. The website does not introduce a separate capability score.</p></section>
     <section class="section reading" id="taxonomy">${sectionHead('Paper taxonomy')}<p>Select any ID to read its intervention design, constraints and task coverage. All <strong>six domains</strong> and all <strong>42 perturbations</strong> remain available in the document directory.</p><div class="table-scroll" tabindex="0" role="region" aria-label="Paper taxonomy, horizontally scrollable"><table><thead><tr><th>Domain</th><th>Static</th><th>Dynamic</th></tr></thead><tbody>${catalogue.categories.map(c=>`<tr id="domain-${c.id}"><th scope="row">${c.name}</th>${['static','dynamic'].map(mode=>`<td>${c[mode].map(id=>`<a href="${url('docs',{perturbation:id})}">${id}</a>`).join(', ')}</td>`).join('')}</tr>`).join('')}</tbody></table></div><p>The website uses <strong>paper IDs</strong>. Paper <code>D19</code> maps to internal <code>D20</code> (robot joint displacement); paper <code>D20</code> maps to internal <code>D21</code> (instruction restatement). Internal <code>D19</code> is <strong>excluded</strong> from the published 42-type catalogue. Static <code>S06</code> belongs to Environment.</p></section>
     ${documentPerturbationIndex('static')}${documentPerturbationIndex('dynamic')}
     <section class="section reading" id="sources">${sectionHead('Result coverage')}<p>The leaderboard presents success rates for <strong>18 models</strong> across <strong>22 static and 20 dynamic perturbations</strong>. Open a model to inspect results by domain and task suite, with individual task success rates shown where available.</p><p><strong>Task-level results</strong> are available for OpenVLA, OpenVLA-OFT_w, OpenVLA-OFT_m, OpenVLA-OFT+, RIPT-VLA, NORA, UniVLA and π0-FAST. The remaining models have suite-level rates; individual task results are <strong>not inferred</strong> from them. Missing rates are shown as <code>—</code> and inapplicable tasks as <code>N/A</code>.</p><p>Paper figures illustrate <strong>perturbation mechanisms</strong> and are not model rollout evidence. Model images come from official projects or organizations; credits appear on each model page.</p><a class="text-link" href="leaderboard.html">Explore model results ↗</a></section>
-    <section class="section reading" id="design-principles">${sectionHead('Design principles')}<p>The six domains classify each perturbation by its <strong>primary intervention target</strong>. Every type shares a semantic definition across suites, while object choices, magnitudes, directions and event settings are <strong>configured per task</strong>.</p><p><strong>Physical parameters are unchanged</strong>. Geometry and injected states must remain <strong>reachable and collision-free</strong>. Grasp loss and robot displacement are recoverable state or control interventions, not force simulations.</p><p><code>S04</code> is not applicable to Spatial tasks 0 and 8 or Long task 8. <code>S05</code> is not applicable to Goal task 3. <code>D06</code> is not applicable to Long task 8. The task documents and rollout galleries label these <strong>five combinations as not applicable</strong>.</p><a href="tasks.html">Browse the illustrated perturbation catalogue ↗</a></section>`);
+    <section class="section reading" id="design-principles">${sectionHead('Design principles')}<p>The six domains classify each perturbation by its <strong>primary intervention target</strong>. Every type shares a semantic definition across suites, while object choices, magnitudes, directions and event settings are <strong>configured per task</strong>.</p><p><strong>Physical parameters are unchanged</strong>. Geometry and injected states must remain <strong>reachable and collision-free</strong>. Grasp loss and robot displacement are recoverable state or control interventions, not force simulations.</p><p><code>S04</code> is not applicable to Spatial tasks 0 and 8 or Long task 8. <code>S05</code> is not applicable to Goal task 3. <code>D06</code> is not applicable to Long task 8. The task documents and rollout galleries label these <strong>five combinations as not applicable</strong>.</p></section>`);
 }
 
 function documentPerturbationIndex(mode) {
@@ -405,7 +385,7 @@ function notFound(kind,href) {
   return `<main id="content">${head(`${kind} not found`)}<p>The requested identifier is not part of the published catalogue.</p><div class="actions" style="justify-content:flex-start"><a class="button" href="${href}">Return to catalogue</a></div></main>`;
 }
 
-const renderers={index:homePage,leaderboard:leaderboardPage,tasks:tasksPage,model:modelPage,perturbation:perturbationPage,task:taskPage,findings:findingsPage,docs:docsPage};
+const renderers={index:homePage,leaderboard:leaderboardPage,model:modelPage,perturbation:perturbationPage,task:taskPage,findings:findingsPage,docs:docsPage};
 
 function revealSelected(container, selected, inset=0) {
   if(!container||!selected)return;

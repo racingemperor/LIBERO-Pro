@@ -165,7 +165,7 @@ const dataFiles=fs.readdirSync(new URL('../data/',import.meta.url),{recursive:tr
 assert.deepEqual(dataFiles.map(entry=>entry.name).sort(),publicFiles.map(name=>name+'.json').sort(),'Only display data may be distributed');
 for(const file of publicFiles)assert(!JSON.stringify(read(file)).match(/(?:[CD]:\\|\/data[0-9]*\/|PRIVATE KEY|ghp_|docs\.google\.com\/spreadsheets)/i));
 assert(!/"(?:cases|successes|episodes|sourceRow|sourceColumn|seed|sourceSha256|outcome|archive)"\s*:/.test(JSON.stringify(read('results'))+JSON.stringify(read('home-rollouts'))),'Internal evaluation fields leaked');
-for(const file of ['assets/app.js',...['index','docs','leaderboard','report','community','eval','findings','model','perturbation','task','tasks'].map(p=>p+'.html')]){
+for(const file of ['assets/app.js',...['index','docs','leaderboard','report','community','eval','findings','model','perturbation','task'].map(p=>p+'.html')]){
   const content=fs.readFileSync(new URL('../'+file,import.meta.url),'utf8');
   assert(!/href=["']data\/|\sdownload(?:[\s=>])/.test(content),`Data download link remains in ${file}`);
 }

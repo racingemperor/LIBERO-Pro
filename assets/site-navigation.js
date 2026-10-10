@@ -20,5 +20,5 @@ document.addEventListener('click', event => {
   if (!header?.contains(event.target) || event.target.closest('.site-nav a')) closeMenu();
 });
 const page = document.body.dataset.page;
-const navPage = page === 'model' ? 'leaderboard' : ['task', 'perturbation', 'tasks'].includes(page) ? 'docs' : page;
+const navPage = page === 'model' ? 'leaderboard' : ['task', 'perturbation'].includes(page) ? 'docs' : page;
 header?.querySelector(`a[href="${navPage}.html"]`)?.setAttribute('aria-current', 'page');

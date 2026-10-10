@@ -262,12 +262,6 @@ const tests = [
     await waitFor(()=>win().location.href===previous&&!!query('.perturbation-table'));
     assert(query('[data-perturbation-sort="D19"]').closest('th').getAttribute('aria-sort')==='descending', 'Back lost selected perturbation');
   }],
-  ['Task catalogue switches domains and settings without navigation', async () => {
-    await load('tasks.html');
-    await change(() => click('.domain-filter a[href*="category=environment"]'), () => doc().querySelectorAll('.perturbation-card').length === 7);
-    await change(() => click('.tab[href*="mode=dynamic"]'), () => doc().querySelectorAll('.perturbation-card').length === 3);
-    assert(query('.domain-filter .active').textContent.includes('Environment'), 'Domain reset');
-  }],
   ['Task results keep the selected model and domain when changing setting', async () => {
     await load('task.html?id=libero_goal-3');
     await change(() => select('#model-select', 'openvla-oft-m'), () => query('.slot-rate')?.textContent !== '—');
