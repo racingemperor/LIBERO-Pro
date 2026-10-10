@@ -314,6 +314,9 @@ body[data-page=leaderboard] .capability-data th a{display:inline-flex;align-item
 .author-notes{display:flex;flex-wrap:wrap;gap:4px 20px;margin-top:8px;font-size:13px;line-height:1.6;color:var(--muted)}
 .institution-logos{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));align-items:start;gap:20px 24px;padding:8px 0}
 .institution-logos figure{min-width:0;text-align:center}
+.institution-logos a{display:flex;align-items:center;justify-content:center;min-height:55px;border-radius:4px}
+.institution-logos a:hover{background:var(--wash)}
+.institution-logos a:focus-visible{outline:2px solid var(--blue);outline-offset:4px}
 .institution-logos img{height:55px;width:145px;max-width:100%;object-fit:contain;margin:0 auto}
 .home-summary{max-width:900px;margin:0 auto;font-size:18px;line-height:1.85}
 .home-summary p+p{margin-top:22px}

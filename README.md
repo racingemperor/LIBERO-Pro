@@ -113,7 +113,7 @@ python scripts/build_home_rollouts.py --source ARCHIVE_DIRECTORY --review-dir LO
 
 ## People and institution logos
 
-`data/people.json` contains the maintainer-confirmed 13 authors and five institutions in paper order. Author records use `name`, an `affiliations` array of institution IDs, and optional `equalContribution` or `corresponding` flags for the * and † markers. Xueyang Zhou and Yangming Xu share equal contribution; Pan Zhou is the corresponding author. Institution records use `id`, `name`, `logo` (a real local image under `assets/institutions/`) and `source` (the official asset URL). Institution order determines the displayed affiliation numbers. `scripts/build_institution_assets.py` generates the five proportionally scaled official marks; source and color-treatment notes are in `assets/institutions/README.md`.
+`data/people.json` contains the maintainer-confirmed 13 authors and five institutions in paper order. Author records use `name`, an `affiliations` array of institution IDs, and optional `equalContribution` or `corresponding` flags for the * and † markers. Xueyang Zhou and Yangming Xu share equal contribution; Pan Zhou is the corresponding author. Institution records use `id`, `name`, `url` (the official homepage), `logo` (a real local image under `assets/institutions/`) and `source` (the official asset URL). Each logo opens its institution's homepage in a new tab, with a visible keyboard focus indicator and no caption below it. Institution order determines the affiliation numbers. `scripts/build_institution_assets.py` generates the five proportionally scaled official marks; source and color-treatment notes are in `assets/institutions/README.md`.
 
 ## Publication details and citation
 
