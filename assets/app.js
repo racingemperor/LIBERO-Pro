@@ -260,11 +260,11 @@ function taskDocument(t) {
     ${documentPagination(tasks.map(task=>({id:task.id,title:task.instruction})),t.id,'task')}`);
 }
 
-let releaseTaskDemo=()=>{};
-function bindTaskDemo() {
-  releaseTaskDemo();
-  releaseTaskDemo=()=>{};
-  const video=document.querySelector('[data-task-demo]');
+let releaseDocumentDemo=()=>{};
+function bindDocumentDemo() {
+  releaseDocumentDemo();
+  releaseDocumentDemo=()=>{};
+  const video=document.querySelector('[data-task-demo], [data-perturbation-demo]');
   if(!video)return;
   const preference=matchMedia('(prefers-reduced-motion: reduce)');
   let visible=false,userPaused=false;
@@ -282,7 +282,7 @@ function bindTaskDemo() {
   video.addEventListener('play',onPlay);
   document.addEventListener('visibilitychange',sync);
   preference.addEventListener('change',sync);
-  releaseTaskDemo=()=>{
+  releaseDocumentDemo=()=>{
     observer.disconnect();
     video.removeEventListener('pause',onPause);
     video.removeEventListener('play',onPlay);
@@ -292,14 +292,24 @@ function bindTaskDemo() {
   };
 }
 
+function perturbationTaskChips(p) {
+  return `<div class="doc-task-support">${['Spatial','Object','Goal','Long'].map(suite=>`<div><h3 id="coverage-${suite}">${suite}</h3><ul class="doc-perturbation-chips" aria-labelledby="coverage-${suite}">${tasks.filter(t=>t.suiteName===suite).map(t=>{
+    const supported=!designs.tasks[t.id].excluded.includes(p.id);
+    const status=supported?'Supported':'Not supported';
+    return `<li><span class="doc-perturbation-chip doc-task-chip${supported?'':' is-unavailable'}" title="${suite} ${t.taskId}: ${status}">${t.taskId}<span class="sr-only"> — ${suite}, ${status.toLowerCase()}</span></span></li>`;
+  }).join('')}</ul></div>`).join('')}</div>`;
+}
+
 function perturbationDocument(p) {
   document.title=`${p.id} ${p.name} · Document · LIBERO-Pro`;
   const exclusions=tasks.filter(t=>designs.tasks[t.id].excluded.includes(p.id));
+  const clip=homeRollouts.clips.find(clip=>clip.perturbation===p.id);
   return documentLayout(`${head(esc(p.name),'',breadcrumb([['Document','docs.html'],['Perturbation design','tasks.html'],[p.id]]))}
-    <figure class="mechanism-image"><img src="${p.image}" width="1760" height="510" alt="${esc(p.name)} mechanism illustration"><figcaption>${p.id} · Illustration from the paper. Model-specific rollouts are shown separately.</figcaption></figure>
-    <section class="section" id="design">${sectionHead('Perturbation design')}${designFacts([['Public ID',p.id],['Category',categoryFor(p.category).name],['Setting',`${modeLabel(p.mode)} · ${p.mode==='static'?'initialization-time shift':'runtime intervention'}`],['Intervention',esc(p.description)],[p.mode==='static'?'Validity constraint':'Trigger & lifetime',esc(p.constraint)],['Task goal','Preserve the original goal and success predicate.'],['Scope','Single non-physical perturbation; mass, friction, inertia, stiffness and damping are not varied.']])}</section>
-    <section class="section reading" id="mechanism">${sectionHead(p.mode==='static'?'Initialization & validity':'Runtime behavior')}<p>${p.mode==='static'?'Apply the configured change at reset. Modified scene geometry or fault settings persist for the episode; changing the initial state does not prevent the robot and objects from moving normally.':'Trigger the intervention at the task phase defined by the case. Its onset, duration and release follow the case configuration. Restoring a sensor or control channel does not roll back the complete scene.'}</p><p>Changes must leave a reachable, collision-free configuration and a feasible route to task completion. The magnitude, direction, affected objects and event settings are selected per task.</p>${exclusions.length?`<p><strong>Not applicable:</strong> ${exclusions.map(t=>`LIBERO-${t.suiteName} task ${t.taskId}`).join(', ')}. These combinations are not treated as failures.</p>`:''}</section>
-    <section class="section" id="evaluation-tasks">${sectionHead('Evaluation tasks','<a class="text-link" href="'+url('perturbation',{id:p.id})+'">Open 8-slot rollout gallery ↗</a>')}<p>Open a task for its scene, instruction and success condition, or open the rollout gallery to inspect model results.</p>${documentTaskList()}</section>
+    <figure class="task-demo" id="examples"><video data-perturbation-demo src="${esc(clip.src)}" poster="${esc(clip.poster)}" width="256" height="256" controls muted loop playsinline preload="metadata" aria-label="${esc(p.id+': '+p.name)} perturbation demonstration"></video></figure>
+    <figure class="mechanism-image"><img src="${p.image}" width="1760" height="510" loading="lazy" alt="${esc(p.name)} mechanism illustration"><figcaption>${p.id} · Illustration from the paper. Model-specific rollouts are shown separately.</figcaption></figure>
+    <section class="section" id="design">${sectionHead('Perturbation design')}${designFacts([['Public ID',p.id],['Category',categoryFor(p.category).name],['Intervention',esc(p.description)],[p.mode==='static'?'Validity constraint':'Trigger & lifetime',esc(p.constraint)],['Task goal','Preserve the original goal and success predicate.'],['Scope','Single non-physical perturbation; mass, friction, inertia, stiffness and damping are not varied.']])}</section>
+    <section class="section reading" id="mechanism">${sectionHead(p.mode==='static'?'Initialization and validity':'Runtime behavior')}<p>${p.mode==='static'?'Apply the configured change at reset. Modified scene geometry or fault settings persist for the episode; changing the initial state does not prevent the robot and objects from moving normally.':'Trigger the intervention at the task phase defined by the case. Its onset, duration and release follow the case configuration. Restoring a sensor or control channel does not roll back the complete scene.'}</p><p>Changes must leave a reachable, collision-free configuration and a feasible route to task completion. The magnitude, direction, affected objects and event settings are selected per task.</p>${exclusions.length?`<p><strong>Not applicable:</strong> ${exclusions.map(t=>`LIBERO-${t.suiteName} task ${t.taskId}`).join(', ')}. These combinations are not treated as failures.</p>`:''}</section>
+    <section class="section" id="evaluation-tasks">${sectionHead('Evaluation tasks')}${perturbationTaskChips(p)}</section>
     ${documentPagination(catalogue.perturbations,p.id,'perturbation')}`);
 }
 
@@ -403,7 +413,7 @@ function updateCurrentView(next, {anchor=false, top=false, replace=true}={}) {
     params=new URLSearchParams(next.search);
     document.title=defaultTitle;
     updateView(app,(renderers[page]||homePage)());
-    if(page==='docs')bindTaskDemo();
+    if(page==='docs')bindDocumentDemo();
     if(page==='leaderboard'&&perturbationChanged)revealPerturbationColumn();
     prepareDirectories();
     if(focused!==document.body&&!focused.isConnected){
@@ -493,6 +503,11 @@ try {
       return response.json();
     }));
   }
+  if(page==='docs') {
+    const response=await fetch('data/home-rollouts.json');
+    if(!response.ok)throw new Error('Unable to load perturbation demonstrations');
+    homeRollouts=await response.json();
+  }
   if(page==='leaderboard') {
     const [profiles,announcements]=await Promise.all(['model-profiles','leaderboard-news'].map(async name=>{
       const response=await fetch(`data/${name}.json`);
@@ -508,7 +523,7 @@ try {
     if(old){location.replace(modelUrl(old,{mode:params.get('metric')==='dynamic'?'dynamic':'static'}));}
   }
   app.innerHTML=(renderers[page]||homePage)();bindInteractions();bindHomeMotion();bindHomePresentation();bindHomeNews();bindTaxonomy(catalogue);
-  if(page==='docs')bindTaskDemo();
+  if(page==='docs')bindDocumentDemo();
   if(page==='leaderboard'){
     capabilities.bind(ids=>{
       const next=new URL(location.href);next.searchParams.set('compare',ids.join(','));

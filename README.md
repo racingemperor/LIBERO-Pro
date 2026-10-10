@@ -47,7 +47,7 @@ Open `scripts/taxonomy-test.html` for chart interaction checks, including exact 
 - `findings.html`: analysis sections reserved for future content.
 - `docs.html`: grouped document directory, task design index, protocol, aggregation, sources and coverage.
 - `docs.html?task=libero_10-8`: a centered nominal demonstration, official instruction, task design, exact success predicates and supported perturbations.
-- `docs.html?perturbation=D06`: each perturbation's mechanism, category, timing or constraint, and task/gallery links.
+- `docs.html?perturbation=D06`: a centered demonstration reused from Home, the paper mechanism figure, design facts without a Setting row, and eight non-interactive task-number circles grouped by suite. Green indicates supported combinations; gray dashed circles indicate unsupported combinations from the same task-support manifest. Static mechanism headings read “Initialization and validity”.
 - `eval.html`: evaluation setup, execution and result reporting. No online evaluation or submission service is claimed.
 - `data/task-designs.json`: eight task designs and applicability exclusions, checked against the BASE scene definitions and paper. This editorial file is separate from the generated task manifest.
 

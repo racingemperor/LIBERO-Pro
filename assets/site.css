@@ -398,6 +398,11 @@ a.doc-perturbation-chip:hover{background:#dcefe6;border-color:#397a68;color:#174
 a.doc-perturbation-chip:focus-visible{outline:2px solid #215e52;outline-offset:3px}
 .doc-perturbation-chip.is-unavailable{background:#f5f6f7;border-color:#ced3d7;color:#737b83;cursor:not-allowed}
 @media(max-width:760px),(pointer:coarse){.doc-perturbation-chip{min-height:44px}}
+.doc-task-support{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.doc-task-support h3{font-size:15px;margin-bottom:12px}
+.doc-task-chip{width:40px;height:40px;min-width:40px;min-height:40px;padding:0;border-radius:50%;cursor:default}
+.doc-task-chip.is-unavailable{border-style:dashed;cursor:default}
+@media(max-width:760px){.doc-task-support{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 16px}}
 .task-demo{width:min(100%,420px);margin:0 auto 32px;scroll-margin-top:110px}
 .task-demo video{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:contain;border-radius:12px;background:#f5f7fa}
 .goal-predicates{padding:20px;background:#f5f7fa;border-radius:8px;margin:0;overflow:auto;line-height:1.8}
