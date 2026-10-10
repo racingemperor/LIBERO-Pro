@@ -379,8 +379,6 @@ a.home-model-chip:focus-visible{outline:2px solid #215e52;outline-offset:3px}
 .doc-content .task-list{grid-template-columns:1fr}
 .doc-content .task-index{min-width:46px;font-size:11px}
 .doc-content .reading{max-width:none}
-.doc-anchors{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--blue);margin:-10px 0 12px}
-.doc-anchors a{padding:6px 0}
 .doc-perturbation-index{margin-top:20px;border-top:1px solid var(--line)}
 .doc-perturbation-index>a{display:grid;grid-template-columns:35px minmax(0,1fr) 110px 14px;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;align-items:baseline}
 .doc-perturbation-index .id,.doc-perturbation-index .index-domain{font-size:12px;color:var(--muted)}
@@ -391,9 +389,15 @@ a.home-model-chip:focus-visible{outline:2px solid #215e52;outline-offset:3px}
 .design-facts>div{display:grid;grid-template-columns:150px minmax(0,1fr);border-bottom:1px solid var(--line)}
 .design-facts dt{font-weight:600;padding:14px 18px 14px 0}
 .design-facts dd{margin:0;padding:14px 0;color:var(--muted);line-height:1.65}
-.doc-subheading{margin:30px 0 15px}
-.task-sequence{padding-left:22px;color:var(--muted);font-size:15px}
-.task-sequence li{padding:6px 0 6px 5px}
+.doc-perturbation-group+.doc-perturbation-group{margin-top:24px}
+.doc-perturbation-heading{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
+.doc-perturbation-heading h3{font-size:17px;letter-spacing:-.015em}
+.doc-perturbation-chips{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0;margin:0}
+.doc-perturbation-chip{display:inline-flex;align-items:center;justify-content:center;min-width:56px;min-height:40px;padding:7px 14px;border:1px solid #87b5ac;border-radius:999px;background:#edf7f3;color:#215e52;font-size:12px;font-weight:600;line-height:1.4;white-space:nowrap}
+a.doc-perturbation-chip:hover{background:#dcefe6;border-color:#397a68;color:#174c40}
+a.doc-perturbation-chip:focus-visible{outline:2px solid #215e52;outline-offset:3px}
+.doc-perturbation-chip.is-unavailable{background:#f5f6f7;border-color:#ced3d7;color:#737b83;cursor:not-allowed}
+@media(max-width:760px),(pointer:coarse){.doc-perturbation-chip{min-height:44px}}
 .goal-predicates{padding:16px;background:#f5f7fa;margin:20px 0;overflow:auto}
 .goal-predicates code{display:block;white-space:pre;font-size:12px;padding:3px 0;background:none}
 .doc-example-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
