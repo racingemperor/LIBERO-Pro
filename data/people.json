@@ -1,4 +1,24 @@
 {
-  "authors": [],
-  "affiliations": []
+  "authors": [
+    { "name": "Xueyang Zhou", "affiliations": ["hust"], "equalContribution": true },
+    { "name": "Yangming Xu", "affiliations": ["hust"], "equalContribution": true },
+    { "name": "Qianjiang Li", "affiliations": ["hust"] },
+    { "name": "Guiyao Tie", "affiliations": ["hust"] },
+    { "name": "Junhao Wu", "affiliations": ["tsinghua"] },
+    { "name": "Ziheng Huang", "affiliations": ["tsinghua"] },
+    { "name": "Guowen Zhang", "affiliations": ["hust"] },
+    { "name": "Zhijie Yuan", "affiliations": ["toronto"] },
+    { "name": "Di Wu", "affiliations": ["hust"] },
+    { "name": "Duanfeng Chu", "affiliations": ["whut"] },
+    { "name": "Pan Zhou", "affiliations": ["hust"], "corresponding": true },
+    { "name": "Lichao Sun", "affiliations": ["lehigh"] },
+    { "name": "Yongchao Chen", "affiliations": ["tsinghua"] }
+  ],
+  "affiliations": [
+    { "id": "hust", "name": "Huazhong University of Science and Technology", "logo": "assets/institutions/hust.webp", "source": "https://www.hust.edu.cn/images/logo20240628.png" },
+    { "id": "tsinghua", "name": "Tsinghua University", "logo": "assets/institutions/tsinghua.webp", "source": "https://www.tsinghua.edu.cn/en/image/logo159.png" },
+    { "id": "whut", "name": "Wuhan University of Technology", "logo": "assets/institutions/whut.webp", "source": "https://www.whut.edu.cn/material/images/logo.svg" },
+    { "id": "lehigh", "name": "Lehigh University", "logo": "assets/institutions/lehigh.webp", "source": "https://www2.lehigh.edu/sites/www2/files/favicons/favicon192.png" },
+    { "id": "toronto", "name": "University of Toronto", "logo": "assets/institutions/toronto.webp", "source": "https://www.utoronto.ca/themes/custom/bootstrap_uoft/logo.svg" }
+  ]
 }

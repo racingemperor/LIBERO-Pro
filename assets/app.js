@@ -60,8 +60,12 @@ function peopleSection() {
   // Keep the metadata layout visible while unconfirmed values remain empty.
   const institutions=people.affiliations.filter(a=>/^assets\/institutions\/[\w./-]+\.(svg|png|webp|jpg)$/.test(a.logo||'')&&!a.logo.includes('..'));
   const row=(label,content,kind='')=>`<div class="paper-meta-row ${kind}"><dt>${label}</dt><dd${content?'':' class="paper-meta-empty"'}>${content||'<span class="sr-only">To be announced</span>'}</dd></div>`;
-  const authors=people.authors.length?`<p class="authors">${people.authors.map(a=>`${esc(a.name)}${a.affiliations?.length?`<sup>${a.affiliations.map(id=>institutions.findIndex(i=>i.id===id)+1).filter(Boolean).join(', ')}</sup>`:''}`).join(', ')}</p>`:'';
-  const affiliations=institutions.length?`<div class="institution-logos">${institutions.map((a,i)=>`<figure><img src="${esc(a.logo)}" alt="${esc(a.name)}" loading="lazy"><figcaption><sup>${i+1}</sup> ${esc(a.name)}</figcaption></figure>`).join('')}</div>`:'';
+  const authorNotes=[people.authors.some(a=>a.equalContribution)?'<span><sup>*</sup> Equal contribution.</span>':'',people.authors.some(a=>a.corresponding)?'<span><sup>†</sup> Corresponding author.</span>':''].filter(Boolean).join(' ');
+  const authors=people.authors.length?`<p class="authors">${people.authors.map(a=>{
+    const markers=[...(a.affiliations||[]).map(id=>institutions.findIndex(i=>i.id===id)+1).filter(Boolean),...(a.equalContribution?['*']:[]),...(a.corresponding?['†']:[])];
+    return `<span class="author-name">${esc(a.name)}${markers.length?`<sup>${markers.join(',')}</sup>`:''}</span>`;
+  }).join(', ')}</p>${authorNotes?`<p class="author-notes">${authorNotes}</p>`:''}`:'';
+  const affiliations=institutions.length?`<div class="institution-logos">${institutions.map((a,i)=>`<figure><img src="${esc(a.logo)}" alt="${esc(a.name)} logo" width="145" height="55" loading="lazy"><figcaption><sup>${i+1}</sup> ${esc(a.name)}</figcaption></figure>`).join('')}</div>`:'';
   const report=/^https:\/\//.test(publication.report?.url||'')?`<a href="${esc(publication.report.url)}" target="_blank" rel="noopener">${esc(publication.report.label||'Read the paper')} ↗</a>`:'';
   const email=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(publication.email||'')?`<a href="mailto:${esc(publication.email)}">${esc(publication.email)}</a>`:'';
   const repositories='<div class="repository-links"><a class="repository-link" href="https://github.com/Zxy-MLlab/LIBERO-Pro2.0" target="_blank" rel="noopener"><img src="assets/icons/github.svg" width="20" height="20" alt="" aria-hidden="true"><span class="repository-name">Zxy-MLlab/LIBERO-Pro2.0</span><span class="repository-status latest">Latest</span></a></div>';
