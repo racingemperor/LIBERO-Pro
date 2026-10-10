@@ -129,7 +129,9 @@ The two-paragraph Home introduction summarizes the memorization/generalization c
 
 Both News panels use the same Google Sans Flex family as the reference, self-hosted as a Latin WOFF2 subset from Google Fonts (weights 400–600), with the SIL Open Font License in `assets/fonts/OFL-GoogleSansFlex.txt`. Other sections retain their existing typography.
 
-Home's Repository row links to `Zxy-MLlab/LIBERO-PRO` (Previous) and `Zxy-MLlab/LIBERO-Pro2.0` (Latest). The GitHub mark is from Primer Octicons, with its source and MIT notice in `assets/icons/LICENSE-octicons.txt`.
+Home's Repository row links only to `Zxy-MLlab/LIBERO-Pro2.0` (Latest). The original paper's resources remain on Report. The GitHub mark is from Primer Octicons, with its source and MIT notice in `assets/icons/LICENSE-octicons.txt`.
+
+The shared navigation wordmark reads **LIBERO-Pro 2.0**. Vector numerals continue Pro's final blue, weight and baseline; the original lettering keeps its display size. The wider mark is 186px on desktop and 170px on mobile; project links wrap to a second header row at 420px and below.
 
 Leaderboard uses compact 40px desktop rows for both ranking tables, with 22px model marks and narrower score columns. The expandable three-metric table is compact as well. Mobile and coarse-pointer views retain 44px interactive targets; sticky model columns, scrolling, score colors, sorting and result values are unchanged.
 
