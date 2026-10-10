@@ -12,6 +12,9 @@ const people=read('people');
 const privateArg=process.argv.indexOf('--private-data');
 assert(privateArg<0||process.argv[privateArg+1],'--private-data requires a directory');
 const privateRoot=privateArg<0?null:path.resolve(process.argv[privateArg+1]);
+const manifestArg=process.argv.indexOf('--task-manifest');
+assert(manifestArg<0||process.argv[manifestArg+1],'--task-manifest requires a file');
+const publishedTasks=manifestArg<0?null:JSON.parse(fs.readFileSync(process.argv[manifestArg+1],'utf8')).tasks;
 const readPrivate=name=>JSON.parse(fs.readFileSync(path.join(privateRoot,'data',name+'.json'),'utf8'));
 const completed=privateRoot?readPrivate('completed-evaluations-2026-10-08'):null;
 const sheet=privateRoot?readPrivate('sheet-success-rates'):null;
@@ -42,6 +45,12 @@ assert.deepEqual(tasks.map(t=>t.id),['libero_spatial-0','libero_spatial-8','libe
 assert.deepEqual(Object.keys(designs).sort(),tasks.map(t=>t.id).sort(),'Every task needs a design document');
 for(const task of tasks){
   assert(designs[task.id].predicates.length,'Every task needs its BASE success condition');
+  for(const extension of ['mp4','webp'])assert(fs.existsSync(new URL(`../assets/rollouts/base/${task.id}.${extension}`,import.meta.url)),`Missing nominal demonstration for ${task.id}`);
+  if(publishedTasks){
+    const supported=new Set(publishedTasks.filter(entry=>entry.suite===task.suite&&entry.base_task_id===task.taskId).map(entry=>entry.case_id));
+    const excluded=perturbations.filter(p=>!supported.has(p.sourceId||p.id)).map(p=>p.id);
+    assert.deepEqual([...designs[task.id].excluded].sort(),excluded.sort(),`Incomplete or incorrect perturbation support for ${task.id}`);
+  }
   for(const id of designs[task.id].excluded){
     assert(perturbations.some(p=>p.id===id));
     assert(models.every(m=>!m.taskRates.some(c=>c.task===task.id&&c.direction===id)),`Inapplicable ${task.id}/${id} has a displayed rate`);

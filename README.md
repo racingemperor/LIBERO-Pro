@@ -46,7 +46,7 @@ Open `scripts/taxonomy-test.html` for chart interaction checks, including exact 
 - `tasks.html`, `perturbation.html?id=S01`, `task.html?id=libero_goal-3`: browsable catalogue and eight task slots per perturbation.
 - `findings.html`: analysis sections reserved for future content.
 - `docs.html`: grouped document directory, task design index, protocol, aggregation, sources and coverage.
-- `docs.html?task=libero_10-8`: each base task's instruction, scene, sequence, exact success predicates and media slots.
+- `docs.html?task=libero_10-8`: a centered nominal demonstration, official instruction, task design, exact success predicates and supported perturbations.
 - `docs.html?perturbation=D06`: each perturbation's mechanism, category, timing or constraint, and task/gallery links.
 - `eval.html`: evaluation setup, execution and result reporting. No online evaluation or submission service is claimed.
 - `data/task-designs.json`: eight task designs and applicability exclusions, checked against the BASE scene definitions and paper. This editorial file is separate from the generated task manifest.
@@ -69,6 +69,7 @@ python scripts/build_data.py --paper PATH_TO_PAPER_SOURCE --figures PATH_TO_REND
 python scripts/build_assets.py
 node scripts/verify-data.mjs
 node scripts/verify-data.mjs --private-data PRIVATE_DIRECTORY
+node scripts/verify-data.mjs --task-manifest PATH_TO_EXPERIMENT_REPO/assets/task_manifest.json
 ```
 
 Builders require Pillow. The site itself does not require Python or Node.
@@ -83,7 +84,11 @@ Place GIF, WebP, MP4 or WebM files under `assets/rollouts/`. In `data/tasks.json
 {"media":{"openvla-oft-m":{"D01":"assets/rollouts/oft-m-goal3-D01.mp4"}}}
 ```
 
-Use only genuine evaluation media for the matching model, task and perturbation. Missing media renders as a reserved slot. S04 is not applicable to the two Spatial evaluation tasks; D06 is not applicable to Long task 8. These slots show N/A rather than missing scores.
+Use only genuine evaluation media for the matching model, task and perturbation. Missing media renders as a reserved slot. S04 is not applicable to Spatial tasks 0 and 8 or Long task 8; S05 is not applicable to Goal task 3; D06 is not applicable to Long task 8. These five combinations show N/A in rollout galleries and disabled gray chips in task documents. Support follows the published experiment task manifest, independently of score availability. Pass that manifest to the verifier to check all 336 task/perturbation combinations, including the public-to-internal D19/D20 mapping.
+
+Task documents show one unperturbed LIBERO demonstration directly below the instruction heading, before the design table. The video is centered, proportionally sized, muted and looped, with native playback controls. It pauses off-screen or in a hidden tab; reduced-motion preferences suppress autoplay. Success conditions retain only the gray predicate block. The former bottom-of-page example placeholders have been removed.
+
+The eight nominal clips in `assets/rollouts/base/` are rendered from the public [HuggingFaceVLA/libero v2.1 dataset](https://huggingface.co/datasets/HuggingFaceVLA/libero/tree/affa19c0de0f6bce2a7edd26dddef8a532e7e6f6), published under Apache-2.0. They illustrate the original tasks and do not represent any model's leaderboard performance. Source episode mappings, conversion details and license are in [the media credits](assets/rollouts/base/README.md). Run `python scripts/build_task_demos.py --review-dir EXTERNAL_REVIEW_DIRECTORY` to rebuild them; source downloads and contact sheets remain outside this repository.
 
 Home uses a separate `data/home-rollouts.json` containing only each public perturbation ID and its video/poster URLs. These illustrative clips are not evidence for any leaderboard score. Trial seeds, outcomes, source archive names and hashes remain in the external local review directory.
 

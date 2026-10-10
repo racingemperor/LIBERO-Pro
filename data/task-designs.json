@@ -1,5 +1,5 @@
 {
-  "source": "BASE instructions and goal predicates checked against LIBERO scene definitions; evaluation split and perturbation scope from the current paper, October 7, 2026.",
+  "source": "BASE instructions and goal predicates checked against LIBERO scene definitions; evaluation split from the current paper. Perturbation support checked against the LIBERO-Pro2.0 published task manifest and exclusion rules, October 10, 2026.",
   "tasks": {
     "libero_spatial-0": {
       "title": "Bowl between plate and ramekin",
@@ -51,7 +51,8 @@
       "steps": ["Open the top drawer to make its receiving region accessible.", "Grasp and transport the bowl.", "Place the bowl inside the top drawer."],
       "success": "The bowl is inside the cabinet's top receiving region. Drawer opening is part of the instructed sequence; the BASE goal checks bowl containment.",
       "predicates": ["In(akita_black_bowl_1, wooden_cabinet_1_top_region)"],
-      "excluded": []
+      "excluded": ["S05"],
+      "exclusionReason": "Restricted approach or path is excluded for Goal task 3 by the published task configuration."
     },
     "libero_goal-6": {
       "title": "Cream cheese on bowl",
@@ -81,8 +82,8 @@
       "steps": ["Identify both moka pots and the stove's cooking region.", "Move each pot onto the cooking region.", "Ensure the stove is on and both placements still satisfy the goal."],
       "success": "Both moka pots are on the stove's cooking region and the stove is on. All three predicates must hold.",
       "predicates": ["On(moka_pot_1, flat_stove_1_cook_region)", "On(moka_pot_2, flat_stove_1_cook_region)", "Turnon(flat_stove_1)"],
-      "excluded": ["D06"],
-      "exclusionReason": "The paper excludes distractor rearrangement for Long task 8 from the dynamic-evaluation denominator."
+      "excluded": ["S04", "D06"],
+      "exclusionReason": "Object position swap and distractor rearrangement are not applicable to Long task 8 in the published task configuration."
     }
   }
 }

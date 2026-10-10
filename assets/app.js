@@ -253,11 +253,43 @@ function taskDocument(t) {
   const design=designs.tasks[t.id];
   document.title=`${t.instruction} · Document · LIBERO-Pro`;
   return documentLayout(`${head(esc(t.instruction),'',breadcrumb([['Document','docs.html'],['Evaluation tasks','docs.html#task-designs'],[`LIBERO-${t.suiteName} · ${t.taskId}`]]))}
+    <figure class="task-demo" id="examples"><video data-task-demo src="assets/rollouts/base/${esc(t.id)}.mp4" poster="assets/rollouts/base/${esc(t.id)}.webp" width="256" height="256" controls muted loop playsinline preload="metadata" aria-label="Unperturbed LIBERO demonstration: ${esc(t.instruction)}"></video></figure>
     <section class="section" id="design">${sectionHead('Task design')}${designFacts([['Instruction',esc(t.instruction)],['Description',esc(design.description)],['Task suite',`LIBERO-${esc(t.suiteName==='Long'?'10':t.suiteName)} · task ${t.taskId} (zero-based)`],['Design focus',esc(design.focus)]])}</section>
-    <section class="section reading" id="success">${sectionHead('Success conditions')}<p>${esc(design.success)}</p><div class="goal-predicates" aria-label="BASE goal predicates">${design.predicates.map(predicate=>`<code>${esc(predicate)}</code>`).join('')}</div><p>Success is binary: an episode is successful when the original task goal is satisfied. The website reports the fraction of successful episodes; intermediate steps do not earn a separate score.</p></section>
+    <section class="section reading" id="success">${sectionHead('Success conditions')}<pre class="goal-predicates" tabindex="0" aria-label="BASE goal predicates"><code>${design.predicates.map(esc).join('\n')}</code></pre></section>
     <section class="section" id="perturbations">${sectionHead('Perturbation design')}${taskPerturbationChips(t)}</section>
-    <section class="section" id="examples">${sectionHead('Task examples')}<div class="doc-example-grid"><figure><div class="media-placeholder"><span>Nominal rollout coming soon</span></div><figcaption>BASE · original task</figcaption></figure><figure><div class="media-placeholder"><span>Perturbed rollout coming soon</span></div><figcaption>Single-perturbation evaluation</figcaption></figure></div><p class="caption">Videos will be matched to the task, model and perturbation. Mechanism illustrations are available in the perturbation documents.</p></section>
     ${documentPagination(tasks.map(task=>({id:task.id,title:task.instruction})),t.id,'task')}`);
+}
+
+let releaseTaskDemo=()=>{};
+function bindTaskDemo() {
+  releaseTaskDemo();
+  releaseTaskDemo=()=>{};
+  const video=document.querySelector('[data-task-demo]');
+  if(!video)return;
+  const preference=matchMedia('(prefers-reduced-motion: reduce)');
+  let visible=false,userPaused=false;
+  const sync=()=>{
+    if(visible&&!document.hidden&&!preference.matches&&!userPaused){
+      video.muted=true;
+      video.play()?.catch(()=>{});
+    }else video.pause();
+  };
+  const onPause=()=>{if(visible&&!document.hidden&&!preference.matches)userPaused=true;};
+  const onPlay=()=>{userPaused=false;};
+  const observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;sync();},{threshold:.15});
+  observer.observe(video);
+  video.addEventListener('pause',onPause);
+  video.addEventListener('play',onPlay);
+  document.addEventListener('visibilitychange',sync);
+  preference.addEventListener('change',sync);
+  releaseTaskDemo=()=>{
+    observer.disconnect();
+    video.removeEventListener('pause',onPause);
+    video.removeEventListener('play',onPlay);
+    document.removeEventListener('visibilitychange',sync);
+    preference.removeEventListener('change',sync);
+    video.pause();
+  };
 }
 
 function perturbationDocument(p) {
@@ -287,7 +319,7 @@ function docsPage() {
     <section class="section reading" id="taxonomy">${sectionHead('Paper taxonomy')}<p>Select any ID to read its intervention design, constraints and task coverage. All six domains and all 42 perturbations remain available in the document directory.</p><div class="table-scroll" tabindex="0" role="region" aria-label="Paper taxonomy, horizontally scrollable"><table><thead><tr><th>Domain</th><th>Static</th><th>Dynamic</th></tr></thead><tbody>${catalogue.categories.map(c=>`<tr id="domain-${c.id}"><th scope="row">${c.name}</th>${['static','dynamic'].map(mode=>`<td>${c[mode].map(id=>`<a href="${url('docs',{perturbation:id})}">${id}</a>`).join(', ')}</td>`).join('')}</tr>`).join('')}</tbody></table></div><p>The website uses paper IDs. Paper D19 maps to internal D20 (robot joint displacement); paper D20 maps to internal D21 (instruction restatement). Internal D19 is excluded from the published 42-type catalogue. Static S06 belongs to Environment.</p></section>
     ${documentPerturbationIndex('static')}${documentPerturbationIndex('dynamic')}
     <section class="section reading" id="sources">${sectionHead('Result coverage')}<p>The leaderboard presents success rates for 18 models across 22 static and 20 dynamic perturbations. Open a model to inspect results by domain and task suite, with individual task success rates shown where available.</p><p>Task-level results are available for OpenVLA, OpenVLA-OFT_w, OpenVLA-OFT_m, OpenVLA-OFT+, RIPT-VLA, NORA, UniVLA and π0-FAST. The remaining models have suite-level rates; individual task results are not inferred from them. Missing rates are shown as — and inapplicable tasks as N/A.</p><p>Paper figures illustrate perturbation mechanisms and are not model rollout evidence. Model images come from official projects or organizations; credits appear on each model page.</p><a class="text-link" href="leaderboard.html">Explore model results ↗</a></section>
-    <section class="section reading" id="design-principles">${sectionHead('Design principles')}<p>The six domains classify each perturbation by its primary intervention target. Every type shares a semantic definition across suites, while object choices, magnitudes, directions and event settings are configured per task.</p><p>Physical parameters are unchanged. Geometry and injected states must remain reachable and collision-free. Grasp loss and robot displacement are recoverable state or control interventions, not force simulations.</p><p>Long task 8 with D06 is excluded from the dynamic-evaluation denominator. S04 is not applicable to the Spatial evaluation tasks. The task documents and rollout galleries label these combinations as not applicable.</p><a href="tasks.html">Browse the illustrated perturbation catalogue ↗</a></section>`);
+    <section class="section reading" id="design-principles">${sectionHead('Design principles')}<p>The six domains classify each perturbation by its primary intervention target. Every type shares a semantic definition across suites, while object choices, magnitudes, directions and event settings are configured per task.</p><p>Physical parameters are unchanged. Geometry and injected states must remain reachable and collision-free. Grasp loss and robot displacement are recoverable state or control interventions, not force simulations.</p><p>S04 is not applicable to Spatial tasks 0 and 8 or Long task 8. S05 is not applicable to Goal task 3. D06 is not applicable to Long task 8. The task documents and rollout galleries label these five combinations as not applicable.</p><a href="tasks.html">Browse the illustrated perturbation catalogue ↗</a></section>`);
 }
 
 function documentPerturbationIndex(mode) {
@@ -371,6 +403,7 @@ function updateCurrentView(next, {anchor=false, top=false, replace=true}={}) {
     params=new URLSearchParams(next.search);
     document.title=defaultTitle;
     updateView(app,(renderers[page]||homePage)());
+    if(page==='docs')bindTaskDemo();
     if(page==='leaderboard'&&perturbationChanged)revealPerturbationColumn();
     prepareDirectories();
     if(focused!==document.body&&!focused.isConnected){
@@ -475,6 +508,7 @@ try {
     if(old){location.replace(modelUrl(old,{mode:params.get('metric')==='dynamic'?'dynamic':'static'}));}
   }
   app.innerHTML=(renderers[page]||homePage)();bindInteractions();bindHomeMotion();bindHomePresentation();bindHomeNews();bindTaxonomy(catalogue);
+  if(page==='docs')bindTaskDemo();
   if(page==='leaderboard'){
     capabilities.bind(ids=>{
       const next=new URL(location.href);next.searchParams.set('compare',ids.join(','));
