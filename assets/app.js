@@ -10,7 +10,7 @@ const defaultTitle = document.title;
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pct = value => Number.isFinite(value) ? `${(value * 100).toFixed(1)}%` : '—';
 const mean = values => { const valid = values.filter(Number.isFinite); return valid.length ? valid.reduce((a,b)=>a+b,0)/valid.length : null; };
-const modeLabel = mode => mode === 'dynamic' ? 'Dynamic' : 'Static';
+const modeLabel = mode => mode === 'overall' ? 'Overall' : mode === 'dynamic' ? 'Dynamic' : 'Static';
 const typeClass = type => type === 'World Action Models' ? 'wam' : type === 'Robustness-oriented' ? 'robust' : 'vla';
 const typeLabel = type => type === 'World Action Models' ? 'World Action' : type === 'Robustness-oriented' ? 'Robustness' : 'VLA';
 let catalogue, results, tasks, assets, news, leaderboardNews, designs, people, publication, upcomingModels;
@@ -31,8 +31,7 @@ const selectedCategory = () => categoryFor(params.get('category')) ? params.get(
 const head = (title,desc='',crumb='') => `<header class="page-head">${crumb}<h1>${title}</h1>${desc?`<p>${desc}</p>`:''}</header>`;
 const sectionHead = (title,link='') => `<div class="section-head"><h2>${title}</h2>${link}</div>`;
 const breadcrumb = links => `<nav class="breadcrumb" aria-label="Breadcrumb">${links.map(([label,href])=>href?`<a href="${esc(href)}">${esc(label)}</a>`:`<span aria-current="page">${esc(label)}</span>`).join('<span aria-hidden="true">/</span>')}</nav>`;
-const tabs = (mode,href) => `<div class="tabs" aria-label="Distribution shift">${['static','dynamic'].map(x=>`<a class="tab ${mode===x?'active':''}" ${mode===x?'aria-current="true"':''} href="${esc(href(x))}">${modeLabel(x)} <span class="count-label">${x==='static'?'22':'20'}</span></a>`).join('')}</div>`;
-const leaderboardNewsSection = () => `<section class="section news-section" id="news">${sectionHead('News')}${leaderboardNews.entries.length?`<ul class="news-list">${leaderboardNews.entries.map(n=>`<li><time datetime="${esc(n.date)}">${esc(n.date.replaceAll('-','/'))}</time><p>${esc(n.title||n.text)}${/^https?:\/\//.test(n.link?.url||'')?` <a href="${esc(n.link.url)}" target="_blank" rel="noopener">${esc(n.link.label)} ↗</a>`:''}</p></li>`).join('')}</ul>`:''}</section>`;
+const tabs = (mode,href,modes=['static','dynamic']) => `<div class="tabs" aria-label="Distribution shift">${modes.map(x=>`<a class="tab ${mode===x?'active':''}" ${mode===x?'aria-current="true"':''} href="${esc(href(x))}">${modeLabel(x)} <span class="count-label">${x==='overall'?'42':x==='static'?'22':'20'}</span></a>`).join('')}</div>`;
 
 function layout(content, entries) {
   const links=entries.map(([id,name])=>`<a href="#${id}">${name}</a>`).join('');
@@ -77,11 +76,30 @@ function citationSection() {
   return `<section class="section citation-section" id="citation">${sectionHead('Citation')}<div class="citation-card"><div class="citation-header"><h3>LIBERO-Pro</h3><button class="citation-copy" data-copy-citation aria-label="Copy BibTeX"${bibtex?'':' disabled'}>Copy</button></div><pre class="citation-code"${bibtex?' tabindex="0" aria-label="BibTeX citation"':' aria-label="Citation reserved for the forthcoming paper"'}><code>${esc(bibtex)}</code></pre></div>${bibtex?'':'<p class="caption">Citation details will be added with the paper.</p>'}<p class="sr-only" data-copy-status role="status"></p></section>`;
 }
 
+const overallScores = new WeakMap();
+function rankingScores(model, mode) {
+  if(mode!=='overall')return model.scores[mode];
+  if(!overallScores.has(model)){
+    // Match the published Overall weighting: average applicable cells across both settings.
+    overallScores.set(model,{
+      average:model.scores.overall,
+      categories:Object.fromEntries(catalogue.categories.map(category=>{
+        const directions=new Set([...category.static,...category.dynamic]);
+        return [category.id,mean(model.cells.filter(cell=>directions.has(cell.direction)).map(cell=>cell.rate))];
+      }))
+    });
+  }
+  return overallScores.get(model);
+}
+
 function rankedModels(mode, category='all', sort='average', ascending=false) {
   const perturbation=catalogue.perturbations.find(p=>p.id===sort&&p.mode===mode);
-  const score=m=>perturbation?directionRate(m,perturbation):sort==='base'?m.scores.base:sort==='delta'?(m.scores.base===null?null:m.scores[mode].average-m.scores.base):categoryFor(sort)?m.scores[mode].categories[sort]:m.scores[mode].average;
+  const score=m=>{
+    const scores=rankingScores(m,mode);
+    return perturbation?directionRate(m,perturbation):sort==='base'?m.scores.base:sort==='delta'?(Number.isFinite(m.scores.base)&&Number.isFinite(scores.average)?scores.average-m.scores.base:null):categoryFor(sort)?scores.categories[sort]:scores.average;
+  };
   return results.models.filter(m=>category==='all'||m.type===category).sort((a,b)=>{
-    const x=score(a),y=score(b);if(x===null)return y===null?a.name.localeCompare(b.name):1;if(y===null)return -1;
+    const x=score(a),y=score(b);if(!Number.isFinite(x))return !Number.isFinite(y)?a.name.localeCompare(b.name):1;if(!Number.isFinite(y))return -1;
     return (ascending?x-y:y-x)||a.name.localeCompare(b.name);
   });
 }
@@ -94,23 +112,30 @@ function chart(mode,limit=14,models=null) {
 function leaderboardTable(mode,models,sort='average',ascending=false) {
   const sortButton=(key,label)=>`<button data-sort="${key}" aria-label="Sort by ${label}">${label}${sort===key?(ascending?' ↑':' ↓'):''}</button>`;
   const domainHeaders=catalogue.categories.map(c=>`<th scope="col" ${sort===c.id?`aria-sort="${ascending?'ascending':'descending'}"`:''}>${sortButton(c.id,c.name)}</th>`).join('');
-  const delta=m=>m.scores.base===null?'—':`${m.scores[mode].average-m.scores.base>0?'+':''}${((m.scores[mode].average-m.scores.base)*100).toFixed(1)}`;
-  return `<div class="table-scroll" tabindex="0" role="region" aria-label="${modeLabel(mode)} leaderboard, horizontally scrollable"><table class="leaderboard-table"><thead><tr><th scope="col">#</th><th scope="col">Model</th><th scope="col">Type</th><th scope="col" ${sort==='average'?`aria-sort="${ascending?'ascending':'descending'}"`:''}>${sortButton('average','Average')}</th>${domainHeaders}<th scope="col" ${sort==='base'?`aria-sort="${ascending?'ascending':'descending'}"`:''}>${sortButton('base','Base')}</th><th scope="col" ${sort==='delta'?`aria-sort="${ascending?'ascending':'descending'}"`:''}>${sortButton('delta','Δ (pp)')}</th><th scope="col">Details</th></tr></thead><tbody>${models.map((m,i)=>`<tr data-href="${modelUrl(m,{mode})}"><td>${i+1}</td><th scope="row" class="model-cell"><a class="model-link" href="${modelUrl(m,{mode})}">${logo(m)}${esc(m.name)}</a></th><td>${tag(m)}</td><td class="average">${pct(m.scores[mode].average)}</td>${catalogue.categories.map(c=>{const v=m.scores[mode].categories[c.id];return `<td class="score-cell"><a style="--heat:${v===null?0:(.04+v*.22).toFixed(3)}" href="${modelUrl(m,{mode,category:c.id,perturbation:c[mode][0]},'rollouts')}" aria-label="${esc(m.name)}, ${c.name}, ${pct(v)}, view tasks">${pct(v)}</a></td>`;}).join('')}<td>${pct(m.scores.base)}</td><td class="delta">${delta(m)}</td><td><a href="${modelUrl(m,{mode})}" aria-label="View ${esc(m.name)} details">↗</a></td></tr>`).join('')}</tbody></table></div>`;
+  // Model details retain their two settings; Overall links open the model's default view.
+  const detailMode=mode==='overall'?'static':mode;
+  const profile=m=>modelUrl(m,mode==='overall'?{}:{mode});
+  return `<div class="table-scroll" tabindex="0" role="region" aria-label="${modeLabel(mode)} leaderboard, horizontally scrollable"><table class="leaderboard-table"><thead><tr><th scope="col">#</th><th scope="col">Model</th><th scope="col">Type</th><th scope="col" ${sort==='average'?`aria-sort="${ascending?'ascending':'descending'}"`:''}>${sortButton('average','Average')}</th>${domainHeaders}<th scope="col" ${sort==='base'?`aria-sort="${ascending?'ascending':'descending'}"`:''}>${sortButton('base','Base')}</th><th scope="col" ${sort==='delta'?`aria-sort="${ascending?'ascending':'descending'}"`:''}>${sortButton('delta','Δ (pp)')}</th><th scope="col">Details</th></tr></thead><tbody>${models.map((m,i)=>{
+    const scores=rankingScores(m,mode);
+    const delta=Number.isFinite(m.scores.base)&&Number.isFinite(scores.average)?scores.average-m.scores.base:null;
+    return `<tr data-href="${profile(m)}"><td>${i+1}</td><th scope="row" class="model-cell"><a class="model-link" href="${profile(m)}">${logo(m)}${esc(m.name)}</a></th><td>${tag(m)}</td><td class="average">${pct(scores.average)}</td>${catalogue.categories.map(c=>{
+      const v=scores.categories[c.id];
+      return `<td class="score-cell"><a style="--heat:${Number.isFinite(v)?(.04+v*.22).toFixed(3):0}" href="${modelUrl(m,{mode:detailMode,category:c.id,perturbation:c[detailMode][0]},'rollouts')}" aria-label="${esc(m.name)}, ${c.name}, ${pct(v)}, view tasks">${pct(v)}</a></td>`;
+    }).join('')}<td>${pct(m.scores.base)}</td><td class="delta">${delta===null?'—':`${delta>0?'+':''}${(delta*100).toFixed(1)}`}</td><td><a href="${profile(m)}" aria-label="View ${esc(m.name)} details">↗</a></td></tr>`;
+  }).join('')}</tbody></table></div>`;
 }
 
 function leaderboardPage() {
-  const mode=selectedMode();
+  const mode=params.get('mode')==='overall'?'overall':selectedMode();
   const type=['Mainstream VLA','World Action Models','Robustness-oriented'].includes(params.get('type'))?params.get('type'):'all';
   const sort=['average','base','delta',...catalogue.categories.map(c=>c.id)].includes(params.get('sort'))?params.get('sort'):'average';
   const asc=params.get('order')==='asc';
   const entries=rankedModels(mode,type,sort,asc);
   return layout(`${head('Leaderboard','Success rates under static shifts and dynamic interventions. Select a model or a domain score to inspect its tasks.')}
-    ${leaderboardNewsSection()}
+    ${homeNews(leaderboardNews.entries)}
     <section class="section" id="capabilities">${sectionHead('Model capabilities')}${capabilities.render(params)}</section>
-    <section class="section" id="rankings">${sectionHead('Model comparison',`<span class="count-label">${entries.length} models · success rate (%)</span>`)}<div class="controls">${tabs(mode,m=>url('leaderboard',{...Object.fromEntries(params),mode:m,type,sort,order:asc?'asc':'desc'},'rankings'))}<label class="control">Model type <select data-query="type" data-anchor="rankings"><option value="all">All models</option>${['Mainstream VLA','World Action Models','Robustness-oriented'].map(t=>`<option ${type===t?'selected':''}>${t}</option>`).join('')}</select></label></div>${leaderboardTable(mode,entries,sort,asc)}<p class="table-note">Average includes every applicable suite × perturbation result in the selected setting. Δ = Average − Base, in percentage points. Missing values remain blank (—). <a class="text-link" href="docs.html#taxonomy">Domain definitions ↗</a> · <a class="text-link" href="docs.html#scoring">Scoring details ↗</a></p></section>
-    ${perturbationRankings()}
-    <section class="section" id="protocol">${sectionHead('Evaluation protocol')}<div class="mode-guide"><div><h3>42 perturbations, 8 base tasks</h3><p style="margin-top:12px">S01–S22 are static; D01–D20 are dynamic. Evaluation uses two held-out tasks from each of four LIBERO suites. A single perturbation is applied to each evaluated case.</p></div><div><h3>Success rate only</h3><p style="margin-top:12px">A rollout succeeds when it satisfies the original task goal. Scores exclude RQ experiments and combined perturbation suites. No additional composite score is used.</p></div></div></section>
-    <section class="section" id="data">${sectionHead('Result coverage')}<p>Compare published success rates across 18 models and 42 perturbations. Open a model to explore results by domain, task suite and individual task where available.</p><a class="text-link" href="docs.html#sources">Read result coverage ↗</a></section>`,[['news','News'],['capabilities','Capabilities'],['rankings','Model comparison'],['perturbation-rankings','By perturbation'],['protocol','Protocol'],['data','Result coverage']]);
+    <section class="section" id="rankings">${sectionHead('Model comparison',`<span class="count-label">${entries.length} models · success rate (%)</span>`)}<div class="controls">${tabs(mode,m=>url('leaderboard',{...Object.fromEntries(params),mode:m,type,sort,order:asc?'asc':'desc'},'rankings'),['overall','static','dynamic'])}<label class="control">Model type <select data-query="type" data-anchor="rankings"><option value="all">All models</option>${['Mainstream VLA','World Action Models','Robustness-oriented'].map(t=>`<option ${type===t?'selected':''}>${t}</option>`).join('')}</select></label></div>${leaderboardTable(mode,entries,sort,asc)}</section>
+    ${perturbationRankings()}`,[['news','News'],['capabilities','Capabilities'],['rankings','Model comparison'],['perturbation-rankings','By perturbation']]);
 }
 
 function perturbationRankings() {
@@ -137,8 +162,6 @@ function perturbationRankings() {
       <thead><tr><th scope="col" class="rank-column">#</th><th scope="col" class="model-column">Model</th><th scope="col">Type</th>${heading('average','Average')}${perturbations.map(p=>heading(p.id,p.id,p.id+' · '+p.name)).join('')}<th scope="col">Details</th></tr></thead>
       <tbody>${entries.map((m,i)=>`<tr data-model="${m.id}" data-href="${profile(m)}"><td class="rank-column">${i+1}</td><th scope="row" class="model-cell model-column"><a class="model-link" href="${profile(m)}">${logo(m)}${esc(m.name)}</a></th><td>${tag(m)}</td><td class="average">${pct(m.scores[mode].average)}</td>${perturbations.map(p=>{const v=directionRate(m,p);return `<td class="score-cell" data-perturbation="${p.id}"><a style="--heat:${v===null?0:(.04+v*.22).toFixed(3)}" href="${directionUrl(p,m)}" aria-label="${esc(m.name)}, ${p.id} ${esc(p.name)}, ${pct(v)}, view tasks">${pct(v)}</a></td>`;}).join('')}<td><a href="${profile(m)}" aria-label="View ${esc(m.name)} ${selected?selected.id:mode} details">↗</a></td></tr>`).join('')}</tbody>
     </table></div>
-    <p class="table-note">${selected?`<a class="text-link" href="docs.html?perturbation=${selected.id}">${selected.id} · ${esc(selected.name)} ↗</a>`:`${modeLabel(mode)} average`} · ${asc?'Lowest':'Highest'} first. Scroll horizontally to compare all ${perturbations.length} perturbations; click a column heading to sort.</p>
-    <p class="table-note">Each perturbation score averages its available suite results, using the same calculation as model details. Average covers all applicable suite × perturbation results in the setting. Missing values remain —. Select a score to inspect its tasks. <a class="text-link" href="docs.html#taxonomy">Perturbation definitions ↗</a></p>
   </section>`;
 }
 

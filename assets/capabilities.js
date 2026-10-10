@@ -1,6 +1,6 @@
-// The three axes are categorical success rates, all on the same 0–100% scale.
-const metrics = ['Overall', 'Dynamic', 'Static'];
-const values = model => [model.scores.overall, model.scores.dynamic.average, model.scores.static.average];
+// All four categorical success rates share the same 0–100% scale.
+const metrics = ['Base', 'Overall', 'Dynamic', 'Static'];
+const values = model => [model.scores.base, model.scores.overall, model.scores.dynamic.average, model.scores.static.average];
 const colors = {
   'lingbot-va':'#2064ce', 'molmoact2':'#b74379', 'cosmos-policy':'#25856c',
   'pi0-5':'#965616', 'xvla':'#7753b5', 'fastwam':'#007e9b', 'gr00t-n1-7':'#677c19',
@@ -11,7 +11,7 @@ const colors = {
 
 export function createCapabilities(models, assets, profiles, {esc, pct, modelUrl, updateView}) {
   const ordered = [...models].sort((a,b)=>(b.scores.overall??-1)-(a.scores.overall??-1));
-  const defaults = ordered.slice(0,3).map(m=>m.id);
+  const defaults = ordered.map(m=>m.id);
   let selected = new Set(defaults), width = 960, active = null, hideTimer;
   let position = {left:12,top:60};
   const mark = m => `<img src="assets/models/${esc(assets[m.id].asset)}" width="24" height="24" alt="">`;
@@ -19,26 +19,26 @@ export function createCapabilities(models, assets, profiles, {esc, pct, modelUrl
 
   function svg() {
     const compact = width < 620, left = compact?42:54, right = width-(compact?28:210);
-    const x = [left,(left+right)/2,right], top = 30;
+    const last = metrics.length-1, x = metrics.map((_,i)=>left+(right-left)*i/last), top = 30;
     const bottom = compact?274:Math.max(334,top+(selected.size-1)*22);
     const y = v => bottom-v*(bottom-top);
     const labelPositions = new Map();
-    const endpoints = ordered.filter(m=>selected.has(m.id)&&Number.isFinite(values(m)[2])).sort((a,b)=>values(b)[2]-values(a)[2]);
-    endpoints.forEach((m,i)=>labelPositions.set(m.id,Math.max(y(values(m)[2]),i?labelPositions.get(endpoints[i-1].id)+22:top)));
+    const endpoints = ordered.filter(m=>selected.has(m.id)&&Number.isFinite(values(m)[last])).sort((a,b)=>values(b)[last]-values(a)[last]);
+    endpoints.forEach((m,i)=>labelPositions.set(m.id,Math.max(y(values(m)[last]),i?labelPositions.get(endpoints[i-1].id)+22:top)));
     for(let i=endpoints.length-1;i>=0;i--){
       const limit=i===endpoints.length-1?bottom:labelPositions.get(endpoints[i+1].id)-22;
       labelPositions.set(endpoints[i].id,Math.min(labelPositions.get(endpoints[i].id),limit));
     }
-    return `<svg class="capability-svg" width="100%" height="${bottom+52}" viewBox="0 0 ${width} ${bottom+52}" role="group" aria-label="Model success rates: Overall, Dynamic, Static" aria-describedby="capability-help">
-      <g class="capability-grid" aria-hidden="true">${[0,.2,.4,.6,.8,1].map(v=>`<line x1="${left}" x2="${right}" y1="${y(v)}" y2="${y(v)}"/><text x="${left-10}" y="${y(v)+4}" text-anchor="end">${Math.round(v*100)}${v===1?'%':''}</text>`).join('')}${x.map((v,i)=>`<line x1="${v}" x2="${v}" y1="${top}" y2="${bottom}"/><text class="capability-axis" x="${v}" y="${bottom+30}" text-anchor="${compact?(i===0?'start':i===2?'end':'middle'):'middle'}">${metrics[i]}</text>`).join('')}</g>
+    return `<svg class="capability-svg" width="100%" height="${bottom+52}" viewBox="0 0 ${width} ${bottom+52}" role="group" aria-label="Model success rates: ${metrics.join(', ')}" aria-describedby="capability-help">
+      <g class="capability-grid" aria-hidden="true">${[0,.2,.4,.6,.8,1].map(v=>`<line x1="${left}" x2="${right}" y1="${y(v)}" y2="${y(v)}"/><text x="${left-10}" y="${y(v)+4}" text-anchor="end">${Math.round(v*100)}${v===1?'%':''}</text>`).join('')}${x.map((v,i)=>`<line x1="${v}" x2="${v}" y1="${top}" y2="${bottom}"/><text class="capability-axis" x="${v}" y="${bottom+30}" text-anchor="${compact?(i===0?'start':i===last?'end':'middle'):'middle'}">${metrics[i]}</text>`).join('')}</g>
       ${ordered.map((m,index)=>{
         const vs=values(m),visible=selected.has(m.id),path=vs.map((v,i)=>Number.isFinite(v)?`${i&&Number.isFinite(vs[i-1])?'L':'M'}${x[i]},${y(v)}`:'').join(' ');
-        const labelY=labelPositions.get(m.id)??y(vs[2]),dash=index<7?'':index<11?'8 4':'2 5';
+        const labelY=labelPositions.get(m.id)??y(vs[last]),dash=index<7?'':index<11?'8 4':'2 5';
         return `<a class="capability-series${active&&active!==m.id?' muted':''}${active===m.id?' highlighted':''}" href="${modelUrl(m)}" data-series="${m.id}" style="--series:${colors[m.id]}" ${visible?'':'hidden'} tabindex="${visible?0:-1}" aria-label="${esc(m.name)}, ${scoreText(m)}. View model results." ${active===m.id?'aria-describedby="capability-preview"':''}>
           <path class="capability-line" d="${path}" stroke-dasharray="${dash}"/>
           <path class="capability-hit" d="${path}"/>
-          ${vs.map((v,i)=>Number.isFinite(v)?`<circle class="capability-point" data-metric="${metrics[i].toLowerCase()}" data-value="${v}" cx="${x[i]}" cy="${y(v)}" r="5"/><text class="capability-value" x="${x[i]}" y="${y(v)-14}" text-anchor="${compact?(i===0?'start':i===2?'end':'middle'):'middle'}" aria-hidden="true">${pct(v)}</text>`:'').join('')}
-          ${!compact&&Number.isFinite(vs[2])?`<g class="capability-end-label" aria-hidden="true"><path class="capability-connector" d="M${right+8},${y(vs[2])} L${right+24},${labelY} H${right+31}"/><image href="assets/models/${esc(assets[m.id].asset)}" x="${right+36}" y="${labelY-9}" width="18" height="18"/><text x="${right+62}" y="${labelY+4}">${esc(m.name)}</text></g>`:''}
+          ${vs.map((v,i)=>Number.isFinite(v)?`<circle class="capability-point" data-metric="${metrics[i].toLowerCase()}" data-value="${v}" cx="${x[i]}" cy="${y(v)}" r="5"/><text class="capability-value" x="${x[i]}" y="${y(v)-14}" text-anchor="${compact?(i===0?'start':i===last?'end':'middle'):'middle'}" aria-hidden="true">${pct(v)}</text>`:'').join('')}
+          ${!compact&&Number.isFinite(vs[last])?`<g class="capability-end-label" aria-hidden="true"><path class="capability-connector" d="M${right+8},${y(vs[last])} L${right+24},${labelY} H${right+31}"/><image href="assets/models/${esc(assets[m.id].asset)}" x="${right+36}" y="${labelY-9}" width="18" height="18"/><text x="${right+62}" y="${labelY+4}">${esc(m.name)}</text></g>`:''}
         </a>`;
       }).join('')}
     </svg>`;
@@ -55,13 +55,12 @@ export function createCapabilities(models, assets, profiles, {esc, pct, modelUrl
   function content() {
     return `<div class="capability-selection-head"><span id="capability-model-label">Models <span class="capability-count">${selected.size} / ${ordered.length}</span></span><div><button type="button" data-chart-select="all">Select all</button><button type="button" data-chart-select="none">Clear</button></div></div>
       <div class="capability-models" role="group" aria-labelledby="capability-model-label">${ordered.map(m=>`<button type="button" class="model-chip" data-chart-model="${m.id}" style="--series:${colors[m.id]}" aria-pressed="${selected.has(m.id)}">${mark(m)}<span>${esc(m.name)}</span><span class="chip-check" aria-hidden="true">${selected.has(m.id)?'✓':'+'}</span></button>`).join('')}</div>
-      <div class="capability-plot-head"><span>Success rate (%)</span><span>Higher is better</span></div>
+      <div class="capability-plot-head"><span>Success rate (%)</span></div>
       <div class="capability-plot">${svg()}<p class="capability-empty" ${selected.size?'hidden':''}>Select a model above to compare its success rates.</p>
         <aside id="capability-preview" class="capability-preview" role="tooltip" aria-label="Model introduction" style="left:${position.left}px;top:${position.top}px" ${active?'':'hidden'}>${previewContent()}</aside>
       </div>
-      <p class="capability-help" id="capability-help">Hover or focus a line to preview the model. Click or press Enter to open its results.</p>
-      <div class="capability-foot"><p>Overall averages all available static and dynamic suite × perturbation results. <a href="docs.html#scoring">Scoring details ↗</a></p>
-      <details class="capability-data"><summary>View scores as a table</summary><div class="table-scroll"><table><caption class="sr-only">Selected models, success rates (%)</caption><thead><tr><th scope="col">Model</th>${metrics.map(t=>`<th scope="col">${t}</th>`).join('')}</tr></thead><tbody>${ordered.filter(m=>selected.has(m.id)).map(m=>`<tr><th scope="row"><a href="${modelUrl(m)}">${esc(m.name)}</a></th>${values(m).map(v=>`<td>${pct(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div></details></div>
+      <p class="sr-only" id="capability-help">Hover or focus a line to preview the model. Click or press Enter to open its results.</p>
+      <div class="capability-foot"><details class="capability-data"><summary>View source as a table</summary><div class="table-scroll"><table><caption class="sr-only">Selected models, success rates (%)</caption><thead><tr><th scope="col">Model</th>${metrics.map(t=>`<th scope="col">${t}</th>`).join('')}</tr></thead><tbody>${ordered.filter(m=>selected.has(m.id)).map(m=>`<tr><th scope="row"><a href="${modelUrl(m)}">${esc(m.name)}</a></th>${values(m).map(v=>`<td>${pct(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div></details></div>
       `;
   }
 

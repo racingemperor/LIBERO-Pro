@@ -49,12 +49,12 @@ const tests = [
     await load('leaderboard.html#capabilities');
     const {models}=await (await fetch('../data/results.json')).json();
     const chosen=()=>[...doc().querySelectorAll('[data-chart-model][aria-pressed="true"]')].map(el=>el.dataset.chartModel);
-    assert(chosen().length===3,'Default comparison should contain the top three models');
+    assert(chosen().length===models.length,'Default comparison should contain every model');
     assert(!query('#capabilities select'),'Chart selection uses a dropdown');
     assert(doc().querySelectorAll('[data-chart-model] img').length===models.length,'Every chip needs its model image');
     const chart=query('.capability-svg'),scroll=win().scrollY;
     query('[data-chart-model="pi0"]').focus({preventScroll:true});
-    await change(()=>click('[data-chart-model="pi0"]'),()=>chosen().includes('pi0'));
+    await change(()=>click('[data-chart-model="pi0"]'),()=>!chosen().includes('pi0'));
     assert(doc().activeElement===query('[data-chart-model="pi0"]'),'Toggle lost keyboard focus');
     assert(query('.capability-svg')===chart&&Math.abs(win().scrollY-scroll)<2,'Chart or scroll reset');
     const selection=chosen().join(',');
@@ -79,13 +79,14 @@ const tests = [
     const rows=[...doc().querySelectorAll('.capability-data tbody tr')];
     for(const m of models){
       const series=query(`[data-series="${m.id}"]`),points=[...series.querySelectorAll('[data-metric]')];
-      const expected=[m.scores.overall,m.scores.dynamic.average,m.scores.static.average];
-      assert(points.map(p=>p.dataset.metric).join(',')==='overall,dynamic,static','Wrong metric order');
-      points.forEach((point,i)=>assert(Math.abs(Number(point.dataset.value)-expected[i])<1e-10,m.name+' chart point is wrong'));
+      const expected=[m.scores.base,m.scores.overall,m.scores.dynamic.average,m.scores.static.average];
+      const available=['base','overall','dynamic','static'].filter((_,i)=>Number.isFinite(expected[i]));
+      assert(points.map(p=>p.dataset.metric).join(',')===available.join(','),'Wrong metric order or missing Base treated as zero');
+      points.forEach((point,i)=>assert(Math.abs(Number(point.dataset.value)-expected.filter(Number.isFinite)[i])<1e-10,m.name+' chart point is wrong'));
       const cells=m.cells.filter(c=>c.direction!=='BASE');
-      assert(Math.abs(expected[0]-cells.reduce((s,c)=>s+c.rate,0)/cells.length)<1e-10,'Overall no longer averages available cells');
+      assert(Math.abs(expected[1]-cells.reduce((s,c)=>s+c.rate,0)/cells.length)<1e-10,'Overall no longer averages available cells');
       const row=rows.find(r=>new URL(r.querySelector('a').href).searchParams.get('id')===m.id);
-      assert([...row.querySelectorAll('td')].map(c=>c.textContent).join(',')===expected.map(v=>(v*100).toFixed(1)+'%').join(','),'Accessible table differs from chart');
+      assert([...row.querySelectorAll('td')].map(c=>c.textContent).join(',')===expected.map(v=>Number.isFinite(v)?(v*100).toFixed(1)+'%':'—').join(','),'Accessible table differs from chart');
     }
     const grid=query('.capability-grid').textContent;
     assert(grid.includes('100%')&&grid.includes('0'),'Shared success-rate scale is missing');
@@ -97,7 +98,7 @@ const tests = [
     await load('leaderboard.html#capabilities');
     for(const id of ['lingbot-va','molmoact2','cosmos-policy']){
       const series=query(`[data-series="${id}"]`),points=series.querySelectorAll('.capability-point');
-      for(let segment=0;segment<2;segment++){
+      for(let segment=0;segment<points.length-1;segment++){
         const a=points[segment],b=points[segment+1];
         const local=new (win().DOMPoint)(a.cx.baseVal.value*.8+b.cx.baseVal.value*.2,a.cy.baseVal.value*.8+b.cy.baseVal.value*.2);
         let point=local.matrixTransform(series.getScreenCTM());
@@ -108,7 +109,7 @@ const tests = [
         assert(doc().elementFromPoint(point.x,point.y)?.closest('[data-series]')===series,'An overlapping line would open the wrong model');
       }
     }
-    const crossingLines=['lingbot-va','molmoact2'].map(id=>[...query(`[data-series="${id}"]`).querySelectorAll('.capability-point')].slice(1));
+    const crossingLines=['lingbot-va','molmoact2'].map(id=>[...query(`[data-series="${id}"]`).querySelectorAll('.capability-point')].slice(-2));
     const [a,b]=crossingLines;
     const start=a[0].cy.baseVal.value-b[0].cy.baseVal.value,end=a[1].cy.baseVal.value-b[1].cy.baseVal.value,t=start/(start-end);
     const crossing=new (win().DOMPoint)(a[0].cx.baseVal.value+(a[1].cx.baseVal.value-a[0].cx.baseVal.value)*t,a[0].cy.baseVal.value+(a[1].cy.baseVal.value-a[0].cy.baseVal.value)*t).matrixTransform(a[0].getScreenCTM());
@@ -133,7 +134,7 @@ const tests = [
     const card=()=>query('#capability-preview');
     const series=query('[data-series="lingbot-va"]');
     const points=[...series.querySelectorAll('.capability-point')];
-    for(let segment=0;segment<2;segment++){
+    for(let segment=0;segment<points.length-1;segment++){
       for(const fraction of [.2,.5,.8]){
         const a=points[segment],b=points[segment+1];
         const local=new (win().DOMPoint)(a.cx.baseVal.value+(b.cx.baseVal.value-a.cx.baseVal.value)*fraction,a.cy.baseVal.value+(b.cy.baseVal.value-a.cy.baseVal.value)*fraction);
@@ -197,8 +198,12 @@ const tests = [
     assert(query('#capabilities') === charts, 'Capability charts were replaced');
     assert(Math.abs(win().scrollY-scroll) < 2 && query('#rankings .table-scroll').scrollLeft === left, 'Page/table scroll jumped');
     assert(!query('thead small'), 'Perturbation IDs remain in the header');
+    const blueTable=query('#perturbation-rankings .leaderboard-table').innerHTML;
+    await change(() => click('#rankings .tab[href*="mode=overall"]'), () => query('#rankings .table-scroll').getAttribute('aria-label').startsWith('Overall'));
+    assert(query('[data-query="type"]').value==='World Action Models'&&query('[data-sort="environment"]').closest('th').getAttribute('aria-sort')==='descending','Overall reset the filters');
+    assert(query('#perturbation-rankings .leaderboard-table').innerHTML===blueTable,'Overall changed the perturbation table');
     await load(win().location.href);
-    assert(query('.tab.active').textContent.includes('Dynamic') && query('[data-query="type"]').value === 'World Action Models', 'Deep link did not restore filters');
+    assert(query('#rankings .tab.active').textContent.includes('Overall') && query('[data-query="type"]').value === 'World Action Models', 'Deep link did not restore filters');
   }],
   ['All perturbation scores and detail links match the published suite results', async () => {
     const [{models},{perturbations}]=await Promise.all(['results','catalogue'].map(async name=>(await fetch('../data/'+name+'.json')).json()));
@@ -242,7 +247,8 @@ const tests = [
     assert(query('#rankings .leaderboard-table').innerHTML===original&&query('[data-query="type"]').value==='World Action Models'&&query('#rankings .tab.active').textContent.includes('Dynamic'), 'Perturbation controls changed the domain table');
     assert(!query('[data-perturbation-sort="S22"]'), 'Static column survived in dynamic mode');
     assert(query('[data-query="perturbationType"]').value==='Robustness-oriented', 'Type filter was lost on mode change');
-    assert(Math.abs(win().scrollY-position)<2, 'Page jumped during perturbation selections');
+    const reachablePosition=Math.min(position,Math.max(0,doc().documentElement.scrollHeight-win().innerHeight));
+    assert(Math.abs(win().scrollY-reachablePosition)<2, 'Page jumped during perturbation selections');
     await change(()=>click('[data-perturbation-sort="D19"]'),()=>query('[data-perturbation-sort="D19"]').closest('th').getAttribute('aria-sort')==='descending');
     await change(()=>click('#rankings .tab[href*="mode=static"]'),()=>query('#rankings .tab.active').textContent.includes('Static'));
     assert(query('[data-perturbation-sort="D19"]').closest('th').getAttribute('aria-sort')==='descending'&&query('#perturbation-rankings .tab.active').textContent.includes('Dynamic'), 'Domain setting discarded perturbation state');
@@ -277,7 +283,7 @@ const tests = [
     assert(win().location.pathname.endsWith('/perturbation.html'), 'Task switch opened the model profile');
     assert(query('#model-select').value === 'openvla-oft-m', 'Selected model was lost');
   }],
-  ['Document directory, adjacent documents and anchors update without history noise', async () => {
+  ['Document directory, adjacent documents and Overview update without history noise', async () => {
     await load('docs.html?perturbation=S01');
     const sidebar = query('.docs-sidebar');
     const group = [...doc().querySelectorAll('.doc-nav-group details')].find(el => el.querySelector('summary').textContent === 'Environment');
@@ -285,8 +291,7 @@ const tests = [
     await change(() => click('.docs-sidebar a[href*="perturbation=S02"]'), () => query('h1')?.textContent === 'Receiver planar pose');
     assert(query('.docs-sidebar') === sidebar && group.open, 'Directory or expanded group was lost');
     await change(() => click('.doc-pagination a:last-child'), () => query('h1')?.textContent === 'Receiver or support height');
-    await change(() => click('.docs-sidebar a[href="docs.html#scoring"]'), () => !!query('#scoring'));
-    await change(() => click('.doc-anchors a[href="#taxonomy"]'), () => win().location.hash === '#taxonomy');
+    await change(() => click('.docs-sidebar a[href="docs.html"]'), () => !!query('#scoring'));
     assert(query('#taxonomy').textContent.includes('S01'), 'Domain ID definitions are missing from Document');
   }],
   ['Back returns directly to the filtered leaderboard; Forward restores the final task', async () => {
