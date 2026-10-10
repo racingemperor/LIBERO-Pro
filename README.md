@@ -52,7 +52,7 @@ Open `scripts/taxonomy-test.html` for chart interaction checks, including exact 
 - `eval.html`: evaluation setup, execution and result reporting. No online evaluation or submission service is claimed.
 - `data/task-designs.json`: eight task designs and applicability exclusions, checked against the BASE scene definitions and paper. This editorial file is separate from the generated task manifest.
 
-Document typography follows RoboDojo's documentation: self-hosted Google Sans Flex, 18px body text with 1.65 line height, 600-weight headings and 700-weight semantic emphasis. Long explanations highlight selected concepts in bold; identifiers and formulas use compact gray inline code. The existing font file includes real weights 400–700 and retains its OFL license. Emphasis is added only when rendering documents, preserving the underlying instructions, descriptions, support matrix and scores. The top navigation and other pages keep their existing typography.
+Document typography uses RoboDojo's self-hosted Google Sans Flex and emphasis style with a more compact scale: 16px body text with 1.6 line height, 26px page headings (24px on mobile), 22px section headings and 16px task-list headings. Headings use weight 600 and semantic emphasis uses 700. Long explanations highlight selected concepts in bold; identifiers and formulas use compact gray inline code. The existing font file includes real weights 400–700 and retains its OFL license. Emphasis is added only when rendering documents, preserving the underlying instructions, descriptions, support matrix and scores. The top navigation and other pages keep their existing typography.
 
 ## Display data and private evaluation inputs
 
