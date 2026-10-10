@@ -66,6 +66,31 @@ const tests=[
     assert(!q('.taxonomy-task.is-active'),'Hover did not reset after leaving');
     reset();
   }],
+  ['Lifted domain faces stay above neighboring sectors, including Observation on the left',async()=>{
+    q('.taxonomy-ring').scrollIntoView({block:'center'});
+    for(const domain of ['observation','condition','environment','execution','robot','language']){
+      pointer(`[data-home-domain="${domain}"]`);
+      await new Promise(resolve=>setTimeout(resolve,320));
+      for(const link of all('.taxonomy-task.is-active')){
+        const face=link.querySelector('.taxonomy-face'),matrix=face.getScreenCTM();
+        const index=expectedOrder.indexOf(link.dataset.ringTask);
+        // Sample just inside both radial edges, where raised sectors used to be covered.
+        for(const edge of [.45,360/42-.45])for(const radius of [190,215,245,265]){
+          const angle=(-90+index*360/42+edge)*Math.PI/180;
+          const local=new (win().DOMPoint)(radius*Math.cos(angle),radius*Math.sin(angle));
+          assert(face.isPointInFill(local),'Probe is outside the face');
+          const screen=local.matrixTransform(matrix);
+          const top=doc().elementsFromPoint(screen.x,screen.y).find(el=>el.classList.contains('taxonomy-face')&&win().getComputedStyle(el.closest('.taxonomy-lift')).opacity!=='0')?.closest('[data-ring-task],[data-preview-task]');
+          const code=top?.dataset.ringTask||top?.dataset.previewTask;
+          assert(code===link.dataset.ringTask,`${domain}: ${link.dataset.ringTask} is covered by ${code||'another element'}`);
+          const hit=doc().elementFromPoint(screen.x,screen.y)?.closest('a');
+          assert(hit?.getAttribute('href')===link.getAttribute('href'),`${domain}: visible ${link.dataset.ringTask} clicks a neighboring code`);
+        }
+      }
+      assert(JSON.stringify(codeOrder())===JSON.stringify(expectedOrder),'Preview changed keyboard link order');
+    }
+    reset();
+  }],
   ['The inner ring has only Static 22 and Dynamic 20 aligned with the outer IDs',async()=>{
     assert(all('[data-ring-mode]').length===2,'Inner ring does not have exactly two parts');
     for(const [mode,count]of [['static',22],['dynamic',20]]){
@@ -123,7 +148,17 @@ const tests=[
       win().history.back();
       await waitFor(()=>q('[data-ring-task="S06"]'));
     }
-    click('[data-ring-task="S06"] .taxonomy-hit');
+    pointer('[data-ring-task="S06"]');
+    await new Promise(resolve=>setTimeout(resolve,320));
+    q('.taxonomy-ring').scrollIntoView({block:'center',behavior:'instant'});
+    const face=q('[data-ring-task="S06"] .taxonomy-face'),index=expectedOrder.indexOf('S06');
+    const angle=(-90+(index+.5)*360/42)*Math.PI/180;
+    const screen=new (win().DOMPoint)(232*Math.cos(angle),232*Math.sin(angle)).matrixTransform(face.getScreenCTM());
+    const hit=doc().elementFromPoint(screen.x,screen.y);
+    assert(hit?.closest('a')?.getAttribute('href')==='docs.html?perturbation=S06','Raised face has the wrong click destination');
+    hit.dispatchEvent(new (win().PointerEvent)('pointerdown',{bubbles:true,cancelable:true,pointerType:'mouse',button:0}));
+    assert(doc().activeElement===q('[data-ring-task="S06"]'),'Raised face did not retain the original keyboard focus target');
+    hit.dispatchEvent(new (win().MouseEvent)('click',{bubbles:true,button:0}));
     await waitFor(()=>q('h1')?.textContent==='Instance replacement');
     assert(win().location.search==='?perturbation=S06','Wrong document destination');
     assert(all('.docs-sidebar a[href*="perturbation="]').length===42,'Document was filtered');

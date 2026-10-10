@@ -29,7 +29,7 @@ export function taxonomyFigure(catalogue) {
     const start=-90+i/total*360,end=-90+(i+1)/total*360,middle=(start+end)/2;
     const label=point(232,middle),compact=point(i%2===0?218:252,middle);
     const [dx,dy]=point(16,middle);
-    return `<a class="taxonomy-task ${p.mode}" href="docs.html?perturbation=${p.id}" data-ring-task="${p.id}" data-ring-domain="${p.category}" aria-label="${escape(p.id+' '+p.name+' — '+domains.get(p.category).name+', '+p.mode)}" style="--domain:var(--${p.category});--lift-x:${dx}px;--lift-y:${dy-5}px">
+    return `<a class="taxonomy-task taxonomy-slice ${p.mode}" href="docs.html?perturbation=${p.id}" data-ring-task="${p.id}" data-ring-domain="${p.category}" aria-label="${escape(p.id+' '+p.name+' — '+domains.get(p.category).name+', '+p.mode)}" style="--domain:var(--${p.category});--lift-x:${dx}px;--lift-y:${dy-5}px">
       <path class="taxonomy-hit" d="${arc(182,274,start,end)}" aria-hidden="true"/>
       <g class="taxonomy-lift" aria-hidden="true">
         <path class="taxonomy-face" d="${arc(182,272,start+.18,end-.18)}"/>
@@ -57,6 +57,28 @@ export function bindTaxonomy(catalogue) {
   const domains=new Map(catalogue.categories.map(c=>[c.id,c]));
   const entries=new Map(catalogue.perturbations.map(p=>[p.id,p]));
   const links=[...root.querySelectorAll('[data-ring-task]')];
+  // SVG paints later siblings on top. Keep the real links in public/keyboard order
+  // and draw raised faces in a final layer, above every stationary face and hit area.
+  const foreground=document.createElementNS('http://www.w3.org/2000/svg','g');
+  foreground.setAttribute('aria-hidden','true');
+  const previews=links.map(link=>{
+    const preview=link.cloneNode(true);
+    preview.classList.replace('taxonomy-task','taxonomy-preview');
+    preview.dataset.previewTask=link.dataset.ringTask;
+    preview.removeAttribute('data-ring-task');
+    preview.removeAttribute('data-ring-domain');
+    preview.removeAttribute('aria-label');
+    preview.setAttribute('tabindex','-1');
+    preview.setAttribute('focusable','false');
+    preview.querySelector('.taxonomy-hit').remove();
+    // Pointer clicks retain the original accessible link as the focus target.
+    preview.addEventListener('pointerdown',event=>{
+      if(event.button===0){event.preventDefault();link.focus({preventScroll:true});}
+    });
+    foreground.append(preview);
+    return preview;
+  });
+  root.querySelector('.taxonomy-ring').append(foreground);
   const cards=[...root.querySelectorAll('.home-domain')];
   const modes=[...root.querySelectorAll('[data-ring-mode]')];
   const value=root.querySelector('[data-taxonomy-value]');
@@ -65,6 +87,8 @@ export function bindTaxonomy(catalogue) {
   let hovered=null,focused=null;
   const selection=target=>{
     if(!(target instanceof Element))return null;
+    const preview=entries.get(target.closest('[data-preview-task]')?.dataset.previewTask);
+    if(preview)return {domain:preview.category,task:preview.id};
     const source=target.closest('[data-ring-domain],[data-home-domain],[data-ring-mode]');
     return source?{domain:source.dataset.ringDomain||source.dataset.homeDomain,task:target.closest('[data-ring-task]')?.dataset.ringTask,mode:source.dataset.ringMode}:null;
   };
@@ -72,7 +96,12 @@ export function bindTaxonomy(catalogue) {
     const active=hovered||focused,c=domains.get(active?.domain),p=entries.get(active?.task),mode=active?.mode;
     const modeCount=mode?catalogue.perturbations.filter(p=>p.mode===mode).length:0;
     root.classList.toggle('has-active-domain',!!c);
-    links.forEach(link=>link.classList.toggle('is-active',p?link.dataset.ringTask===p.id:c?link.dataset.ringDomain===c.id:!!mode&&link.classList.contains(mode)));
+    links.forEach((link,i)=>{
+      const selected=p?link.dataset.ringTask===p.id:c?link.dataset.ringDomain===c.id:!!mode&&link.classList.contains(mode);
+      link.classList.toggle('is-active',selected);
+      previews[i].classList.toggle('is-active',selected);
+      previews[i].classList.toggle('is-focused',link.matches(':focus-visible'));
+    });
     cards.forEach(card=>card.classList.toggle('is-active',card.dataset.homeDomain===c?.id));
     modes.forEach(link=>link.classList.toggle('is-active',link.dataset.ringMode===(p?.mode||mode)));
     value.textContent=p?p.id:c?c.static.length+c.dynamic.length:mode?modeCount:catalogue.perturbations.length;
