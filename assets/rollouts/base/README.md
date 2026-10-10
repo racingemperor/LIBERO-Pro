@@ -1,30 +1,30 @@
 # Nominal LIBERO task demonstrations
 
-Source: [HuggingFaceVLA/libero](https://huggingface.co/datasets/HuggingFaceVLA/libero), version 2.1, revision `affa19c0de0f6bce2a7edd26dddef8a532e7e6f6`. The [dataset card at this revision](https://huggingface.co/datasets/HuggingFaceVLA/libero/blob/affa19c0de0f6bce2a7edd26dddef8a532e7e6f6/README.md) declares [Creative Commons Attribution 4.0 International](LICENSE.txt). LIBERO is by the [Lifelong Robot Learning team](https://github.com/Lifelong-Robot-Learning/LIBERO); dataset conversions are by OpenVLA, Physical Intelligence and the HuggingFace VLA team. The clips and posters retain this license.
+The eight clips are newly recorded [X-VLA](https://github.com/2toinf/X-VLA) rollouts using the public [lerobot/xvla-libero checkpoint](https://huggingface.co/lerobot/xvla-libero/tree/12e8783e996944f5c97e490d37d4c145484ed70a) and the official [LIBERO simulator](https://github.com/Lifelong-Robot-Learning/LIBERO/tree/8f1084e3132a39270c3a13ebe37270a43ece2a01). They demonstrate unperturbed base tasks. They are selected successful examples and are not used to compute the website's leaderboard scores.
 
-These clips illustrate unperturbed base tasks. They are public dataset demonstrations, not evaluations of any model on this website. None of the website's private evaluation records were used to create them.
+Each task starts from its official initial state. The simulator's task-specific success predicate must be false at the start and true at completion. The action sequence and success checks are retained in a local review directory; only the selected video and poster are published.
 
-Each MP4 is converted from the source episode's `observation.images.image` frames, with H.264 encoding and no audio. Every clip uses the same 4× speedup: the original 10 fps sequence is encoded at 40 fps, retaining all source frames, their order and image orientation. The resulting complete clips last 2.1–9.575 seconds, depending on the original episode length. The WebP poster is the first source frame. The eight reviewed episodes below are pinned by ID and SHA-256 in the builder.
+## Recording format
 
-### Successful demonstrations
+- Agent-view images are rendered directly by MuJoCo at **640 × 640**; no upscaling is used.
+- The policy continues to receive its usual **256 × 256** camera observations.
+- All eight clips use the same **4× speedup**: one frame per 20 Hz control step is encoded at 80 fps, retaining the initial frame and every action through success.
+- A 180° display rotation matches LeRobot's agent-view convention. It does not change model inputs.
+- The videos use silent H.264 / YUV420p with fast-start playback. WebP posters are also 640 × 640.
 
-The source card identifies [physical-intelligence/libero](https://huggingface.co/datasets/physical-intelligence/libero), whose card traces its data to [openvla/modified_libero_rlds](https://huggingface.co/datasets/openvla/modified_libero_rlds). OpenVLA's [dataset regeneration script](https://github.com/openvla/openvla/blob/0ebc5e333ee7a916813bf50db240f1af7ba1d295/experiments/robot/libero/regenerate_libero_dataset.py) replays demonstrations and saves only episodes for which the environment returns success (`done`); it records terminal reward and done as 1. Failed replays are excluded before the format conversions.
+| Website task | Instruction |
+|---|---|
+| Spatial 0 | Pick up the black bowl between the plate and the ramekin and place it on the plate. |
+| Spatial 8 | Pick up the black bowl next to the plate and place it on the plate. |
+| Object 1 | Pick up the cream cheese and place it in the basket. |
+| Object 8 | Pick up the chocolate pudding and place it in the basket. |
+| Goal 3 | Open the top drawer and put the bowl inside. |
+| Goal 6 | Put the cream cheese in the bowl. |
+| Long 5 | Pick up the book and place it in the back compartment of the caddy. |
+| Long 8 | Put both moka pots on the stove. |
 
-The eight selected clips were also visually reviewed against their task instructions and completion frames, including both pots on the lit stove for Long 8. Success evidence is the upstream filtering and this visual review: the converted LeRobot files do not retain reward/done fields, and no new simulation evaluation was performed for this website. These are successful task demonstrations, not model-specific test results.
+The scene wording for Goal 6 uses “in the bowl”; the website retains its official benchmark instruction. Success is checked against the original scene predicate.
 
-| Website task | Source task index | Source episode | Source instruction |
-|---|---:|---:|---|
-| Spatial 0 | 34 | 1272 | pick up the black bowl between the plate and the ramekin and place it on the plate |
-| Spatial 8 | 36 | 1280 | pick up the black bowl next to the plate and place it on the plate |
-| Object 1 | 22 | 810 | pick up the cream cheese and place it in the basket |
-| Object 8 | 29 | 823 | pick up the chocolate pudding and place it in the basket |
-| Goal 3 | 12 | 382 | open the top drawer and put the bowl inside |
-| Goal 6 | 13 | 384 | put the cream cheese in the bowl |
-| Long 5 | 9 | 27 | pick up the book and place it in the back compartment of the caddy |
-| Long 8 | 6 | 10 | put both moka pots on the stove |
+Run `python scripts/build_task_demos.py --review-dir EXTERNAL_REVIEW_DIRECTORY` to validate and install the selected media. The builder checks all eight task identities, BASE status, X-VLA provenance, simulator success traces, native-resolution metadata, decoded dimensions, frame counts and the common playback multiplier before replacing any files. Use `--check-only` to validate without copying. Private traces and evaluation records remain outside the public repository.
 
-Source episodes are available at `https://huggingface.co/datasets/HuggingFaceVLA/libero/blob/affa19c0de0f6bce2a7edd26dddef8a532e7e6f6/data/chunk-{episode_index // 1000:03d}/episode_{episode_index:06d}.parquet`.
-
-The source conversion uses shortened instruction wording, including “in the bowl” for Goal 6. The website retains its official task instruction and BASE goal predicate. Dataset-wide task indices are distinct from the zero-based IDs within each LIBERO suite.
-
-Rebuild with `scripts/build_task_demos.py`. Downloaded datasets and visual review artifacts are kept in the required external `--review-dir`, not distributed with the website.
+LIBERO is by the [Lifelong Robot Learning team](https://github.com/Lifelong-Robot-Learning/LIBERO), and X-VLA by its [authors](https://github.com/2toinf/X-VLA), with the model integration by [LeRobot](https://github.com/huggingface/lerobot). These demonstration videos and posters are shared under [Creative Commons Attribution 4.0 International](LICENSE.txt).

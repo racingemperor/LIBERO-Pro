@@ -1,27 +1,23 @@
-"""Render eight nominal LIBERO demonstrations from a pinned public dataset.
+"""Validate and publish eight native 640px successful X-VLA demonstrations.
 
-Requires requests, pyarrow >= 21, Pillow, numpy and imageio-ffmpeg.
-Downloaded source episodes and review sheets stay outside the website.
+Requires OpenCV, Pillow and numpy. The review directory contains selected
+task JSON records plus their videos, posters and private simulation traces.
+No evaluation records or traces are copied into the public website.
 """
 import argparse
-import hashlib
-import io
 import json
+import math
+import shutil
 from pathlib import Path
 
-import imageio_ffmpeg
+import cv2
 import numpy as np
-import pyarrow.parquet as pq
-import requests
-from PIL import Image, ImageDraw
+from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
-REVISION = 'affa19c0de0f6bce2a7edd26dddef8a532e7e6f6'
-SOURCE = f'https://huggingface.co/datasets/HuggingFaceVLA/libero/resolve/{REVISION}/'
-DEMO_SPEEDUP = 4
-# Dataset task indices differ from LIBERO suite-local IDs. Match the instruction,
-# never assume the two numbering systems agree.
-INSTRUCTIONS = {
+SPEEDUP = 4
+SIZE = (640, 640)
+SOURCE_INSTRUCTIONS = {
     'libero_spatial-0': 'pick up the black bowl between the plate and the ramekin and place it on the plate',
     'libero_spatial-8': 'pick up the black bowl next to the plate and place it on the plate',
     'libero_object-1': 'pick up the cream cheese and place it in the basket',
@@ -31,91 +27,83 @@ INSTRUCTIONS = {
     'libero_10-5': 'pick up the book and place it in the back compartment of the caddy',
     'libero_10-8': 'put both moka pots on the stove',
 }
-# Reviewed episodes from OpenVLA's success-only demonstration conversion.
-# The LeRobot files omit reward/done; provenance and visual completion checks
-# are documented in assets/rollouts/base/README.md. Pin bytes as well as IDs so
-# a later rebuild cannot silently substitute an unreviewed demonstration.
-REVIEWED_EPISODES = {
-    'libero_spatial-0': (1272, 'b5a7fc668444ec03895d3f3fe2b2933ca2da98f0640d899e73800ca5eb26d68d'),
-    'libero_spatial-8': (1280, '0b54a2ab955f0edb2cb878b1bd83fffb746d970312779f332a609ded761a9f1a'),
-    'libero_object-1': (810, 'fff48910567fefc814a7edd33be1d90dcf058326fbf7728c8c0167c70414497c'),
-    'libero_object-8': (823, 'a3817c584a80aa27df1cb485035bc872a3afeae5f822c5a84d84f9cb83160215'),
-    'libero_goal-3': (382, '45062a8f1b46540e5903934bce767a0fd8a77fb94343462fb72a4582951711d3'),
-    'libero_goal-6': (384, '468267eadcad3c6ebda92f96c88abcbe3ce9eb3d1c7a9188a5f1764ab403af3e'),
-    'libero_10-5': (27, 'b15b4afdaa7bf4c31e627d85e705b52bbb912eb628bc3a7c2915c7de57144833'),
-    'libero_10-8': (10, '4214069fdee3750a0b98a6bb6b21728fa472899a3ff2c0d1c1bb94350e3e5574'),
-}
+
+
+def source_file(review, name):
+    path = (review / name).resolve()
+    if review not in path.parents or not path.is_file():
+        raise ValueError(f'Invalid external source file: {name}')
+    return path
+
+
+def validate(review, task):
+    task_id = task['id']
+    record = json.loads((review / f'{task_id}.json').read_text(encoding='utf-8'))
+    # Match simulator language exactly; website BDDL instructions use some aliases.
+    expected = SOURCE_INSTRUCTIONS[task_id]
+    required = {
+        'task': task_id, 'instruction': expected, 'model': 'lerobot/xvla-libero',
+        'variant': 'BASE', 'camera_width': 640, 'camera_height': 640,
+        'control_hz': 20, 'fps': 80, 'speedup': SPEEDUP,
+    }
+    for key, value in required.items():
+        if record.get(key) != value:
+            raise ValueError(f'{task_id}: unexpected {key}')
+    for key in ('success', 'terminal_success', 'native_render'):
+        if record.get(key) is not True:
+            raise ValueError(f'{task_id}: missing {key} evidence')
+    video = source_file(review, record['video'])
+    poster = source_file(review, record['poster'])
+    trace_path = source_file(review, str(Path(record['video']).with_suffix('.npz')))
+    with np.load(trace_path, allow_pickle=False) as trace:
+        checks = trace['success_checks']
+        if (len(checks) != record['steps'] or checks.dtype != np.bool_
+                or not checks[-1] or checks[:-1].any()
+                or len(trace['actions']) != record['steps']
+                or len(trace['states']) != record['steps'] + 1):
+            raise ValueError(f'{task_id}: inconsistent simulator success trace')
+    if record['frames'] != record['steps'] + 1:
+        raise ValueError(f'{task_id}: incomplete action sequence')
+    with Image.open(poster) as image:
+        if image.size != SIZE:
+            raise ValueError(f'{task_id}: poster must be 640 x 640')
+    capture = cv2.VideoCapture(str(video))
+    try:
+        fps = capture.get(cv2.CAP_PROP_FPS)
+        if not capture.isOpened() or not math.isclose(fps, record['fps'], abs_tol=.01):
+            raise ValueError(f'{task_id}: invalid video or unequal speedup')
+        frames = 0
+        while True:
+            ok, frame = capture.read()
+            if not ok:
+                break
+            if frame.shape != (640, 640, 3):
+                raise ValueError(f'{task_id}: video is not 640 x 640')
+            frames += 1
+        if frames != record['frames']:
+            raise ValueError(f'{task_id}: video frame count mismatch')
+    finally:
+        capture.release()
+    print(f'{task_id}: success verified, 640x640, {frames} frames, {frames/fps:.3f}s, {SPEEDUP}x')
+    return task_id, video, poster
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--review-dir', type=Path, required=True)
+    parser.add_argument('--check-only', action='store_true')
     args = parser.parse_args()
     review = args.review_dir.resolve()
     if review == ROOT or ROOT in review.parents:
         parser.error('--review-dir must be outside the public repository')
-    review.mkdir(parents=True, exist_ok=True)
-    output = ROOT / 'assets/rollouts/base'
-    output.mkdir(parents=True, exist_ok=True)
-    session = requests.Session()
-
-    def download(name):
-        destination = review / name
-        if not destination.exists():
-            response = session.get(SOURCE + name, timeout=60)
-            response.raise_for_status()
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_bytes(response.content)
-        return destination.read_bytes()
-
-    info = json.loads(download('meta/info.json'))
-    episodes = [json.loads(line) for line in download('meta/episodes.jsonl').decode().splitlines()]
-    episodes_by_index = {episode['episode_index']: episode for episode in episodes}
-    tasks = [json.loads(line) for line in download('meta/tasks.jsonl').decode().splitlines()]
-    task_indices = {task['task']: task['task_index'] for task in tasks}
-    contact = Image.new('RGB', (4 * 192, 8 * 220), 'white')
-    draw = ImageDraw.Draw(contact)
-    audit = []
-    for row, (task_id, instruction) in enumerate(INSTRUCTIONS.items()):
-        index, reviewed_sha256 = REVIEWED_EPISODES[task_id]
-        episode = episodes_by_index[index]
-        if episode['tasks'] != [instruction]:
-            raise ValueError(f'{task_id}: reviewed episode instruction changed')
-        name = info['data_path'].format(episode_chunk=index // info['chunks_size'], episode_index=index)
-        raw = download(name)
-        source_sha256 = hashlib.sha256(raw).hexdigest()
-        if source_sha256 != reviewed_sha256:
-            raise ValueError(f'{task_id}: reviewed episode checksum mismatch')
-        table = pq.read_table(io.BytesIO(raw), columns=['observation.images.image', 'task_index', 'episode_index', 'frame_index'])
-        assert table.num_rows == episode['length']
-        assert set(table['task_index'].to_pylist()) == {task_indices[instruction]}
-        assert set(table['episode_index'].to_pylist()) == {index}
-        assert table['frame_index'].to_pylist() == list(range(table.num_rows))
-        frames = [Image.open(io.BytesIO(value['bytes'])).convert('RGB') for value in table['observation.images.image'].to_pylist()]
-        assert all(frame.size == (256, 256) for frame in frames)
-        target = output / f'{task_id}.mp4'
-        # Use the same speedup for every task and retain every source frame.
-        output_fps = info['fps'] * DEMO_SPEEDUP
-        writer = imageio_ffmpeg.write_frames(str(target), (256, 256), fps=output_fps, codec='libx264',
-            pix_fmt_out='yuv420p', ffmpeg_log_level='error', output_params=['-crf', '20', '-movflags', '+faststart'])
-        writer.send(None)
-        try:
-            for frame in frames:
-                writer.send(np.asarray(frame))
-        finally:
-            writer.close()
-        frames[0].save(output / f'{task_id}.webp', quality=88)
-        draw.text((8, row * 220 + 5), task_id, fill='black')
-        for col, fraction in enumerate([0, .33, .66, 1]):
-            contact.paste(frames[round((len(frames) - 1) * fraction)].resize((192, 192)), (col * 192, row * 220 + 24))
-        audit.append({'task': task_id, 'instruction': instruction, 'episode': index, 'source': SOURCE + name,
-                      'sourceSha256': source_sha256, 'successBasis': 'upstream-success-filter-and-visual-review',
-                      'sourceFrames': len(frames), 'sourceFps': info['fps'],
-                      'sourceDuration': len(frames) / info['fps'], 'frames': len(frames), 'fps': output_fps,
-                      'duration': len(frames) / output_fps, 'speedup': DEMO_SPEEDUP, 'rotationDegrees': 0})
-        print(f'{task_id}: {len(frames)} frames, {len(frames) / output_fps:.3f}s, {DEMO_SPEEDUP}x', flush=True)
-    contact.save(review / 'contact.jpg', quality=92)
-    (review / 'source-audit.json').write_text(json.dumps(audit, indent=2) + '\n', encoding='utf-8')
+    tasks = json.loads((ROOT/'data/tasks.json').read_text(encoding='utf-8'))['tasks']
+    # Validate the complete set before replacing any public media.
+    selected = [validate(review, task) for task in tasks]
+    if not args.check_only:
+        output = ROOT / 'assets/rollouts/base'
+        for task_id, video, poster in selected:
+            shutil.copyfile(video, output/f'{task_id}.mp4')
+            shutil.copyfile(poster, output/f'{task_id}.webp')
 
 
 if __name__ == '__main__':

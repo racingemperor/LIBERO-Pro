@@ -301,7 +301,7 @@ function taskDocument(t) {
   const design=designs.tasks[t.id];
   document.title=`${t.instruction} · Document · LIBERO-Pro`;
   return documentLayout(`${head(esc(t.instruction),'',breadcrumb([['Document','docs.html'],['Evaluation tasks','docs.html#task-designs'],[`LIBERO-${t.suiteName} · ${t.taskId}`]]))}
-    <figure class="task-demo" id="examples"><video data-task-demo src="assets/rollouts/base/${esc(t.id)}.mp4" poster="assets/rollouts/base/${esc(t.id)}.webp" width="256" height="256" controls muted loop playsinline preload="metadata" aria-label="Unperturbed LIBERO demonstration: ${esc(t.instruction)}"></video></figure>
+    <figure class="task-demo" id="examples"><video data-task-demo src="assets/rollouts/base/${esc(t.id)}.mp4" poster="assets/rollouts/base/${esc(t.id)}.webp" width="640" height="640" controls muted loop playsinline preload="metadata" aria-label="Successful X-VLA demonstration of an unperturbed LIBERO task: ${esc(t.instruction)}"></video></figure>
     <section class="section" id="design">${sectionHead('Task design')}${designFacts([['Instruction',esc(t.instruction)],['Description',documentEmphasis(design.description,documentKeyPhrases[t.id])],['Task suite',`LIBERO-${esc(t.suiteName==='Long'?'10':t.suiteName)} · task ${t.taskId} (zero-based)`],['Design focus',esc(design.focus)]])}</section>
     <section class="section reading" id="success">${sectionHead('Success conditions')}<pre class="goal-predicates" tabindex="0" aria-label="BASE goal predicates"><code>${design.predicates.map(esc).join('\n')}</code></pre></section>
     <section class="section" id="perturbations">${sectionHead('Perturbation design')}${taskPerturbationChips(t)}</section>
