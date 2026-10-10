@@ -270,7 +270,7 @@ body[data-page=leaderboard] .capability-data th a{display:inline-flex;align-item
 .repository-link:hover .repository-name{text-decoration:underline;text-underline-offset:4px}
 .repository-status{flex:none;font-size:11px;line-height:1.5;padding:2px 6px;border-radius:4px;background:#eef0f2;color:#59616b}
 .repository-status.latest{background:#e4f3ec;color:#25654c}
-@font-face{font-family:'Google Sans Flex';font-style:normal;font-weight:400 600;font-display:swap;src:url('fonts/google-sans-flex-latin.woff2') format('woff2')}
+@font-face{font-family:'Google Sans Flex';font-style:normal;font-weight:400 700;font-display:swap;src:url('fonts/google-sans-flex-latin.woff2') format('woff2')}
 .home-news{--news-bg:#f8f9fa;--news-ink:#202124;--news-soft:#80868b;--news-line:rgba(32,34,36,.12);--news-accent:#4285f4;padding:clamp(8px,2vh,24px) 0 clamp(72px,10vh,120px);border-bottom:0;font-family:'Google Sans Flex',ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 .home-news-inner{width:min(960px,100%);margin:0 auto;display:flex;flex-direction:column;gap:clamp(20px,3vh,32px)}
 .home-news h2{margin:0;font-size:13px;line-height:1.5;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--news-accent)}
@@ -372,9 +372,23 @@ a.home-model-chip:focus-visible{outline:2px solid #215e52;outline-offset:3px}
 .doc-nav-group summary{cursor:pointer;padding:7px 4px;font-weight:500}
 .doc-nav-group details a{margin-left:10px}
 .doc-nav-mode{font-size:10px;text-transform:uppercase;letter-spacing:.07em;margin:10px 0 4px 19px}
-.doc-content{min-width:0}
+.docs-layout{font-family:'Google Sans Flex',ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.doc-content{min-width:0;font-size:18px;line-height:1.65;color:#39393f}
 .doc-content .page-head{padding-top:24px}
-.doc-content .page-head h1{font-size:40px}
+.doc-content :is(h1,h2,h3){font-weight:600;line-height:1.15;letter-spacing:normal;color:#111827}
+.doc-content .page-head h1{font-size:29px}
+.doc-content .section-head h2{font-size:26px}
+.doc-content :is(.reading>h3,.base-task h3){font-size:18px;line-height:1.65}
+.doc-content :is(p,.design-facts dd){font-size:18px;line-height:1.65;color:#39393f}
+.doc-content .section>p{max-width:72ch;margin:16px 0}
+.doc-content .section-head+p{margin-top:0}
+.doc-content strong{font-weight:700}
+.doc-content :not(pre)>code{font-family:ui-monospace,SFMono-Regular,'SF Mono',Consolas,'Liberation Mono',Menlo,monospace;font-size:.9em;line-height:1.65;background:#f3f4f6;color:inherit;padding:2px 4px;border-radius:4px;overflow-wrap:anywhere;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.doc-content .goal-predicates code{font-family:ui-monospace,SFMono-Regular,'SF Mono',Consolas,'Liberation Mono',Menlo,monospace;font-size:14px;line-height:1.65}
+.doc-content .design-facts{font-size:18px}
+.doc-content .design-facts dt{font-weight:600;color:#111827}
+.doc-content .reading table{font-size:18px;line-height:1.65}
+.doc-content .base-task p{font-size:15px;line-height:1.65}
 .doc-content .section:first-of-type{padding-top:24px}
 .doc-content .task-list{grid-template-columns:1fr}
 .doc-content .task-index{min-width:46px;font-size:11px}
@@ -469,7 +483,7 @@ a.doc-perturbation-chip:focus-visible{outline:2px solid #215e52;outline-offset:3
   .doc-directory-toggle{display:list-item;padding:12px 15px;cursor:pointer;font-size:13px;font-weight:600}
   .doc-directory>nav{padding:0 15px;max-height:440px;overflow:auto}
   .doc-content .page-head{padding-top:32px}
-  .doc-content .page-head h1{font-size:32px}
+  .doc-content .page-head h1{font-size:29px}
   .design-facts{font-size:13px}
   .design-facts>div{grid-template-columns:1fr}
   .design-facts dt{padding:12px 0 0}

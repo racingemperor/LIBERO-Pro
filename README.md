@@ -48,6 +48,8 @@ Open `scripts/taxonomy-test.html` for chart interaction checks, including exact 
 - `docs.html`: grouped document directory, task design index, protocol, aggregation, sources and coverage.
 - `docs.html?task=libero_10-8`: a centered nominal demonstration, official instruction, task design, exact success predicates and supported perturbations.
 - `docs.html?perturbation=D06`: a centered demonstration reused from Home, the paper mechanism figure, design facts without a Setting row, and eight non-interactive task-number circles grouped by suite. Green indicates supported combinations; gray dashed circles indicate unsupported combinations from the same task-support manifest. Static mechanism headings read “Initialization and validity”.
+
+Document typography follows RoboDojo's documentation: self-hosted Google Sans Flex, 18px body text with 1.65 line height, 600-weight headings and 700-weight semantic emphasis. Long explanations highlight selected concepts in bold; identifiers and formulas use compact gray inline code. The existing font file includes real weights 400–700 and retains its OFL license. Emphasis is added only when rendering documents, preserving the underlying instructions, descriptions, support matrix and scores. The top navigation and other pages keep their existing typography.
 - `eval.html`: evaluation setup, execution and result reporting. No online evaluation or submission service is claimed.
 - `data/task-designs.json`: eight task designs and applicability exclusions, checked against the BASE scene definitions and paper. This editorial file is separate from the generated task manifest.
 
