@@ -127,7 +127,7 @@ function leaderboardTable(mode,models,sort='average',ascending=false) {
 }
 
 function leaderboardPage() {
-  const mode=params.get('mode')==='overall'?'overall':selectedMode();
+  const mode=['static','dynamic'].includes(params.get('mode'))?params.get('mode'):'overall';
   const type=['Mainstream VLA','World Action Models','Robustness-oriented'].includes(params.get('type'))?params.get('type'):'all';
   const sort=['average','base','delta',...catalogue.categories.map(c=>c.id)].includes(params.get('sort'))?params.get('sort'):'average';
   const asc=params.get('order')==='asc';
