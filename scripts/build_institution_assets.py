@@ -26,6 +26,10 @@ for institution in institutions:
         ink = Image.new("RGBA", image.size, "#66318C" if institution["id"] == "tsinghua" else "#173B62")
         ink.putalpha(image.getchannel("A"))
         image = ink
+    # Equal CSS heights should describe the visible mark, not transparent margins.
+    bounds = image.getchannel("A").getbbox()
+    if bounds:
+        image = image.crop(bounds)
     image.thumbnail((480, 192), Image.Resampling.LANCZOS)
     target = ROOT / institution["logo"]
     target.parent.mkdir(parents=True, exist_ok=True)
