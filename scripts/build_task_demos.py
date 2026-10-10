@@ -18,6 +18,7 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parents[1]
 REVISION = 'affa19c0de0f6bce2a7edd26dddef8a532e7e6f6'
 SOURCE = f'https://huggingface.co/datasets/HuggingFaceVLA/libero/resolve/{REVISION}/'
+DEMO_SPEEDUP = 4
 # Dataset task indices differ from LIBERO suite-local IDs. Match the instruction,
 # never assume the two numbering systems agree.
 INSTRUCTIONS = {
@@ -73,7 +74,9 @@ def main():
         frames = [Image.open(io.BytesIO(value['bytes'])).convert('RGB') for value in table['observation.images.image'].to_pylist()]
         assert all(frame.size == (256, 256) for frame in frames)
         target = output / f'{task_id}.mp4'
-        writer = imageio_ffmpeg.write_frames(str(target), (256, 256), fps=info['fps'], codec='libx264',
+        # Use the same speedup for every task and retain every source frame.
+        output_fps = info['fps'] * DEMO_SPEEDUP
+        writer = imageio_ffmpeg.write_frames(str(target), (256, 256), fps=output_fps, codec='libx264',
             pix_fmt_out='yuv420p', ffmpeg_log_level='error', output_params=['-crf', '20', '-movflags', '+faststart'])
         writer.send(None)
         try:
@@ -86,9 +89,10 @@ def main():
         for col, fraction in enumerate([0, .33, .66, 1]):
             contact.paste(frames[round((len(frames) - 1) * fraction)].resize((192, 192)), (col * 192, row * 220 + 24))
         audit.append({'task': task_id, 'instruction': instruction, 'episode': index, 'source': SOURCE + name,
-                      'sourceSha256': hashlib.sha256(raw).hexdigest(), 'frames': len(frames), 'fps': info['fps'],
-                      'duration': len(frames) / info['fps'], 'rotationDegrees': 0})
-        print(f'{task_id}: {len(frames)} frames, {len(frames) / info["fps"]:.1f}s', flush=True)
+                      'sourceSha256': hashlib.sha256(raw).hexdigest(), 'sourceFrames': len(frames), 'sourceFps': info['fps'],
+                      'sourceDuration': len(frames) / info['fps'], 'frames': len(frames), 'fps': output_fps,
+                      'duration': len(frames) / output_fps, 'speedup': DEMO_SPEEDUP, 'rotationDegrees': 0})
+        print(f'{task_id}: {len(frames)} frames, {len(frames) / output_fps:.3f}s, {DEMO_SPEEDUP}x', flush=True)
     contact.save(review / 'contact.jpg', quality=92)
     (review / 'source-audit.json').write_text(json.dumps(audit, indent=2) + '\n', encoding='utf-8')
 

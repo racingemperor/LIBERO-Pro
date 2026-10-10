@@ -4,7 +4,7 @@ Source: [HuggingFaceVLA/libero](https://huggingface.co/datasets/HuggingFaceVLA/l
 
 These clips illustrate unperturbed base tasks. They are public dataset demonstrations, not evaluations of any model on this website. None of the website's private evaluation records were used to create them.
 
-Each MP4 is converted from the source episode's `observation.images.image` frames at the recorded 10 fps, with H.264 encoding and no audio. All frames, their order, orientation and original duration are retained. The WebP poster is the first frame. The earliest episode with the matching instruction is selected deterministically.
+Each MP4 is converted from the source episode's `observation.images.image` frames, with H.264 encoding and no audio. Every clip uses the same 4× speedup: the original 10 fps sequence is encoded at 40 fps, retaining all source frames, their order and image orientation. The resulting complete clips last 2.1–9.575 seconds, depending on the original episode length. The WebP poster is the first source frame. The earliest episode with the matching instruction is selected deterministically.
 
 | Website task | Source task index | Source episode | Source instruction |
 |---|---:|---:|---|
