@@ -143,6 +143,7 @@ assert.deepEqual(clips.map(c=>c.perturbation).sort(),perturbations.map(p=>p.id).
 for(const clip of clips){
   assert.deepEqual(Object.keys(clip).sort(),['perturbation','poster','src'],'Internal rollout metadata must stay private');
   for(const path of [clip.src,clip.poster])assert(fs.existsSync(new URL('../'+path,import.meta.url)),`Missing Home media ${path}`);
+  for(const extension of ['mp4','webp'])assert(fs.existsSync(new URL(`../assets/rollouts/documents/${clip.perturbation}.${extension}`,import.meta.url)),`Missing mirrored Document demonstration for ${clip.perturbation}`);
 }
 const upcoming=read('upcoming-models');
 assert.deepEqual(Object.keys(upcoming),['models'],'Upcoming models contain only public names and IDs');

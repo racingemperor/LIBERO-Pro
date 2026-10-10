@@ -343,9 +343,9 @@ function perturbationTaskChips(p) {
 function perturbationDocument(p) {
   document.title=`${p.id} ${p.name} · Document · LIBERO-Pro`;
   const exclusions=tasks.filter(t=>designs.tasks[t.id].excluded.includes(p.id));
-  const clip=homeRollouts.clips.find(clip=>clip.perturbation===p.id);
+  const clipBase=`assets/rollouts/documents/${p.id}`;
   return documentLayout(`${head(esc(p.name),'',breadcrumb([['Document','docs.html'],['Perturbation design','tasks.html'],[p.id]]))}
-    <figure class="task-demo" id="examples"><video data-perturbation-demo src="${esc(clip.src)}" poster="${esc(clip.poster)}" width="256" height="256" controls muted loop playsinline preload="metadata" aria-label="${esc(p.id+': '+p.name)} perturbation demonstration"></video></figure>
+    <figure class="task-demo" id="examples"><video data-perturbation-demo src="${esc(clipBase)}.mp4" poster="${esc(clipBase)}.webp" width="256" height="256" controls muted loop playsinline preload="metadata" aria-label="${esc(p.id+': '+p.name)} perturbation demonstration"></video></figure>
     <figure class="mechanism-image"><img src="${p.image}" width="1760" height="510" loading="lazy" alt="${esc(p.name)} mechanism illustration"><figcaption>${p.id} · Illustration from the paper. Model-specific rollouts are shown separately.</figcaption></figure>
     <section class="section" id="design">${sectionHead('Perturbation design')}${designFacts([['Public ID',`<code>${p.id}</code>`],['Category',categoryFor(p.category).name],['Intervention',documentEmphasis(p.description,documentKeyPhrases[p.id])],[p.mode==='static'?'Validity constraint':'Trigger & lifetime',documentEmphasis(p.constraint,documentKeyPhrases[p.id])],['Task goal','Preserve the <strong>original goal and success predicate</strong>.'],['Scope','Single <strong>non-physical perturbation</strong>; mass, friction, inertia, stiffness and damping are not varied.']])}</section>
     <section class="section reading" id="mechanism">${sectionHead(p.mode==='static'?'Initialization and validity':'Runtime behavior')}<p>${p.mode==='static'?'Apply the configured change <strong>at reset</strong>. Modified scene geometry or fault settings <strong>persist for the episode</strong>; changing the initial state does not prevent the robot and objects from moving normally.':'Trigger the intervention at the <strong>task phase</strong> defined by the case. Its <strong>onset, duration and release</strong> follow the case configuration. Restoring a sensor or control channel <strong>does not roll back</strong> the complete scene.'}</p><p>Changes must leave a <strong>reachable, collision-free configuration</strong> and a feasible route to task completion. The magnitude, direction, affected objects and event settings are <strong>selected per task</strong>.</p>${exclusions.length?`<p><strong>Not applicable:</strong> ${exclusions.map(t=>`LIBERO-${t.suiteName} task <code>${t.taskId}</code>`).join(', ')}. These combinations are <strong>not treated as failures</strong>.</p>`:''}</section>
@@ -542,11 +542,6 @@ try {
       if(!response.ok)throw new Error(`Unable to load ${name}`);
       return response.json();
     }));
-  }
-  if(page==='docs') {
-    const response=await fetch('data/home-rollouts.json');
-    if(!response.ok)throw new Error('Unable to load perturbation demonstrations');
-    homeRollouts=await response.json();
   }
   if(page==='leaderboard') {
     const [profiles,announcements]=await Promise.all(['model-profiles','leaderboard-news'].map(async name=>{
