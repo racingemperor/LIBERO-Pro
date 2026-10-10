@@ -50,10 +50,15 @@ export function homeShowcase(catalogue) {
   </section>`;
 }
 
-export function homeGallery(catalogue, mode, media) {
+export function perturbationClip(id) {
+  const base = `assets/rollouts/documents/${id}`;
+  return {src:`${base}.mp4`,poster:`${base}.webp`};
+}
+
+export function homeGallery(catalogue, mode) {
   const entries = catalogue.perturbations.filter(p=>p.mode===mode);
   const card = (p, duplicate) => {
-    const clip = media.clips.find(c=>c.perturbation===p.id);
+    const clip = perturbationClip(p.id);
     return `<a class="gallery-item" href="docs.html?perturbation=${p.id}" ${duplicate?'tabindex="-1"':''} aria-label="${p.id}: ${escape(p.name)} — open perturbation design"><video class="gallery-video" data-src="${escape(clip.src)}" poster="${escape(clip.poster)}" width="256" height="256" muted loop playsinline preload="none" aria-hidden="true" disablepictureinpicture></video></a>`;
   };
   // Keep each perturbation once in the reading order. Two visual copies cover

@@ -1,4 +1,4 @@
-import {homeShowcase, homeGallery, homeModels, homeNews, bindHomeNews, bindHomeMotion, bindHomePresentation} from './home.js';
+import {homeShowcase, homeGallery, homeModels, homeNews, perturbationClip, bindHomeNews, bindHomeMotion, bindHomePresentation} from './home.js';
 import {taxonomyFigure, bindTaxonomy} from './taxonomy.js';
 import {updateView, isLocalViewLink} from './navigation.js';
 import {createCapabilities} from './capabilities.js';
@@ -13,7 +13,7 @@ const mean = values => { const valid = values.filter(Number.isFinite); return va
 const modeLabel = mode => mode === 'dynamic' ? 'Dynamic' : 'Static';
 const typeClass = type => type === 'World Action Models' ? 'wam' : type === 'Robustness-oriented' ? 'robust' : 'vla';
 const typeLabel = type => type === 'World Action Models' ? 'World Action' : type === 'Robustness-oriented' ? 'Robustness' : 'VLA';
-let catalogue, results, tasks, assets, news, leaderboardNews, designs, people, publication, homeRollouts, upcomingModels;
+let catalogue, results, tasks, assets, news, leaderboardNews, designs, people, publication, upcomingModels;
 let capabilities;
 const url = (file, values={}, hash='') => `${file}.html${Object.keys(values).length ? `?${new URLSearchParams(Object.entries(values).filter(([,v])=>v !== null && v !== undefined))}` : ''}${hash ? '#'+hash : ''}`;
 const modelUrl = (m, extra={}, hash='') => url('model',{id:m.id,...extra},hash);
@@ -52,7 +52,7 @@ function homePage() {
     <section class="section home-centered" id="benchmark">${sectionHead('Beyond familiar scenes')}<div class="home-summary"><p>High success rates on LIBERO do not always reveal how a policy will behave when familiar conditions change. The original LIBERO-Pro study highlighted that models can rely on memorized action sequences and scene layouts, leaving weaknesses in visual grounding and instruction understanding hidden by standard evaluation.</p><p>LIBERO-Pro evaluates robustness under 42 controlled perturbations: 22 static shifts at reset and 20 dynamic interventions during execution. Across eight tasks from four LIBERO suites, it varies conditions, environments, observations, execution, robot state and language while preserving the original task goals. This tests both generalization to changed scenes and recovery when an ongoing task is disturbed.</p></div></section>
     <section class="section paper-overview home-centered" id="paper-overview">${sectionHead('Benchmark overview')}<figure><a href="assets/paper/overview.webp" target="_blank" rel="noopener" aria-label="Open the full LIBERO-Pro overview figure"><img src="assets/paper/overview.webp" width="2000" height="1125" loading="lazy" alt="LIBERO-Pro overview showing 22 static and 20 dynamic perturbations across six domains"></a><figcaption class="caption">LIBERO-Pro evaluates robustness across 22 static shifts and 20 runtime interventions in six perturbation domains.</figcaption></figure></section>
     <section class="section home-centered" id="domains">${sectionHead('Perturbation domains')}<p class="home-section-intro">Six domains organize the benchmark. Each perturbation has a mechanism illustration and a gallery for the eight evaluation tasks.</p><div class="home-domains"><div class="home-domain-column home-domain-left">${catalogue.categories.slice(0,3).map(domainLink).join('')}</div>${taxonomyFigure(catalogue)}<div class="home-domain-column home-domain-right">${catalogue.categories.slice(3).map(domainLink).join('')}</div></div><a class="text-link home-domains-explore" href="docs.html#taxonomy">Explore all 42 perturbations ↗</a></section>
-    ${homeGallery(catalogue,'static',homeRollouts)}${homeGallery(catalogue,'dynamic',homeRollouts)}
+    ${homeGallery(catalogue,'static')}${homeGallery(catalogue,'dynamic')}
     <section class="section home-evaluation-tasks" id="evaluation-tasks">${sectionHead('Evaluation tasks','<a class="text-link" href="docs.html#task-designs">Read task designs ↗</a>')}${documentTaskList({compact:true})}</section>
     <section class="section home-leaderboard" id="leaderboard">${sectionHead('Leaderboard','<a class="text-link" href="leaderboard.html">Full leaderboard ↗</a>')}<div class="chart-grid">${chart('static',10)}${chart('dynamic',10)}</div></section>
     ${homeModels(results.models,upcomingModels.models,assets,modelUrl)}
@@ -343,9 +343,9 @@ function perturbationTaskChips(p) {
 function perturbationDocument(p) {
   document.title=`${p.id} ${p.name} · Document · LIBERO-Pro`;
   const exclusions=tasks.filter(t=>designs.tasks[t.id].excluded.includes(p.id));
-  const clipBase=`assets/rollouts/documents/${p.id}`;
+  const clip=perturbationClip(p.id);
   return documentLayout(`${head(esc(p.name),'',breadcrumb([['Document','docs.html'],['Perturbation design','tasks.html'],[p.id]]))}
-    <figure class="task-demo" id="examples"><video data-perturbation-demo src="${esc(clipBase)}.mp4" poster="${esc(clipBase)}.webp" width="256" height="256" controls muted loop playsinline preload="metadata" aria-label="${esc(p.id+': '+p.name)} perturbation demonstration"></video></figure>
+    <figure class="task-demo" id="examples"><video data-perturbation-demo src="${esc(clip.src)}" poster="${esc(clip.poster)}" width="256" height="256" controls muted loop playsinline preload="metadata" aria-label="${esc(p.id+': '+p.name)} perturbation demonstration"></video></figure>
     <figure class="mechanism-image"><img src="${p.image}" width="1760" height="510" loading="lazy" alt="${esc(p.name)} mechanism illustration"><figcaption>${p.id} · Illustration from the paper. Model-specific rollouts are shown separately.</figcaption></figure>
     <section class="section" id="design">${sectionHead('Perturbation design')}${designFacts([['Public ID',`<code>${p.id}</code>`],['Category',categoryFor(p.category).name],['Intervention',documentEmphasis(p.description,documentKeyPhrases[p.id])],[p.mode==='static'?'Validity constraint':'Trigger & lifetime',documentEmphasis(p.constraint,documentKeyPhrases[p.id])],['Task goal','Preserve the <strong>original goal and success predicate</strong>.'],['Scope','Single <strong>non-physical perturbation</strong>; mass, friction, inertia, stiffness and damping are not varied.']])}</section>
     <section class="section reading" id="mechanism">${sectionHead(p.mode==='static'?'Initialization and validity':'Runtime behavior')}<p>${p.mode==='static'?'Apply the configured change <strong>at reset</strong>. Modified scene geometry or fault settings <strong>persist for the episode</strong>; changing the initial state does not prevent the robot and objects from moving normally.':'Trigger the intervention at the <strong>task phase</strong> defined by the case. Its <strong>onset, duration and release</strong> follow the case configuration. Restoring a sensor or control channel <strong>does not roll back</strong> the complete scene.'}</p><p>Changes must leave a <strong>reachable, collision-free configuration</strong> and a feasible route to task completion. The magnitude, direction, affected objects and event settings are <strong>selected per task</strong>.</p>${exclusions.length?`<p><strong>Not applicable:</strong> ${exclusions.map(t=>`LIBERO-${t.suiteName} task <code>${t.taskId}</code>`).join(', ')}. These combinations are <strong>not treated as failures</strong>.</p>`:''}</section>
@@ -537,7 +537,7 @@ try {
     const response=await fetch(`data/${name}.json`);if(!response.ok)throw new Error(`Unable to load ${name}`);return response.json();
   }));
   if(page==='index') {
-    [homeRollouts,upcomingModels,news]=await Promise.all(['home-rollouts','upcoming-models','news'].map(async name=>{
+    [upcomingModels,news]=await Promise.all(['upcoming-models','news'].map(async name=>{
       const response=await fetch(`data/${name}.json`);
       if(!response.ok)throw new Error(`Unable to load ${name}`);
       return response.json();
