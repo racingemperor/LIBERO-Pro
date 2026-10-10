@@ -2,7 +2,7 @@
   "entries": [
     {
       "date": "2026-10-09",
-      "text": "We now support 18 models."
+      "text": "We now support 18 models: Lingbot-VA, MolmoAct2, Cosmos Policy, π0.5, xvla, FastWAM, GR00T N1.7, OpenVLA-OFT_m, OpenVLA-OFT, OpenVLA-OFT+, Anchor-Align, OpenVLA-OFT_w, RIPT-VLA, π0, OpenVLA, NORA, UniVLA, and π0-FAST."
     }
   ]
 }
