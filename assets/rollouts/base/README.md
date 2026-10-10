@@ -1,10 +1,16 @@
 # Nominal LIBERO task demonstrations
 
-Source: [HuggingFaceVLA/libero](https://huggingface.co/datasets/HuggingFaceVLA/libero), version 2.1, revision `affa19c0de0f6bce2a7edd26dddef8a532e7e6f6`. The source dataset declares [Apache License 2.0](LICENSE.txt). LIBERO is by the [Lifelong Robot Learning team](https://github.com/Lifelong-Robot-Learning/LIBERO).
+Source: [HuggingFaceVLA/libero](https://huggingface.co/datasets/HuggingFaceVLA/libero), version 2.1, revision `affa19c0de0f6bce2a7edd26dddef8a532e7e6f6`. The [dataset card at this revision](https://huggingface.co/datasets/HuggingFaceVLA/libero/blob/affa19c0de0f6bce2a7edd26dddef8a532e7e6f6/README.md) declares [Creative Commons Attribution 4.0 International](LICENSE.txt). LIBERO is by the [Lifelong Robot Learning team](https://github.com/Lifelong-Robot-Learning/LIBERO); dataset conversions are by OpenVLA, Physical Intelligence and the HuggingFace VLA team. The clips and posters retain this license.
 
 These clips illustrate unperturbed base tasks. They are public dataset demonstrations, not evaluations of any model on this website. None of the website's private evaluation records were used to create them.
 
-Each MP4 is converted from the source episode's `observation.images.image` frames, with H.264 encoding and no audio. Every clip uses the same 4× speedup: the original 10 fps sequence is encoded at 40 fps, retaining all source frames, their order and image orientation. The resulting complete clips last 2.1–9.575 seconds, depending on the original episode length. The WebP poster is the first source frame. The earliest episode with the matching instruction is selected deterministically.
+Each MP4 is converted from the source episode's `observation.images.image` frames, with H.264 encoding and no audio. Every clip uses the same 4× speedup: the original 10 fps sequence is encoded at 40 fps, retaining all source frames, their order and image orientation. The resulting complete clips last 2.1–9.575 seconds, depending on the original episode length. The WebP poster is the first source frame. The eight reviewed episodes below are pinned by ID and SHA-256 in the builder.
+
+### Successful demonstrations
+
+The source card identifies [physical-intelligence/libero](https://huggingface.co/datasets/physical-intelligence/libero), whose card traces its data to [openvla/modified_libero_rlds](https://huggingface.co/datasets/openvla/modified_libero_rlds). OpenVLA's [dataset regeneration script](https://github.com/openvla/openvla/blob/0ebc5e333ee7a916813bf50db240f1af7ba1d295/experiments/robot/libero/regenerate_libero_dataset.py) replays demonstrations and saves only episodes for which the environment returns success (`done`); it records terminal reward and done as 1. Failed replays are excluded before the format conversions.
+
+The eight selected clips were also visually reviewed against their task instructions and completion frames, including both pots on the lit stove for Long 8. Success evidence is the upstream filtering and this visual review: the converted LeRobot files do not retain reward/done fields, and no new simulation evaluation was performed for this website. These are successful task demonstrations, not model-specific test results.
 
 | Website task | Source task index | Source episode | Source instruction |
 |---|---:|---:|---|

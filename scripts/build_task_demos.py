@@ -31,6 +31,20 @@ INSTRUCTIONS = {
     'libero_10-5': 'pick up the book and place it in the back compartment of the caddy',
     'libero_10-8': 'put both moka pots on the stove',
 }
+# Reviewed episodes from OpenVLA's success-only demonstration conversion.
+# The LeRobot files omit reward/done; provenance and visual completion checks
+# are documented in assets/rollouts/base/README.md. Pin bytes as well as IDs so
+# a later rebuild cannot silently substitute an unreviewed demonstration.
+REVIEWED_EPISODES = {
+    'libero_spatial-0': (1272, 'b5a7fc668444ec03895d3f3fe2b2933ca2da98f0640d899e73800ca5eb26d68d'),
+    'libero_spatial-8': (1280, '0b54a2ab955f0edb2cb878b1bd83fffb746d970312779f332a609ded761a9f1a'),
+    'libero_object-1': (810, 'fff48910567fefc814a7edd33be1d90dcf058326fbf7728c8c0167c70414497c'),
+    'libero_object-8': (823, 'a3817c584a80aa27df1cb485035bc872a3afeae5f822c5a84d84f9cb83160215'),
+    'libero_goal-3': (382, '45062a8f1b46540e5903934bce767a0fd8a77fb94343462fb72a4582951711d3'),
+    'libero_goal-6': (384, '468267eadcad3c6ebda92f96c88abcbe3ce9eb3d1c7a9188a5f1764ab403af3e'),
+    'libero_10-5': (27, 'b15b4afdaa7bf4c31e627d85e705b52bbb912eb628bc3a7c2915c7de57144833'),
+    'libero_10-8': (10, '4214069fdee3750a0b98a6bb6b21728fa472899a3ff2c0d1c1bb94350e3e5574'),
+}
 
 
 def main():
@@ -56,16 +70,22 @@ def main():
 
     info = json.loads(download('meta/info.json'))
     episodes = [json.loads(line) for line in download('meta/episodes.jsonl').decode().splitlines()]
+    episodes_by_index = {episode['episode_index']: episode for episode in episodes}
     tasks = [json.loads(line) for line in download('meta/tasks.jsonl').decode().splitlines()]
     task_indices = {task['task']: task['task_index'] for task in tasks}
     contact = Image.new('RGB', (4 * 192, 8 * 220), 'white')
     draw = ImageDraw.Draw(contact)
     audit = []
     for row, (task_id, instruction) in enumerate(INSTRUCTIONS.items()):
-        episode = min((e for e in episodes if e['tasks'] == [instruction]), key=lambda e: e['episode_index'])
-        index = episode['episode_index']
+        index, reviewed_sha256 = REVIEWED_EPISODES[task_id]
+        episode = episodes_by_index[index]
+        if episode['tasks'] != [instruction]:
+            raise ValueError(f'{task_id}: reviewed episode instruction changed')
         name = info['data_path'].format(episode_chunk=index // info['chunks_size'], episode_index=index)
         raw = download(name)
+        source_sha256 = hashlib.sha256(raw).hexdigest()
+        if source_sha256 != reviewed_sha256:
+            raise ValueError(f'{task_id}: reviewed episode checksum mismatch')
         table = pq.read_table(io.BytesIO(raw), columns=['observation.images.image', 'task_index', 'episode_index', 'frame_index'])
         assert table.num_rows == episode['length']
         assert set(table['task_index'].to_pylist()) == {task_indices[instruction]}
@@ -89,7 +109,8 @@ def main():
         for col, fraction in enumerate([0, .33, .66, 1]):
             contact.paste(frames[round((len(frames) - 1) * fraction)].resize((192, 192)), (col * 192, row * 220 + 24))
         audit.append({'task': task_id, 'instruction': instruction, 'episode': index, 'source': SOURCE + name,
-                      'sourceSha256': hashlib.sha256(raw).hexdigest(), 'sourceFrames': len(frames), 'sourceFps': info['fps'],
+                      'sourceSha256': source_sha256, 'successBasis': 'upstream-success-filter-and-visual-review',
+                      'sourceFrames': len(frames), 'sourceFps': info['fps'],
                       'sourceDuration': len(frames) / info['fps'], 'frames': len(frames), 'fps': output_fps,
                       'duration': len(frames) / output_fps, 'speedup': DEMO_SPEEDUP, 'rotationDegrees': 0})
         print(f'{task_id}: {len(frames)} frames, {len(frames) / output_fps:.3f}s, {DEMO_SPEEDUP}x', flush=True)
