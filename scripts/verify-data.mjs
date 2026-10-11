@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 const read = name => JSON.parse(fs.readFileSync(new URL('../data/'+name+'.json',import.meta.url),'utf8'));
 const {categories,perturbations}=read('catalogue');
 const {models}=read('results');
@@ -160,7 +161,34 @@ for(const model of upcoming.models){
   assert(/^[\w-]+\.(webp|png|jpg|svg)$/.test(assets[model.id].asset));
   assert(fs.existsSync(new URL('../assets/models/'+assets[model.id].asset,import.meta.url)),'Missing upcoming model image');
 }
-const publicFiles=['catalogue','home-rollouts','leaderboard-news','model-assets','model-profiles','news','people','publication','results','task-designs','tasks','upcoming-models'];
+const rollouts=read('model-rollouts');
+assert.deepEqual(Object.keys(rollouts),['models'],'Only public media mappings may be distributed');
+assert.deepEqual(Object.keys(rollouts.models).sort(),['anchor-align','cosmos-policy']);
+const indexedMedia=[];
+for(const [model,gallery] of Object.entries(rollouts.models)){
+  assert(models.some(m=>m.id===model),'Unknown rollout model');
+  assert.deepEqual(Object.keys(gallery).sort(),tasks.map(t=>t.id).sort());
+  let count=0;
+  for(const task of tasks){
+    const expected=['BASE',...perturbations.filter(p=>!designs[task.id].excluded.includes(p.id)).map(p=>p.id)];
+    assert.deepEqual(Object.keys(gallery[task.id]).sort(),expected.sort(),`Missing or unsupported video: ${model}/${task.id}`);
+    for(const [variant,media] of Object.entries(gallery[task.id])){
+      assert.deepEqual(Object.keys(media).sort(),['poster','src'],'Do not publish internal video metadata');
+      const stem=`assets/rollouts/models/${model}/${task.id}/${variant}`;
+      assert.equal(media.src,stem+'.mp4');assert.equal(media.poster,stem+'.webp');
+      for(const file of [media.src,media.poster]){
+        assert(fs.statSync(new URL('../'+file,import.meta.url)).size>0,`Missing rollout ${file}`);
+        indexedMedia.push(file);
+      }
+      count++;
+    }
+  }
+  assert.equal(count,339,'Each imported model has 331 perturbed and eight Base videos');
+}
+const mediaRoot=new URL('../assets/rollouts/models/',import.meta.url);
+const actualMedia=fs.readdirSync(mediaRoot,{recursive:true,withFileTypes:true}).filter(entry=>entry.isFile()).map(entry=>path.relative(fileURLToPath(new URL('../',import.meta.url)),path.join(entry.parentPath||entry.path,entry.name)).replaceAll('\\','/'));
+assert.deepEqual(actualMedia.sort(),indexedMedia.sort(),'Unexpected or unindexed public media files');
+const publicFiles=['catalogue','home-rollouts','leaderboard-news','model-assets','model-profiles','model-rollouts','news','people','publication','results','task-designs','tasks','upcoming-models'];
 const dataFiles=fs.readdirSync(new URL('../data/',import.meta.url),{recursive:true,withFileTypes:true}).filter(entry=>entry.isFile());
 assert.deepEqual(dataFiles.map(entry=>entry.name).sort(),publicFiles.map(name=>name+'.json').sort(),'Only display data may be distributed');
 for(const file of publicFiles)assert(!JSON.stringify(read(file)).match(/(?:[CD]:\\|\/data[0-9]*\/|PRIVATE KEY|ghp_|docs\.google\.com\/spreadsheets)/i));

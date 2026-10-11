@@ -3,6 +3,7 @@ import {homeShowcase, homeGallery, homeModels, homeNews, perturbationClip, bindH
 import {taxonomyFigure, bindTaxonomy} from './taxonomy.js';
 import {updateView, isLocalViewLink} from './navigation.js';
 import {createCapabilities} from './capabilities.js';
+import {bindRolloutPlayers} from './rollout-players.js';
 
 const app = document.querySelector('#app');
 const page = document.body.dataset.page;
@@ -16,6 +17,8 @@ const typeClass = type => type === 'World Action Models' ? 'wam' : type === 'Rob
 const typeLabel = type => type === 'World Action Models' ? 'World Action' : type === 'Robustness-oriented' ? 'Robustness' : 'VLA';
 let catalogue, results, tasks, assets, news, leaderboardNews, designs, people, publication, upcomingModels;
 let capabilities;
+let modelRollouts={models:{}};
+const baseRollout={id:'BASE',mode:'base',category:'all',name:'Base tasks'};
 const url = (file, values={}, hash='') => `${file}.html${Object.keys(values).length ? `?${new URLSearchParams(Object.entries(values).filter(([,v])=>v !== null && v !== undefined))}` : ''}${hash ? '#'+hash : ''}`;
 const modelUrl = (m, extra={}, hash='') => url('model',{id:m.id,...extra},hash);
 const directionUrl = (p, m=null) => m ? modelUrl(m,{perturbation:p.id,mode:p.mode,category:p.category},'rollouts') : url('perturbation',{id:p.id});
@@ -169,15 +172,20 @@ function perturbationRankings() {
 function mediaSlot(task,p,m=null) {
   const rate=m?.taskRates.find(c=>c.task===task.id&&c.direction===p.id)?.rate??null;
   const applicable=!designs.tasks[task.id].excluded.includes(p.id);
-  const media=task.media?.[m?.id]?.[p.id];
-  const safeMedia=typeof media==='string'&&/^assets\/rollouts\/[a-zA-Z0-9_./-]+\.(gif|webp|mp4|webm)$/.test(media)&&!media.includes('..')?media:null;
-  const visual=safeMedia?(safeMedia.endsWith('.mp4')||safeMedia.endsWith('.webm')?`<video controls preload="none" playsinline aria-label="${esc(task.instruction)} under ${p.id}"><source src="${esc(safeMedia)}"></video>`:`<img class="rollout-media" src="${esc(safeMedia)}" alt="${esc(task.instruction)} under ${p.id}" loading="lazy">`):`<div class="media-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m10 9 5 3-5 3z"/></svg><span>${applicable?'Rollout coming soon':'Not applicable'}</span></div>`;
+  const media=applicable?modelRollouts.models[m?.id]?.[task.id]?.[p.id]:null;
+  const stem=`assets/rollouts/models/${m?.id}/${task.id}/${p.id}`;
+  const available=media?.src===stem+'.mp4'&&media?.poster===stem+'.webp';
+  const label=`${m?.name||''}: ${task.instruction} · ${p.id}`;
+  const visual=available?`<div class="rollout-visual"><video data-rollout controls muted loop preload="none" playsinline width="640" height="640" poster="${esc(media.poster)}" aria-label="${esc(label)}"><source src="${esc(media.src)}" type="video/mp4"></video><div class="media-placeholder rollout-error" role="status" hidden>Video unavailable. Please try again later.</div></div>`:`<div class="media-placeholder" data-availability="${applicable?'missing':'unsupported'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m10 9 5 3-5 3z"/></svg><span ${applicable?'':'lang="zh-CN"'}>${applicable?(m?'Video coming soon':'Select a model'):'暂不支持'}</span></div>`;
   return `<article class="rollout-slot" data-task="${esc(task.id)}">${visual}<h4><a href="${url('task',{id:task.id,...(m?{model:m.id}:{})})}">${esc(task.instruction)} ↗</a></h4><div class="slot-meta"><span>${esc(task.suiteName)} · ${task.taskId}</span><span class="slot-rate">${applicable?pct(rate):'N/A'}</span></div></article>`;
 }
 
 function catalogueNav(p,m=null) {
   const href=d=>page==='perturbation'?url('perturbation',{id:d.id,...(m?{model:m.id}:{})}):directionUrl(d,m);
-  return `<aside class="catalogue-nav" aria-label="Perturbations">${tabs(p.mode,mode=>href(directionsFor(mode,p.category)[0]))}${catalogue.categories.map(c=>`<section class="nav-group"><h3 class="domain-name" ${domainStyle(c)}>${c.name}</h3>${directionsFor(p.mode,c.id).map(d=>`<a class="nav-item ${d.id===p.id?'active':''}" ${d.id===p.id?'aria-current="true"':''} href="${href(d)}"><span>${d.id}</span>${esc(d.name)}</a>`).join('')}</section>`).join('')}</aside>`;
+  const mode=p.mode==='base'?'static':p.mode;
+  const modes=page==='model'?['base','static','dynamic']:['static','dynamic'];
+  const navigation=`<div class="tabs">${modes.map(value=>`<a class="tab ${p.mode===value?'active':''}" ${p.mode===value?'aria-current="page"':''} href="${value==='base'?modelUrl(m,{perturbation:'BASE',mode:'base'},'rollouts'):href(directionsFor(value,p.category)[0])}">${value==='base'?'Base':modeLabel(value)}</a>`).join('')}</div>`;
+  return `<aside class="catalogue-nav" aria-label="Perturbations">${navigation}${catalogue.categories.map(c=>`<section class="nav-group"><h3 class="domain-name" ${domainStyle(c)}>${c.name}</h3>${directionsFor(mode,c.id).map(d=>`<a class="nav-item ${d.id===p.id?'active':''}" ${d.id===p.id?'aria-current="true"':''} href="${href(d)}"><span>${d.id}</span>${esc(d.name)}</a>`).join('')}</section>`).join('')}</aside>`;
 }
 
 function modelSelect(m,p=null) {
@@ -185,18 +193,19 @@ function modelSelect(m,p=null) {
 }
 
 function rolloutPanel(p,m) {
-  return `<div class="rollout-content" id="rollouts"><div class="rollout-title"><div>${pill(p.mode)} <span class="small" style="margin-left:8px">${p.id} · ${categoryFor(p.category).name}</span><h2>${esc(p.name)}</h2><p>${esc(p.description)}</p></div>${m?`<div class="direction-score">${pct(directionRate(m,p))}<small>Success rate · suite average</small></div>`:''}</div><figure class="mechanism-image"><img src="${p.image}" width="1760" height="510" alt="${esc(p.name)}: paper mechanism illustration"><figcaption>Mechanism illustration from the paper, independent of model evaluation rollouts.</figcaption></figure><p class="small">${esc(p.constraint)}</p><div class="section-head" style="margin-top:32px;margin-bottom:18px"><h3>Evaluation task rollouts</h3><span class="count-label">8 tasks</span></div>${m?.granularity==='suite'?'<p class="table-note" style="margin:0 0 18px">This model has suite-level results. Individual task success rates and videos have not been supplied.</p>':'<p class="table-note" style="margin:0 0 18px">Videos will be added here. Available task success rates are shown below each reserved slot.</p>'}<div class="rollout-grid">${tasks.map(t=>mediaSlot(t,p,m)).join('')}</div>${m?`<div class="reading" style="margin-top:30px"><h3>Success rate by task suite</h3><table><thead><tr><th>Suite</th><th>Success rate</th></tr></thead><tbody>${['Spatial','Object','Goal','Long'].map(s=>{const task=tasks.find(t=>t.suiteName===s);const c=m.cells.find(x=>x.suite===task.suite&&x.direction===p.id);return `<tr><td>LIBERO-${s}</td><td>${c?pct(c.rate):'N/A'}</td></tr>`;}).join('')}</tbody></table></div>`:''}</div>`;
+  if(p.id==='BASE')return `<div class="rollout-content" id="rollouts"><div class="rollout-title"><div><h2>Base tasks</h2><p>Eight original evaluation tasks without perturbations.</p></div><div class="direction-score">${pct(m.scores.base)}<small>Base success rate</small></div></div><div class="rollout-grid">${tasks.map(t=>mediaSlot(t,p,m)).join('')}</div>`;
+  return `<div class="rollout-content" id="rollouts"><div class="rollout-title"><div>${pill(p.mode)} <span class="small" style="margin-left:8px">${p.id} · ${categoryFor(p.category).name}</span><h2>${esc(p.name)}</h2><p>${esc(p.description)}</p></div>${m?`<div class="direction-score">${pct(directionRate(m,p))}<small>Success rate · suite average</small></div>`:''}</div><figure class="mechanism-image"><img src="${p.image}" width="1760" height="510" alt="${esc(p.name)}: paper mechanism illustration"><figcaption>Mechanism illustration from the paper, independent of model evaluation rollouts.</figcaption></figure><p class="small">${esc(p.constraint)}</p><div class="section-head" style="margin-top:32px;margin-bottom:18px"><h3>Evaluation task rollouts</h3><span class="count-label">8 tasks</span></div>${m?.granularity==='suite'?'<p class="table-note" style="margin:0 0 18px">Success rates are available by suite; individual task rates are shown as —.</p>':''}<div class="rollout-grid">${tasks.map(t=>mediaSlot(t,p,m)).join('')}</div>${m?`<div class="reading" style="margin-top:30px"><h3>Success rate by task suite</h3><table><thead><tr><th>Suite</th><th>Success rate</th></tr></thead><tbody>${['Spatial','Object','Goal','Long'].map(s=>{const task=tasks.find(t=>t.suiteName===s);const c=m.cells.find(x=>x.suite===task.suite&&x.direction===p.id);return `<tr><td>LIBERO-${s}</td><td>${c?pct(c.rate):'N/A'}</td></tr>`;}).join('')}</tbody></table></div>`:''}</div>`;
 }
 
 function modelPage() {
   const m=modelById(params.get('id')||params.get('model'));
   if(!m)return notFound('Model','leaderboard.html');
-  let p=catalogue.perturbations.find(x=>x.id===params.get('perturbation'));
+  let p=params.get('perturbation')==='BASE'?baseRollout:catalogue.perturbations.find(x=>x.id===params.get('perturbation'));
   if(!p)p=directionsFor(selectedMode(),selectedCategory())[0];
-  const mode=p.mode;
+  const mode=p.mode==='base'?'static':p.mode;
   document.title=`${m.name} · LIBERO-Pro`;
   return `<main id="content"><header class="page-head detail-head">${breadcrumb([['Leaderboard','leaderboard.html'],[m.name]])}<div class="model-title">${logo(m,true)}<h1>${esc(m.name)}</h1></div><div class="detail-meta">${tag(m)}<a class="text-link" href="${esc(assets[m.id].project)}" target="_blank" rel="noopener">Official project ↗</a><span class="count-label">Results: ${m.updated}</span></div><dl class="score-summary"><div><dt>Static success rate</dt><dd style="color:var(--static)">${pct(m.scores.static.average)}</dd></div><div><dt>Dynamic success rate</dt><dd style="color:var(--dynamic)">${pct(m.scores.dynamic.average)}</dd></div><div><dt>Nominal baseline</dt><dd>${pct(m.scores.base)}</dd></div></dl></header>
-    <section aria-label="Category success rates">${sectionHead(`${modeLabel(mode)} success by domain`)}<div class="category-scores">${catalogue.categories.map(c=>{const v=m.scores[mode].categories[c.id];return `<a class="category-score ${p.category===c.id?'selected':''}" ${domainStyle(c)} href="${modelUrl(m,{mode,category:c.id,perturbation:c[mode][0]},'rollouts')}"><span class="name domain-name">${c.name}</span><strong>${pct(v)}</strong><span class="mini-track" aria-hidden="true"><i style="width:${(v??0)*100}%"></i></span></a>`;}).join('')}</div></section>
+    <section aria-label="Category success rates" ${p.id==='BASE'?'hidden':''}>${sectionHead(`${modeLabel(mode)} success by domain`)}<div class="category-scores">${catalogue.categories.map(c=>{const v=m.scores[mode].categories[c.id];return `<a class="category-score ${p.category===c.id?'selected':''}" ${domainStyle(c)} href="${modelUrl(m,{mode,category:c.id,perturbation:c[mode][0]},'rollouts')}"><span class="name domain-name">${c.name}</span><strong>${pct(v)}</strong><span class="mini-track" aria-hidden="true"><i style="width:${(v??0)*100}%"></i></span></a>`;}).join('')}</div></section>
     <div class="detail-layout">${catalogueNav(p,m)}${rolloutPanel(p,m)}</div><section class="section reading" id="source"><h3>Result coverage</h3><p>${m.granularity==='task'?'Success rates are available by task, suite and perturbation.':'Success rates are available by suite and perturbation. Individual task rates are not available.'}</p><a href="docs.html#scoring">How success rates are calculated ↗</a><p class="small">Model image: ${esc(assets[m.id].credit)}.</p></section></main>`;
 }
 
@@ -214,7 +223,7 @@ function taskPage() {
   const mode=selectedMode(),m=modelById(params.get('model'));
   const category=selectedCategory();
   const dirs=directionsFor(mode,category);
-  return `<main id="content">${head('Task details',esc(t.instruction),breadcrumb([['Document','docs.html#task-designs'],[`LIBERO-${t.suiteName} · task ${t.taskId}`]]))}<p style="margin-bottom:24px"><a class="text-link" href="${url('docs',{task:t.id})}">Read task design & success conditions ↗</a></p>${modelSelect(m)}<div class="controls">${tabs(mode,mode=>url('task',{id:t.id,mode,category,...(m?{model:m.id}:{})}))}<span class="count-label">${dirs.length} perturbations</span></div><nav class="domain-filter" aria-label="Perturbation domain">${[{id:'all',name:'All domains'},...catalogue.categories].map(c=>`<a class="${c.id===category?'active':''}" href="${url('task',{id:t.id,mode,category:c.id,...(m?{model:m.id}:{})})}">${c.name}</a>`).join('')}</nav><div class="task-detail-grid">${dirs.map(p=>`<div><h3 style="font-size:15px;margin-bottom:12px"><a href="${directionUrl(p,m)}">${p.id} · ${esc(p.name)} ↗</a></h3>${mediaSlot(t,p,m)}</div>`).join('')}</div><p class="table-note">Missing task rates are shown as —. Suite averages are never substituted for an individual task. Rollout media is reserved for future uploads.</p></main>`;
+  return `<main id="content">${head('Task details',esc(t.instruction),breadcrumb([['Document','docs.html#task-designs'],[`LIBERO-${t.suiteName} · task ${t.taskId}`]]))}<p style="margin-bottom:24px"><a class="text-link" href="${url('docs',{task:t.id})}">Read task design & success conditions ↗</a></p>${modelSelect(m)}<div class="controls">${tabs(mode,mode=>url('task',{id:t.id,mode,category,...(m?{model:m.id}:{})}))}<span class="count-label">${dirs.length} perturbations</span></div><nav class="domain-filter" aria-label="Perturbation domain">${[{id:'all',name:'All domains'},...catalogue.categories].map(c=>`<a class="${c.id===category?'active':''}" href="${url('task',{id:t.id,mode,category:c.id,...(m?{model:m.id}:{})})}">${c.name}</a>`).join('')}</nav><div class="task-detail-grid">${dirs.map(p=>`<div><h3 style="font-size:15px;margin-bottom:12px"><a href="${directionUrl(p,m)}">${p.id} · ${esc(p.name)} ↗</a></h3>${mediaSlot(t,p,m)}</div>`).join('')}</div><p class="table-note">Missing task rates are shown as —. Suite averages are never substituted for an individual task.</p></main>`;
 }
 
 function findingsPage() {
@@ -455,6 +464,7 @@ function updateCurrentView(next, {anchor=false, top=false, replace=true}={}) {
     document.title=defaultTitle;
     updateView(app,(renderers[page]||homePage)());
     if(page==='docs')bindDocumentDemo();
+    bindRolloutPlayers();
     if(page==='leaderboard'&&perturbationChanged)revealPerturbationColumn();
     prepareDirectories();
     if(focused!==document.body&&!focused.isConnected){
@@ -537,6 +547,11 @@ try {
       return response.json();
     }));
   }
+  if(['model','perturbation','task'].includes(page)) {
+    const response=await fetch('data/model-rollouts.json');
+    if(!response.ok)throw new Error('Unable to load model videos');
+    modelRollouts=await response.json();
+  }
   if(page==='leaderboard') {
     const [profiles,announcements]=await Promise.all(['model-profiles','leaderboard-news'].map(async name=>{
       const response=await fetch(`data/${name}.json`);
@@ -553,6 +568,7 @@ try {
   }
   app.innerHTML=(renderers[page]||homePage)();bindInteractions();bindHomeMotion();bindHomePresentation();bindHomeNews();bindTaxonomy(catalogue);
   if(page==='docs')bindDocumentDemo();
+  bindRolloutPlayers();
   if(page==='leaderboard'){
     capabilities.bind(ids=>{
       const next=new URL(location.href);next.searchParams.set('compare',ids.join(','));

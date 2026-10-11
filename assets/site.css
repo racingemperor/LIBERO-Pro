@@ -581,3 +581,15 @@ body[data-page=report],body[data-page=community]{background:#f8fafc;font-family:
   .publication-figure img{height:98px}
 }
 @media(prefers-reduced-motion:reduce){.publication-figure img{transition:none}.publication-figure:hover img{transform:none}}
+
+/* Model rollouts use their native square framing, with click-to-play previews. */
+.rollout-slot{min-width:0}
+.rollout-visual{position:relative;aspect-ratio:1;background:#f3f5f4;border-radius:8px;overflow:hidden}
+.rollout-slot .media-placeholder,.rollout-slot video{aspect-ratio:1;width:100%;height:auto}
+.rollout-slot video{display:block;object-fit:contain;background:#f3f5f4}
+.rollout-slot [hidden]{display:none!important}
+.rollout-error{position:absolute;inset:0;padding:20px;text-align:center}
+.media-placeholder[data-availability="unsupported"]{color:#747b80;background:#f1f3f4}
+.catalogue-nav>.tabs{display:flex}
+.catalogue-nav>.tabs>.tab{flex:1;min-height:44px;padding-left:8px;padding-right:8px;text-align:center}
+@media(max-width:540px){.rollout-grid,.task-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 12px}.rollout-slot h4{font-size:13px;line-height:1.5}.rollout-slot .slot-meta{font-size:11px}}

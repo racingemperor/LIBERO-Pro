@@ -45,6 +45,38 @@ async function change(action, ready) {
 }
 
 const tests = [
+  ['Model video galleries load Base and perturbations in place, stop old playback, and mark unsupported tasks', async () => {
+    await load('model.html?id=anchor-align&perturbation=S01');
+    assert(doc().querySelectorAll('video[data-rollout]').length===8,'Eight matched videos expected');
+    const old=query('video[data-rollout]');
+    assert(old.preload==='none'&&old.poster.endsWith('/S01.webp'),'Videos should use posters without preloading');
+    old.scrollIntoView({block:'center',behavior:'instant'});
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    await old.play();
+    await waitFor(()=>old.videoWidth===640&&old.currentTime>0);
+    await change(()=>click('.nav-item[href*="perturbation=S02"]'),()=>query('video source').getAttribute('src').endsWith('/S02.mp4'));
+    assert(old.paused&&!old.isConnected,'Previous video kept playing');
+    assert(!old.querySelector('source').hasAttribute('src'),'Detached video did not release its source');
+    await change(()=>click('.nav-item[href*="perturbation=S04"]'),()=>doc().querySelectorAll('[data-availability="unsupported"]').length===3);
+    assert(doc().querySelectorAll('video[data-rollout]').length===5,'Unsupported tasks received videos');
+    assert([...doc().querySelectorAll('[data-availability="unsupported"]')].every(el=>el.textContent.includes('暂不支持')),'Missing requested unsupported label');
+    await change(()=>click('.catalogue-nav .tab[href*="perturbation=BASE"]'),()=>query('#rollouts h2').textContent==='Base tasks');
+    assert(doc().querySelectorAll('video[data-rollout]').length===8,'Base videos missing');
+    assert([...doc().querySelectorAll('video source')].every(el=>el.getAttribute('src').endsWith('/BASE.mp4')),'Base source mismatch');
+    await change(()=>click('.catalogue-nav .tab[href*="mode=dynamic"]'),()=>!!query('.nav-item[href*="perturbation=D20"]'));
+    await change(()=>click('.nav-item[href*="perturbation=D19"]'),()=>query('#rollouts h2').textContent==='Robot joint displacement');
+    assert(query('video source').getAttribute('src').endsWith('/D19.mp4'),'Public D19 mapping missing');
+    await change(()=>click('.nav-item[href*="perturbation=D20"]'),()=>query('video source').getAttribute('src').endsWith('/D20.mp4'));
+    assert(doc().documentElement.scrollWidth<=win().innerWidth,'Video grid overflows viewport');
+    await load('perturbation.html?id=D06&model=cosmos-policy');
+    assert(doc().querySelectorAll('video[data-rollout]').length===7,'Cosmos D06 videos missing');
+    assert(query('[data-task="libero_10-8"] [data-availability="unsupported"]'),'Long8 D06 must be unsupported');
+    const cosmos=query('video[data-rollout]');
+    await change(()=>select('#model-select','anchor-align'),()=>query('video source').getAttribute('src').includes('/anchor-align/'));
+    assert(cosmos.paused&&!cosmos.isConnected,'Model switch retained previous player');
+    await change(()=>select('#model-select','openvla-oft-m'),()=>!query('video[data-rollout]'));
+    assert(query('[data-availability="missing"]'),'Missing media must not imply an unsupported task');
+  }],
   ['Model chips toggle lines without reloads and retain selection through independent table changes', async () => {
     await load('leaderboard.html#capabilities');
     const {models}=await (await fetch('../data/results.json')).json();
@@ -312,7 +344,7 @@ const tests = [
     assert(doc().querySelectorAll('.publication-row').length === 2, 'Both paper editions must be present');
     assert(doc().documentElement.scrollWidth <= win().innerWidth, 'Report overflows the viewport');
     click('.site-links a[href="community.html"]');
-    await waitFor(() => query('h1')?.textContent === 'Community');
+    await waitFor(() => query('h1')?.textContent === 'Community' && query('a[aria-current="page"]')?.textContent === 'Community');
     assert(query('a[aria-current="page"]').textContent === 'Community', 'Community active link is missing');
     assert(doc().querySelectorAll('.community-section').length === 4, 'Community sections are missing');
     assert(doc().documentElement.scrollWidth <= win().innerWidth, 'Community overflows the viewport');
