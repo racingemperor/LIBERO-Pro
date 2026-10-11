@@ -62,6 +62,7 @@ const tests = [
     assert([...doc().querySelectorAll('[data-availability="unsupported"]')].every(el=>el.textContent.includes('暂不支持')),'Missing requested unsupported label');
     await change(()=>click('.catalogue-nav .tab[href*="perturbation=BASE"]'),()=>query('#rollouts h2').textContent==='Base tasks');
     assert(doc().querySelectorAll('video[data-rollout]').length===8,'Base videos missing');
+    assert(!query('.catalogue-nav .nav-group'),'Base must not show static perturbation groups');
     assert([...doc().querySelectorAll('video source')].every(el=>el.getAttribute('src').endsWith('/BASE.mp4')),'Base source mismatch');
     await change(()=>click('.catalogue-nav .tab[href*="mode=dynamic"]'),()=>!!query('.nav-item[href*="perturbation=D20"]'));
     await change(()=>click('.nav-item[href*="perturbation=D19"]'),()=>query('#rollouts h2').textContent==='Robot joint displacement');

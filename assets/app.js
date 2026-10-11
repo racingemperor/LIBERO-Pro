@@ -185,6 +185,7 @@ function catalogueNav(p,m=null) {
   const mode=p.mode==='base'?'static':p.mode;
   const modes=page==='model'?['base','static','dynamic']:['static','dynamic'];
   const navigation=`<div class="tabs">${modes.map(value=>`<a class="tab ${p.mode===value?'active':''}" ${p.mode===value?'aria-current="page"':''} href="${value==='base'?modelUrl(m,{perturbation:'BASE',mode:'base'},'rollouts'):href(directionsFor(value,p.category)[0])}">${value==='base'?'Base':modeLabel(value)}</a>`).join('')}</div>`;
+  if(p.mode==='base')return `<aside class="catalogue-nav" aria-label="Perturbations">${navigation}</aside>`;
   return `<aside class="catalogue-nav" aria-label="Perturbations">${navigation}${catalogue.categories.map(c=>`<section class="nav-group"><h3 class="domain-name" ${domainStyle(c)}>${c.name}</h3>${directionsFor(mode,c.id).map(d=>`<a class="nav-item ${d.id===p.id?'active':''}" ${d.id===p.id?'aria-current="true"':''} href="${href(d)}"><span>${d.id}</span>${esc(d.name)}</a>`).join('')}</section>`).join('')}</aside>`;
 }
 
