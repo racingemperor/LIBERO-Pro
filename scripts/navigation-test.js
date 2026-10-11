@@ -45,18 +45,34 @@ async function change(action, ready) {
 }
 
 const tests = [
-  ['Model video galleries load Base and perturbations in place, stop old playback, and mark unsupported tasks', async () => {
+  ['Model galleries autoplay visible videos, resume after scrolling, and switch in place', async () => {
     await load('model.html?id=anchor-align&perturbation=S01');
     assert(doc().querySelectorAll('video[data-rollout]').length===8,'Eight matched videos expected');
     const old=query('video[data-rollout]');
     assert(old.preload==='none'&&old.poster.endsWith('/S01.webp'),'Videos should use posters without preloading');
     old.scrollIntoView({block:'center',behavior:'instant'});
     await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-    await old.play();
     await waitFor(()=>old.videoWidth===640&&old.currentTime>0);
+    const second=doc().querySelectorAll('video[data-rollout]')[1];
+    await waitFor(()=>!old.paused&&!second.paused&&second.currentTime>0);
+    assert(old.muted&&second.muted&&old.loop&&second.loop,'Autoplay must be muted and looped');
+    win().scrollTo({top:0,behavior:'instant'});
+    await waitFor(()=>old.paused&&second.paused);
+    old.scrollIntoView({block:'center',behavior:'instant'});
+    await waitFor(()=>!old.paused&&!second.paused);
+    old.pause();
+    await new Promise(resolve=>setTimeout(resolve,50));
+    win().scrollTo({top:0,behavior:'instant'});
+    await waitFor(()=>second.paused);
+    old.scrollIntoView({block:'center',behavior:'instant'});
+    await waitFor(()=>!second.paused);
+    assert(old.paused,'User pause was overridden by automatic playback');
     await change(()=>click('.nav-item[href*="perturbation=S02"]'),()=>query('video source').getAttribute('src').endsWith('/S02.mp4'));
     assert(old.paused&&!old.isConnected,'Previous video kept playing');
     assert(!old.querySelector('source').hasAttribute('src'),'Detached video did not release its source');
+    const replacement=query('video[data-rollout]');
+    replacement.scrollIntoView({block:'center',behavior:'instant'});
+    await waitFor(()=>replacement.currentTime>0&&!replacement.paused);
     await change(()=>click('.nav-item[href*="perturbation=S04"]'),()=>doc().querySelectorAll('[data-availability="unsupported"]').length===3);
     assert(doc().querySelectorAll('video[data-rollout]').length===5,'Unsupported tasks received videos');
     assert([...doc().querySelectorAll('[data-availability="unsupported"]')].every(el=>el.textContent.includes('暂不支持')),'Missing requested unsupported label');
@@ -77,6 +93,19 @@ const tests = [
     assert(cosmos.paused&&!cosmos.isConnected,'Model switch retained previous player');
     await change(()=>select('#model-select','openvla-oft-m'),()=>!query('video[data-rollout]'));
     assert(query('[data-availability="missing"]'),'Missing media must not imply an unsupported task');
+  }],
+  ['Home, Document and task videos play automatically without pressing Play', async () => {
+    for(const target of ['docs.html?task=libero_object-1','docs.html?perturbation=S01','task.html?id=libero_object-1&model=cosmos-policy']){
+      await load(target);
+      const video=query('video');
+      video.scrollIntoView({block:'center',behavior:'instant'});
+      await waitFor(()=>video.currentTime>0&&!video.paused);
+      assert(video.muted&&video.loop,'Video must autoplay silently and loop');
+    }
+    await load('index.html');
+    await waitFor(()=>!!query('[data-gallery-row]'));
+    query('[data-gallery-row]').scrollIntoView({block:'center',behavior:'instant'});
+    await waitFor(()=>[...doc().querySelectorAll('.gallery-video')].filter(v=>!v.paused&&v.currentTime>0).length>=2);
   }],
   ['Model chips toggle lines without reloads and retain selection through independent table changes', async () => {
     await load('leaderboard.html#capabilities');

@@ -582,7 +582,7 @@ body[data-page=report],body[data-page=community]{background:#f8fafc;font-family:
 }
 @media(prefers-reduced-motion:reduce){.publication-figure img{transition:none}.publication-figure:hover img{transform:none}}
 
-/* Model rollouts use their native square framing, with click-to-play previews. */
+/* Model rollouts preserve their native square framing. */
 .rollout-slot{min-width:0}
 .rollout-visual{position:relative;aspect-ratio:1;background:#f3f5f4;border-radius:8px;overflow:hidden}
 .rollout-slot .media-placeholder,.rollout-slot video{aspect-ratio:1;width:100%;height:auto}
