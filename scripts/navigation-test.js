@@ -75,7 +75,7 @@ const tests = [
     await waitFor(()=>replacement.currentTime>0&&!replacement.paused);
     await change(()=>click('.nav-item[href*="perturbation=S04"]'),()=>doc().querySelectorAll('[data-availability="unsupported"]').length===3);
     assert(doc().querySelectorAll('video[data-rollout]').length===5,'Unsupported tasks received videos');
-    assert([...doc().querySelectorAll('[data-availability="unsupported"]')].every(el=>el.textContent.includes('暂不支持')),'Missing requested unsupported label');
+    assert([...doc().querySelectorAll('[data-availability="unsupported"]')].every(el=>el.textContent.includes('Not supported')),'Missing requested unsupported label');
     await change(()=>click('.catalogue-nav .tab[href*="perturbation=BASE"]'),()=>query('#rollouts h2').textContent==='Base tasks');
     assert(doc().querySelectorAll('video[data-rollout]').length===8,'Base videos missing');
     assert(!query('.catalogue-nav .nav-group'),'Base must not show static perturbation groups');
