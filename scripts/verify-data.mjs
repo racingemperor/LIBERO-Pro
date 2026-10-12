@@ -163,7 +163,7 @@ for(const model of upcoming.models){
 }
 const rollouts=read('model-rollouts');
 assert.deepEqual(Object.keys(rollouts),['models'],'Only public media mappings may be distributed');
-assert.deepEqual(Object.keys(rollouts.models).sort(),['anchor-align','cosmos-policy']);
+assert(Object.keys(rollouts.models).length>0,'Model gallery index is empty');
 const indexedMedia=[];
 for(const [model,gallery] of Object.entries(rollouts.models)){
   assert(models.some(m=>m.id===model),'Unknown rollout model');

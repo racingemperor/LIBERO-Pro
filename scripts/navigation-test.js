@@ -107,6 +107,27 @@ const tests = [
     query('[data-gallery-row]').scrollIntoView({block:'center',behavior:'instant'});
     await waitFor(()=>[...doc().querySelectorAll('.gallery-video')].filter(v=>!v.paused&&v.currentTime>0).length>=2);
   }],
+  ['Additional model recordings resolve Base and public dynamic IDs and autoplay', async () => {
+    for(const model of ['gr00t-n1-7','pi0-5','xvla','molmoact2','ript-vla','pi0']){
+      await load(`model.html?id=${model}&perturbation=BASE`);
+      assert(doc().querySelectorAll('video[data-rollout]').length===8,`${model}: Base videos missing`);
+      const first=query('video[data-rollout]');
+      first.scrollIntoView({block:'center',behavior:'instant'});
+      await waitFor(()=>first.videoWidth===640&&first.currentTime>0&&!first.paused);
+      assert(first.muted&&first.loop,`${model}: autoplay settings are wrong`);
+      assert([...doc().querySelectorAll('video source')].every(el=>el.getAttribute('src').includes(`/models/${model}/`)&&el.getAttribute('src').endsWith('/BASE.mp4')),`${model}: wrong model or Base source`);
+      await change(()=>click('.catalogue-nav .tab[href*="mode=static"]'),()=>!!query('.nav-item[href*="perturbation=S04"]'));
+      await change(()=>click('.nav-item[href*="perturbation=S04"]'),()=>doc().querySelectorAll('[data-availability="unsupported"]').length===3);
+      assert(doc().querySelectorAll('video[data-rollout]').length===5,`${model}: incorrect S04 applicability`);
+      await change(()=>click('.catalogue-nav .tab[href*="mode=dynamic"]'),()=>!!query('.nav-item[href*="perturbation=D20"]'));
+      for(const [id,title] of [['D19','Robot joint displacement'],['D20','Instruction restatement']]){
+        await change(()=>click(`.nav-item[href*="perturbation=${id}"]`),()=>query('#rollouts h2').textContent===title);
+        assert(doc().querySelectorAll('video[data-rollout]').length===8,`${model}/${id}: eight videos expected`);
+        assert([...doc().querySelectorAll('video source')].every(el=>el.getAttribute('src').includes(`/models/${model}/`)&&el.getAttribute('src').endsWith(`/${id}.mp4`)),`${model}/${id}: incorrect media source`);
+      }
+      assert(first.paused&&!first.isConnected,`${model}: old video was not released`);
+    }
+  }],
   ['Model chips toggle lines without reloads and retain selection through independent table changes', async () => {
     await load('leaderboard.html#capabilities');
     const {models}=await (await fetch('../data/results.json')).json();
