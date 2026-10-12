@@ -168,9 +168,11 @@ const indexedMedia=[];
 for(const [model,gallery] of Object.entries(rollouts.models)){
   assert(models.some(m=>m.id===model),'Unknown rollout model');
   assert.deepEqual(Object.keys(gallery).sort(),tasks.map(t=>t.id).sort());
+  const baseCount=tasks.filter(task=>gallery[task.id].BASE).length;
+  assert(baseCount===8||(model==='openvla-oft-m'&&baseCount===0),'Require all eight Base videos when supplied; OFT_m currently has perturbation recordings only');
   let count=0;
   for(const task of tasks){
-    const expected=['BASE',...perturbations.filter(p=>!designs[task.id].excluded.includes(p.id)).map(p=>p.id)];
+    const expected=[...(baseCount?['BASE']:[]),...perturbations.filter(p=>!designs[task.id].excluded.includes(p.id)).map(p=>p.id)];
     assert.deepEqual(Object.keys(gallery[task.id]).sort(),expected.sort(),`Missing or unsupported video: ${model}/${task.id}`);
     for(const [variant,media] of Object.entries(gallery[task.id])){
       assert.deepEqual(Object.keys(media).sort(),['poster','src'],'Do not publish internal video metadata');
@@ -183,7 +185,7 @@ for(const [model,gallery] of Object.entries(rollouts.models)){
       count++;
     }
   }
-  assert.equal(count,339,'Each imported model has 331 perturbed and eight Base videos');
+  assert.equal(count,331+baseCount,'Each imported model must retain all 331 applicable perturbation videos');
 }
 const mediaRoot=new URL('../assets/rollouts/models/',import.meta.url);
 const actualMedia=fs.readdirSync(mediaRoot,{recursive:true,withFileTypes:true}).filter(entry=>entry.isFile()).map(entry=>path.relative(fileURLToPath(new URL('../',import.meta.url)),path.join(entry.parentPath||entry.path,entry.name)).replaceAll('\\','/'));

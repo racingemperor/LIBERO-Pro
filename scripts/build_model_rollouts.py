@@ -19,6 +19,7 @@ MODEL_ALIASES = {
     'anchor-align': 'anchor-align', 'cosmos-policy': 'cosmos-policy',
     'GR00T-N1.7-LIBERO': 'gr00t-n1-7', 'pi05': 'pi0-5', 'xVLA': 'xvla',
     'MolmoAct2-LIBERO': 'molmoact2', 'OpenVLA-OFT-RIPT': 'ript-vla', 'pi0': 'pi0',
+    'openvla_oft_m': 'openvla-oft-m',
 }
 
 
@@ -26,13 +27,57 @@ def read_json(path):
     return json.loads(path.read_text(encoding='utf-8'))
 
 
-def resolve_entries(archive):
+def resolve_front_records(archive, records, tasks, designs, directions, selected_models):
+    entries, matched = {}, set()
+    videos = set()
+    for name in archive.namelist():
+        parts = PurePosixPath(name).parts
+        if len(parts) > 1 and parts[0] == 'videos' and name.endswith('.mp4'):
+            if selected_models is None or MODEL_ALIASES.get(parts[1]) in selected_models:
+                videos.add(name)
+    for member in records:
+        parts = PurePosixPath(member).parts
+        assert len(parts) == 4, 'Unknown front-record layout'
+        alias = parts[1]
+        if selected_models is not None and MODEL_ALIASES.get(alias) not in selected_models:
+            continue
+        assert alias in MODEL_ALIASES, f'Unknown model alias: {alias}'
+        record = json.loads(archive.read(member))
+        assert record['model'] == alias and record['status'] == 'completed'
+        suite, task_id, internal = (record[k] for k in ('suite', 'task_id', 'case_id'))
+        task = f'{suite}-{task_id}'
+        assert task in tasks and internal in directions
+        public_id = directions[internal]
+        assert record['public_case_id'] == public_id, 'Incorrect public perturbation ID'
+        assert parts[2:] == (suite, f'task{task_id}__{public_id}.json')
+        assert public_id not in designs[task]['excluded'], 'Unsupported task/perturbation'
+        video = record['video']
+        video_member = video['path']
+        video_parts = PurePosixPath(video_member).parts
+        assert len(video_parts) == 5 and video_parts[:3] == ('videos', alias, suite)
+        assert video_parts[3] in ('success', 'failure')
+        assert video_parts[4] == f'task{task_id}__{public_id}__seed{record["seed"]}.mp4'
+        assert video_member in videos and video_member not in matched
+        content = archive.read(video_member)
+        assert len(content) == video['bytes'] and hashlib.sha256(content).hexdigest() == video['sha256']
+        key = (MODEL_ALIASES[alias], task, public_id)
+        assert key not in entries, f'Duplicate combination: {key}'
+        entries[key] = video_member
+        matched.add(video_member)
+    assert entries and matched == videos, 'Every selected video must have a matching record'
+    return entries
+
+
+def resolve_entries(archive, selected_models=None):
     tasks = {t['id']: t for t in read_json(ROOT / 'data/tasks.json')['tasks']}
     designs = read_json(ROOT / 'data/task-designs.json')['tasks']
     directions = {p.get('sourceId', p['id']): p['id'] for p in read_json(ROOT / 'data/catalogue.json')['perturbations']}
     directions['BASE'] = 'BASE'
     names = archive.namelist()
     assert len(names) == len(set(names)), 'Duplicate archive members'
+    front_records = [n for n in names if n.startswith('records/') and n.endswith('.json')]
+    if front_records:
+        return resolve_front_records(archive, front_records, tasks, designs, directions, selected_models)
     videos = [n for n in names if n.endswith('.mp4')]
     by_name = {PurePosixPath(n).name: n for n in videos}
     assert len(by_name) == len(videos), 'Ambiguous archive video names'
@@ -80,14 +125,15 @@ def resolve_entries(archive):
             matched.add(member)
     assert entries, 'No model videos found'
     assert matched == set(videos), 'Every supplied video must be mapped'
-    return entries
+    return {key: member for key, member in entries.items() if selected_models is None or key[0] in selected_models}
 
 
-def validate_batch(entries, public):
+def validate_batch(entries, public, without_base=False):
     tasks = read_json(ROOT / 'data/task-designs.json')['tasks']
-    variants = ['BASE'] + [p['id'] for p in read_json(ROOT / 'data/catalogue.json')['perturbations']]
+    variants = ([] if without_base else ['BASE']) + [p['id'] for p in read_json(ROOT / 'data/catalogue.json')['perturbations']]
     known_models = {m['id'] for m in read_json(ROOT / 'data/results.json')['models']}
     batch_models = {key[0] for key in entries}
+    assert batch_models, 'No selected model videos found'
     assert batch_models <= known_models, 'A rollout model is absent from the leaderboard'
     expected = {(model, task, variant) for model in batch_models for task in tasks
                 for variant in variants if variant not in tasks[task]['excluded']}
@@ -165,6 +211,8 @@ def main():
     parser.add_argument('--preset', choices=['fast', 'medium', 'slow'], default='medium')
     parser.add_argument('--max-site-bytes', type=int, default=950_000_000)
     parser.add_argument('--check-only', action='store_true')
+    parser.add_argument('--models', nargs='+', help='Import only these public model IDs')
+    parser.add_argument('--without-base', action='store_true', help='Require the complete perturbation set without Base recordings')
     args = parser.parse_args()
     review = args.review_dir.resolve()
     assert not review.is_relative_to(ROOT), 'Audit files must remain outside the public site'
@@ -173,10 +221,12 @@ def main():
     entries = {}
     for archive_path in args.archives:
         with zipfile.ZipFile(archive_path) as archive:
-            for key, member in resolve_entries(archive).items():
+            for key, member in resolve_entries(archive, set(args.models) if args.models else None).items():
                 assert key not in entries, f'Duplicate video across archives: {key}'
                 entries[key] = (archive_path, member)
-    validate_batch(entries, public)
+    if args.models:
+        assert {key[0] for key in entries} == set(args.models), 'A selected model was not found'
+    validate_batch(entries, public, args.without_base)
     print(f'Validated {len(entries)} videos against task applicability and public IDs.', flush=True)
     if args.check_only:
         return

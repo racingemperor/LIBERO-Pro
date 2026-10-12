@@ -91,7 +91,7 @@ const tests = [
     const cosmos=query('video[data-rollout]');
     await change(()=>select('#model-select','anchor-align'),()=>query('video source').getAttribute('src').includes('/anchor-align/'));
     assert(cosmos.paused&&!cosmos.isConnected,'Model switch retained previous player');
-    await change(()=>select('#model-select','openvla-oft-m'),()=>!query('video[data-rollout]'));
+    await change(()=>select('#model-select','openvla'),()=>!query('video[data-rollout]'));
     assert(query('[data-availability="missing"]'),'Missing media must not imply an unsupported task');
   }],
   ['Home, Document and task videos play automatically without pressing Play', async () => {
@@ -127,6 +127,31 @@ const tests = [
       }
       assert(first.paused&&!first.isConnected,`${model}: old video was not released`);
     }
+  }],
+  ['OFT_m recordings distinguish absent Base media from unsupported perturbations', async () => {
+    await load('model.html?id=openvla-oft-m&perturbation=BASE');
+    assert(!query('video[data-rollout]')&&doc().querySelectorAll('[data-availability="missing"]').length===8,'Do not substitute another model for absent Base recordings');
+    await change(()=>click('.catalogue-nav .tab[href*="mode=static"]'),()=>!!query('.nav-item[href*="perturbation=S04"]'));
+    assert(doc().querySelectorAll('video[data-rollout]').length===8,'S01 recordings missing');
+    const first=query('video[data-rollout]');
+    first.scrollIntoView({block:'center',behavior:'instant'});
+    await waitFor(()=>first.videoWidth===640&&first.currentTime>0&&!first.paused);
+    assert(first.muted&&first.loop,'OFT_m must autoplay silently and loop');
+    await change(()=>click('.nav-item[href*="perturbation=S04"]'),()=>doc().querySelectorAll('[data-availability="unsupported"]').length===3);
+    assert(doc().querySelectorAll('video[data-rollout]').length===5,'Wrong S04 applicability');
+    assert(first.paused&&!first.isConnected,'Old OFT_m player was not released');
+    await change(()=>click('.catalogue-nav .tab[href*="mode=dynamic"]'),()=>!!query('.nav-item[href*="perturbation=D20"]'));
+    await change(()=>click('.nav-item[href*="perturbation=D06"]'),()=>!!query('[data-task="libero_10-8"] [data-availability="unsupported"]'));
+    assert(doc().querySelectorAll('video[data-rollout]').length===7,'Wrong D06 applicability');
+    for(const id of ['D19','D20']){
+      await change(()=>click(`.nav-item[href*="perturbation=${id}"]`),()=>query('video source')?.getAttribute('src').endsWith(`/${id}.mp4`));
+      assert(doc().querySelectorAll('video[data-rollout]').length===8,`${id}: missing recordings`);
+      assert([...doc().querySelectorAll('video source')].every(el=>el.getAttribute('src').includes('/openvla-oft-m/')),`${id}: wrong model`);
+    }
+    const last=query('video[data-rollout]');
+    last.scrollIntoView({block:'center',behavior:'instant'});
+    await waitFor(()=>last.videoWidth===640&&last.currentTime>0&&!last.paused);
+    assert(doc().documentElement.scrollWidth<=win().innerWidth,'OFT_m grid overflows');
   }],
   ['Model chips toggle lines without reloads and retain selection through independent table changes', async () => {
     await load('leaderboard.html#capabilities');
