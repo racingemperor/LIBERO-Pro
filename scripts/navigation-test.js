@@ -56,10 +56,12 @@ const tests = [
     const second=doc().querySelectorAll('video[data-rollout]')[1];
     await waitFor(()=>!old.paused&&!second.paused&&second.currentTime>0);
     assert(old.muted&&second.muted&&old.loop&&second.loop,'Autoplay must be muted and looped');
+    assert(old.playbackRate===2&&second.playbackRate===2&&old.defaultPlaybackRate===2,'Model rollouts must start at 2×');
     win().scrollTo({top:0,behavior:'instant'});
     await waitFor(()=>old.paused&&second.paused);
     old.scrollIntoView({block:'center',behavior:'instant'});
     await waitFor(()=>!old.paused&&!second.paused);
+    assert(old.playbackRate===2&&second.playbackRate===2,'Scrolling changed the rollout speed');
     old.pause();
     await new Promise(resolve=>setTimeout(resolve,50));
     win().scrollTo({top:0,behavior:'instant'});
@@ -73,6 +75,7 @@ const tests = [
     const replacement=query('video[data-rollout]');
     replacement.scrollIntoView({block:'center',behavior:'instant'});
     await waitFor(()=>replacement.currentTime>0&&!replacement.paused);
+    assert(replacement.playbackRate===2,'Switching perturbations lost 2× playback');
     await change(()=>click('.nav-item[href*="perturbation=S04"]'),()=>doc().querySelectorAll('[data-availability="unsupported"]').length===3);
     assert(doc().querySelectorAll('video[data-rollout]').length===5,'Unsupported tasks received videos');
     assert([...doc().querySelectorAll('[data-availability="unsupported"]')].every(el=>el.textContent.includes('Not supported')),'Missing requested unsupported label');
@@ -101,11 +104,13 @@ const tests = [
       video.scrollIntoView({block:'center',behavior:'instant'});
       await waitFor(()=>video.currentTime>0&&!video.paused);
       assert(video.muted&&video.loop,'Video must autoplay silently and loop');
+      assert(video.playbackRate===(target.startsWith('task.html')?2:1),'Only model rollouts should gain 2× playback');
     }
     await load('index.html');
     await waitFor(()=>!!query('[data-gallery-row]'));
     query('[data-gallery-row]').scrollIntoView({block:'center',behavior:'instant'});
     await waitFor(()=>[...doc().querySelectorAll('.gallery-video')].filter(v=>!v.paused&&v.currentTime>0).length>=2);
+    assert([...doc().querySelectorAll('.gallery-video')].every(v=>v.playbackRate===1),'Home gallery speed changed');
   }],
   ['Additional model recordings resolve Base and public dynamic IDs and autoplay', async () => {
     for(const model of ['gr00t-n1-7','pi0-5','xvla','molmoact2','ript-vla','pi0']){
@@ -115,6 +120,7 @@ const tests = [
       first.scrollIntoView({block:'center',behavior:'instant'});
       await waitFor(()=>first.videoWidth===640&&first.currentTime>0&&!first.paused);
       assert(first.muted&&first.loop,`${model}: autoplay settings are wrong`);
+      assert([...doc().querySelectorAll('video[data-rollout]')].every(v=>v.playbackRate===2),`${model}: rollouts must default to 2×`);
       assert([...doc().querySelectorAll('video source')].every(el=>el.getAttribute('src').includes(`/models/${model}/`)&&el.getAttribute('src').endsWith('/BASE.mp4')),`${model}: wrong model or Base source`);
       await change(()=>click('.catalogue-nav .tab[href*="mode=static"]'),()=>!!query('.nav-item[href*="perturbation=S04"]'));
       await change(()=>click('.nav-item[href*="perturbation=S04"]'),()=>doc().querySelectorAll('[data-availability="unsupported"]').length===3);
@@ -137,6 +143,7 @@ const tests = [
     first.scrollIntoView({block:'center',behavior:'instant'});
     await waitFor(()=>first.videoWidth===640&&first.currentTime>0&&!first.paused);
     assert(first.muted&&first.loop,'OFT_m must autoplay silently and loop');
+    assert(first.playbackRate===2,'OFT_m must start at 2×');
     await change(()=>click('.nav-item[href*="perturbation=S04"]'),()=>doc().querySelectorAll('[data-availability="unsupported"]').length===3);
     assert(doc().querySelectorAll('video[data-rollout]').length===5,'Wrong S04 applicability');
     assert(first.paused&&!first.isConnected,'Old OFT_m player was not released');
@@ -151,6 +158,7 @@ const tests = [
     const last=query('video[data-rollout]');
     last.scrollIntoView({block:'center',behavior:'instant'});
     await waitFor(()=>last.videoWidth===640&&last.currentTime>0&&!last.paused);
+    assert(last.playbackRate===2,'Dynamic OFT_m playback lost 2× speed');
     assert(doc().documentElement.scrollWidth<=win().innerWidth,'OFT_m grid overflows');
   }],
   ['Model chips toggle lines without reloads and retain selection through independent table changes', async () => {

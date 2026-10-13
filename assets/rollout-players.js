@@ -10,7 +10,11 @@ export function bindRolloutPlayers() {
   const options={signal:controller.signal};
   const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
   const players=new Map(videos.map(video=>{
-    if(!preferences.has(video))preferences.set(video,{userPaused:false});
+    if(!preferences.has(video)){
+      preferences.set(video,{userPaused:false});
+      video.defaultPlaybackRate=2;
+      video.playbackRate=2;
+    }
     return [video,{visible:false,pending:false,managedPauses:0,preference:preferences.get(video)}];
   }));
   const pause=video=>{

@@ -312,6 +312,7 @@ body[data-page=leaderboard] .capability-data th a{display:inline-flex;align-item
 .paper-meta-authors .paper-meta-empty{min-height:58px}
 .paper-meta-affiliations .paper-meta-empty{min-height:68px}
 .paper-meta-contact{border-top:1px solid var(--line);margin-top:14px;padding-top:20px}
+.paper-meta-contact dd{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px;align-items:start}
 .authors{font-size:16px;line-height:2;color:var(--ink)}
 .author-name{white-space:nowrap}
 .authors sup{color:var(--muted);font-size:11px;margin-left:2px}
@@ -478,7 +479,8 @@ a.doc-perturbation-chip:focus-visible{outline:2px solid #215e52;outline-offset:3
   .paper-meta a[href="leaderboard.html"],.paper-meta-contact dd>a{font-size:12px}
   .paper-meta-repositories{grid-template-columns:1fr;gap:2px}
   .paper-meta-authors,.paper-meta-affiliations{grid-template-columns:1fr;gap:6px}
-  .paper-meta-contact{padding-top:18px}
+  .paper-meta-contact{padding-top:18px;grid-template-columns:1fr;gap:2px}
+  .paper-meta-contact dd{column-gap:8px}
   .institution-logos{gap:6px 16px}
   .institution-logos img{height:30px}
   .institution-logos figure{max-width:100%}
