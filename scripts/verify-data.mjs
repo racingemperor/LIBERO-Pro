@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {rolloutMediaPaths} from '../assets/rollout-media.js';
 const read = name => JSON.parse(fs.readFileSync(new URL('../data/'+name+'.json',import.meta.url),'utf8'));
 const {categories,perturbations}=read('catalogue');
 const {models}=read('results');
@@ -165,28 +166,41 @@ const rollouts=read('model-rollouts');
 assert.deepEqual(Object.keys(rollouts),['models'],'Only public media mappings may be distributed');
 assert(Object.keys(rollouts.models).length>0,'Model gallery index is empty');
 const indexedMedia=[];
+let remoteMediaCount=0;
 for(const [model,gallery] of Object.entries(rollouts.models)){
   assert(models.some(m=>m.id===model),'Unknown rollout model');
   assert.deepEqual(Object.keys(gallery).sort(),tasks.map(t=>t.id).sort());
   const baseCount=tasks.filter(task=>gallery[task.id].BASE).length;
-  assert(baseCount===8||(model==='openvla-oft-m'&&baseCount===0),'Require all eight Base videos when supplied; OFT_m currently has perturbation recordings only');
+  assert(baseCount===8||(['openvla-oft-m','nora'].includes(model)&&baseCount===0),'Require all eight Base videos when supplied; OFT_m and NORA currently have perturbation recordings only');
   let count=0;
   for(const task of tasks){
     const expected=[...(baseCount?['BASE']:[]),...perturbations.filter(p=>!designs[task.id].excluded.includes(p.id)).map(p=>p.id)];
     assert.deepEqual(Object.keys(gallery[task.id]).sort(),expected.sort(),`Missing or unsupported video: ${model}/${task.id}`);
     for(const [variant,media] of Object.entries(gallery[task.id])){
       assert.deepEqual(Object.keys(media).sort(),['poster','src'],'Do not publish internal video metadata');
-      const stem=`assets/rollouts/models/${model}/${task.id}/${variant}`;
-      assert.equal(media.src,stem+'.mp4');assert.equal(media.poster,stem+'.webp');
+      const expected=rolloutMediaPaths(model,task.id,variant);
+      assert.deepEqual(media,expected,'Media must use the exact approved model/task/perturbation URL');
       for(const file of [media.src,media.poster]){
-        assert(fs.statSync(new URL('../'+file,import.meta.url)).size>0,`Missing rollout ${file}`);
-        indexedMedia.push(file);
+        if(model==='nora'){
+          remoteMediaCount++;
+          if(process.env.LIBERO_MEDIA_ROOT){
+            const relative=`assets/rollouts/models/${model}/${task.id}/${variant}${file.endsWith('.mp4')?'.mp4':'.webp'}`;
+            assert(fs.statSync(path.join(process.env.LIBERO_MEDIA_ROOT,relative)).size>0,`Missing companion media ${relative}`);
+          }
+        }else{
+          assert(fs.statSync(new URL('../'+file,import.meta.url)).size>0,`Missing rollout ${file}`);
+          indexedMedia.push(file);
+        }
       }
       count++;
     }
   }
   assert.equal(count,331+baseCount,'Each imported model must retain all 331 applicable perturbation videos');
 }
+assert.equal(remoteMediaCount,rollouts.models.nora?662:0,'NORA needs all 331 remote video/poster pairs');
+assert.equal(rolloutMediaPaths('nora','../private','S01'),null);
+assert.equal(rolloutMediaPaths('https://example.com','libero_spatial-0','S01'),null);
+assert.equal(rolloutMediaPaths('nora','libero_spatial-0','S01?redirect=1'),null);
 const mediaRoot=new URL('../assets/rollouts/models/',import.meta.url);
 const actualMedia=fs.readdirSync(mediaRoot,{recursive:true,withFileTypes:true}).filter(entry=>entry.isFile()).map(entry=>path.relative(fileURLToPath(new URL('../',import.meta.url)),path.join(entry.parentPath||entry.path,entry.name)).replaceAll('\\','/'));
 assert.deepEqual(actualMedia.sort(),indexedMedia.sort(),'Unexpected or unindexed public media files');

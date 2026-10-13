@@ -4,6 +4,7 @@ import {taxonomyFigure, bindTaxonomy} from './taxonomy.js';
 import {updateView, isLocalViewLink} from './navigation.js';
 import {createCapabilities} from './capabilities.js';
 import {bindRolloutPlayers} from './rollout-players.js';
+import {rolloutMediaPaths} from './rollout-media.js';
 
 const app = document.querySelector('#app');
 const page = document.body.dataset.page;
@@ -173,8 +174,8 @@ function mediaSlot(task,p,m=null) {
   const rate=m?.taskRates.find(c=>c.task===task.id&&c.direction===p.id)?.rate??null;
   const applicable=!designs.tasks[task.id].excluded.includes(p.id);
   const media=applicable?modelRollouts.models[m?.id]?.[task.id]?.[p.id]:null;
-  const stem=`assets/rollouts/models/${m?.id}/${task.id}/${p.id}`;
-  const available=media?.src===stem+'.mp4'&&media?.poster===stem+'.webp';
+  const expected=rolloutMediaPaths(m?.id,task.id,p.id);
+  const available=!!media&&!!expected&&media.src===expected.src&&media.poster===expected.poster;
   const label=`${m?.name||''}: ${task.instruction} · ${p.id}`;
   const visual=available?`<div class="rollout-visual"><video data-rollout controls muted loop preload="none" playsinline width="640" height="640" poster="${esc(media.poster)}" aria-label="${esc(label)}"><source src="${esc(media.src)}" type="video/mp4"></video><div class="media-placeholder rollout-error" role="status" hidden>Video unavailable. Please try again later.</div></div>`:`<div class="media-placeholder" data-availability="${applicable?'missing':'unsupported'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m10 9 5 3-5 3z"/></svg><span>${applicable?(m?'Video coming soon':'Select a model'):'Not supported'}</span></div>`;
   return `<article class="rollout-slot" data-task="${esc(task.id)}">${visual}<h4><a href="${url('task',{id:task.id,...(m?{model:m.id}:{})})}">${esc(task.instruction)} ↗</a></h4><div class="slot-meta"><span>${esc(task.suiteName)} · ${task.taskId}</span><span class="slot-rate">${applicable?pct(rate):'N/A'}</span></div></article>`;

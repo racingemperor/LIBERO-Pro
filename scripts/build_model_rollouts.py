@@ -19,7 +19,7 @@ MODEL_ALIASES = {
     'anchor-align': 'anchor-align', 'cosmos-policy': 'cosmos-policy',
     'GR00T-N1.7-LIBERO': 'gr00t-n1-7', 'pi05': 'pi0-5', 'xVLA': 'xvla',
     'MolmoAct2-LIBERO': 'molmoact2', 'OpenVLA-OFT-RIPT': 'ript-vla', 'pi0': 'pi0',
-    'openvla_oft_m': 'openvla-oft-m',
+    'openvla_oft_m': 'openvla-oft-m', 'nora': 'nora',
 }
 
 
@@ -211,6 +211,7 @@ def main():
     parser.add_argument('--preset', choices=['fast', 'medium', 'slow'], default='medium')
     parser.add_argument('--max-site-bytes', type=int, default=950_000_000)
     parser.add_argument('--check-only', action='store_true')
+    parser.add_argument('--stage-only', action='store_true', help='Encode and validate outside the site without publishing files')
     parser.add_argument('--models', nargs='+', help='Import only these public model IDs')
     parser.add_argument('--without-base', action='store_true', help='Require the complete perturbation set without Base recordings')
     args = parser.parse_args()
@@ -244,6 +245,10 @@ def main():
     (review / 'import-audit.json').write_text(json.dumps(audit, indent=2) + '\n', encoding='utf-8')
     index_text = json.dumps(public, indent=2, sort_keys=True) + '\n'
     projected = site_bytes() + sum(r['outputBytes'] + r['posterBytes'] for r in audit) + len(index_text.encode('utf-8'))
+    if args.stage_only:
+        (review / 'staged-model-rollouts.json').write_text(index_text, encoding='utf-8')
+        print(f'Staged {len(audit)} videos outside the site. Projected public size: {projected:,} bytes; budget: {args.max_site_bytes:,}.', flush=True)
+        return
     assert projected <= args.max_site_bytes, f'Projected site exceeds budget: {projected} bytes; staged files remain private'
     # All frames, mappings and the deployment budget passed before touching public assets.
     for model, task, variant in entries:

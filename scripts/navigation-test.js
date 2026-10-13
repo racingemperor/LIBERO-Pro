@@ -161,6 +161,31 @@ const tests = [
     assert(last.playbackRate===2,'Dynamic OFT_m playback lost 2× speed');
     assert(doc().documentElement.scrollWidth<=win().innerWidth,'OFT_m grid overflows');
   }],
+  ['NORA recordings match tasks and perturbations and keep 2× playback', async () => {
+    await load('model.html?id=nora&perturbation=BASE');
+    assert(!query('video[data-rollout]')&&doc().querySelectorAll('[data-availability="missing"]').length===8,'NORA Base recordings were not supplied');
+    await change(()=>click('.catalogue-nav .tab[href*="mode=static"]'),()=>doc().querySelectorAll('video[data-rollout]').length===8);
+    const first=query('video[data-rollout]');
+    first.scrollIntoView({block:'center',behavior:'instant'});
+    await waitFor(()=>first.videoWidth===640&&first.currentTime>0&&!first.paused);
+    assert(first.muted&&first.loop&&first.playbackRate===2&&first.defaultPlaybackRate===2,'NORA should autoplay silently at 2×');
+    for(const [id,count] of [['S04',5],['S05',7]]){
+      await change(()=>click(`.nav-item[href*="perturbation=${id}"]`),()=>query('video source')?.getAttribute('src').endsWith(`/${id}.mp4`));
+      assert(doc().querySelectorAll('video[data-rollout]').length===count,`${id}: incorrect NORA task coverage`);
+      assert([...doc().querySelectorAll('[data-availability="unsupported"]')].every(el=>el.textContent.includes('Not supported')),'Use the English unsupported label');
+    }
+    assert(first.paused&&!first.isConnected,'Old NORA player was not released');
+    await change(()=>click('.catalogue-nav .tab[href*="mode=dynamic"]'),()=>!!query('.nav-item[href*="perturbation=D20"]'));
+    for(const [id,count] of [['D06',7],['D19',8],['D20',8]]){
+      await change(()=>click(`.nav-item[href*="perturbation=${id}"]`),()=>query('video source')?.getAttribute('src').endsWith(`/${id}.mp4`));
+      assert(doc().querySelectorAll('video[data-rollout]').length===count,`${id}: incorrect NORA task coverage`);
+      assert([...doc().querySelectorAll('video[data-rollout]')].every(v=>v.playbackRate===2&&v.querySelector('source').getAttribute('src').includes('/nora/')),'NORA switched to another speed or model');
+    }
+    const last=query('video[data-rollout]');
+    last.scrollIntoView({block:'center',behavior:'instant'});
+    await waitFor(()=>last.videoWidth===640&&last.currentTime>0&&!last.paused);
+    assert(doc().documentElement.scrollWidth<=win().innerWidth,'NORA grid overflows');
+  }],
   ['Model chips toggle lines without reloads and retain selection through independent table changes', async () => {
     await load('leaderboard.html#capabilities');
     const {models}=await (await fetch('../data/results.json')).json();
