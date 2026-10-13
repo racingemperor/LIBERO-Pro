@@ -30,11 +30,11 @@ export function homeShowcase(catalogue) {
     return `<a class="hero-example" href="docs.html?perturbation=${id}"><img src="assets/home-examples/${id}.webp" alt="${id}: ${escape(p.name)} — paper mechanism illustration" width="1740" height="420"></a>`;
   };
   const collageIds = ['S01','S10','S15','D01','D04','D18'];
-  const collage = `<figure class="showcase-collage" aria-label="Selected LIBERO-Pro perturbation examples"><div class="collage-canvas">${collageIds.map(id=>{const p=catalogue.perturbations.find(item=>item.id===id);return `<div class="collage-card"><img src="${p.image}" alt="${escape(p.id+' '+p.name)}" width="1760" height="510"></div>`;}).join('')}<div class="collage-tint" aria-hidden="true"></div><figcaption><span>LIBERO-Pro</span><small>Static shifts · Runtime interventions</small></figcaption></div></figure>`;
+  const collage = `<figure class="showcase-collage" aria-label="Selected LIBERO-Pro2.0 perturbation examples"><div class="collage-canvas">${collageIds.map(id=>{const p=catalogue.perturbations.find(item=>item.id===id);return `<div class="collage-card"><img src="${p.image}" alt="${escape(p.id+' '+p.name)}" width="1760" height="510"></div>`;}).join('')}<div class="collage-tint" aria-hidden="true"></div><figcaption><span>LIBERO-Pro2.0</span><small>Static shifts · Runtime interventions</small></figcaption></div></figure>`;
   return `<section class="home-showcase" aria-label="Benchmark highlights" aria-roledescription="carousel">
     <div class="showcase-stage">
-      <article class="showcase-slide is-active" role="group" aria-roledescription="slide" aria-label="1 of 3: LIBERO-Pro">
-        ${collage}<div class="showcase-copy"><h1>LIBERO-Pro</h1><p class="showcase-subtitle">A Benchmark for Evaluating Robust Embodied Intelligence</p><p>Static distribution shifts. Runtime interventions. The same task goal.</p><a class="button" href="docs.html#protocol">Explore the benchmark <span aria-hidden="true">↗</span></a></div>
+      <article class="showcase-slide is-active" role="group" aria-roledescription="slide" aria-label="1 of 3: LIBERO-Pro2.0">
+        ${collage}<div class="showcase-copy"><h1>LIBERO-Pro2.0</h1><p class="showcase-subtitle">A Benchmark for Evaluating Robust Embodied Intelligence</p><p>Static distribution shifts. Runtime interventions. The same task goal.</p><a class="button" href="docs.html#protocol">Explore the benchmark <span aria-hidden="true">↗</span></a></div>
       </article>
       <article class="showcase-slide showcase-static" role="group" aria-roledescription="slide" aria-label="2 of 3: Static shifts" aria-hidden="true" inert>
         <div class="showcase-copy"><span class="mode static">22 static perturbations</span><h2>Before the<br>first action.</h2><p class="showcase-subtitle">Generalization under changed conditions</p><p>Layouts, appearance, sensing and robot configuration change at reset.</p><a class="button secondary" href="docs.html#static-perturbations">Explore static shifts <span aria-hidden="true">↗</span></a></div>
@@ -45,7 +45,7 @@ export function homeShowcase(catalogue) {
         <div class="showcase-examples">${['D01','D04','D18'].map(example).join('')}</div>
       </article>
     </div>
-    <div class="showcase-controls"><button class="round-control" data-slide-step="-1" aria-label="Previous highlight">‹</button><div class="slide-dots" role="group" aria-label="Choose highlight">${['LIBERO-Pro','Static shifts','Dynamic interventions'].map((label,i)=>`<button data-slide="${i}" aria-label="Show ${label}" aria-pressed="${i===0}"><span></span></button>`).join('')}</div><button class="round-control" data-slide-step="1" aria-label="Next highlight">›</button><span class="slide-count" aria-live="off">1 / 3</span></div>
+    <div class="showcase-controls"><button class="round-control" data-slide-step="-1" aria-label="Previous highlight">‹</button><div class="slide-dots" role="group" aria-label="Choose highlight">${['LIBERO-Pro2.0','Static shifts','Dynamic interventions'].map((label,i)=>`<button data-slide="${i}" aria-label="Show ${label}" aria-pressed="${i===0}"><span></span></button>`).join('')}</div><button class="round-control" data-slide-step="1" aria-label="Next highlight">›</button><span class="slide-count" aria-live="off">1 / 3</span></div>
     <p class="sr-only" data-slide-status aria-live="polite"></p>
   </section>`;
 }

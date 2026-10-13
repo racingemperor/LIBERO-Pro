@@ -258,7 +258,7 @@ body[data-page=leaderboard] .capability-data th a{display:inline-flex;align-item
 .slide-dots [aria-pressed=true] span{transform:scaleX(1);background:var(--ink)}
 .slide-count{font-size:12px;color:var(--muted);margin:0 10px;min-width:30px;font-variant-numeric:tabular-nums}
 .paper-intro{max-width:1080px;margin:52px auto 30px;text-align:center}
-.paper-intro h2{font-size:30px;line-height:1.35;letter-spacing:-.03em}
+.paper-intro h2{font-size:clamp(18px,2.3vw,27px);line-height:1.35;letter-spacing:-.03em;white-space:nowrap}
 .paper-meta{margin:38px 0 0;text-align:left}
 .paper-meta-row{display:grid;grid-template-columns:145px minmax(0,1fr);gap:28px;align-items:baseline;padding:9px 0;min-height:48px}
 .paper-meta dt{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.085em;color:var(--muted);padding-top:5px}
@@ -447,7 +447,7 @@ a.doc-perturbation-chip:focus-visible{outline:2px solid #215e52;outline-offset:3
   .showcase-slide:first-child{min-height:570px}
   .showcase-slide:first-child .showcase-copy{min-height:570px;padding:38px 21px 45px;justify-content:flex-start;max-width:none;background:linear-gradient(90deg,rgba(10,31,46,.62),rgba(10,31,46,.16) 82%,transparent)}
   .showcase-slide:first-child .showcase-copy h1{margin-top:13px}
-  .showcase-copy h1{font-size:43px}
+  .showcase-copy h1{font-size:clamp(32px,9.8vw,43px)}
   .showcase-copy h2{font-size:38px;margin-top:10px}
   .showcase-copy .showcase-subtitle{font-size:20px;margin:12px 0}
   .showcase-slide:first-child .showcase-subtitle{white-space:normal;text-wrap:balance}
@@ -470,7 +470,7 @@ a.doc-perturbation-chip:focus-visible{outline:2px solid #215e52;outline-offset:3
   .slide-dots button{width:29px}
   .slide-count{margin:0 7px}
   .paper-intro{margin-top:30px}
-  .paper-intro h2{font-size:24px}
+  .paper-intro h2{font-size:24px;white-space:normal;text-wrap:balance}
   .paper-meta{margin-top:26px}
   .paper-meta-row{grid-template-columns:100px minmax(0,1fr);gap:14px;padding:8px 0}
   .paper-meta dt{font-size:10px;letter-spacing:.055em}
