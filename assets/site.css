@@ -265,6 +265,7 @@ body[data-page=leaderboard] .capability-data th a{display:inline-flex;align-item
 .paper-meta dd{margin:0;min-width:0;font-size:17px;line-height:1.8;overflow-wrap:anywhere}
 .paper-meta dd>a{display:inline-block;color:var(--blue);padding:4px 0;min-height:40px}
 .paper-meta dd>a:hover{text-decoration:underline;text-underline-offset:4px}
+.paper-meta a[href="leaderboard.html"],.paper-meta-contact dd>a{font-size:13px;line-height:1.6}
 .repository-links{display:flex;flex-wrap:wrap;gap:8px 20px}
 .repository-link{display:inline-flex;align-items:center;gap:8px;min-height:40px;max-width:100%;font-size:14px;line-height:1.5;color:var(--ink);padding:4px 0}
 .repository-link img{flex:none;width:20px;height:20px}
@@ -474,6 +475,7 @@ a.doc-perturbation-chip:focus-visible{outline:2px solid #215e52;outline-offset:3
   .paper-meta dt{font-size:10px;letter-spacing:.055em}
   .paper-meta dd{font-size:14px}
   .paper-meta dd>a{min-height:44px}
+  .paper-meta a[href="leaderboard.html"],.paper-meta-contact dd>a{font-size:12px}
   .paper-meta-repositories{grid-template-columns:1fr;gap:2px}
   .paper-meta-authors,.paper-meta-affiliations{grid-template-columns:1fr;gap:6px}
   .paper-meta-contact{padding-top:18px}
