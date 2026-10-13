@@ -117,7 +117,7 @@ python scripts/build_home_rollouts.py --source ARCHIVE_DIRECTORY --review-dir LO
 
 ## Publication details and citation
 
-`data/publication.json` supplies `published` (display text), `report.label` and `report.url` (HTTPS), `email`, and `bibtex` (the exact confirmed citation as a string). Home's only contact email is `d202480819@hust.edu.cn`, as requested by the maintainer; other paper emails are not published. Published, Report and BibTeX remain empty until confirmed. The final Citation section reserves a code block and disables Copy until BibTeX is supplied; no date or citation is invented. Once populated, Copy writes the displayed citation and announces success, with manual-copy guidance if the clipboard is unavailable.
+`data/publication.json` supplies `published` (display text), `report.label` and `report.url` (HTTPS), `emails` (contact addresses), and `bibtex` (the exact confirmed citation as a string). Home shows `d202480819@hust.edu.cn` and `racingemperor@outlook.com` on separate lines with clickable email links, as requested by the maintainer; other paper emails are not published. Published, Report and BibTeX remain empty until confirmed. The final Citation section reserves a code block and disables Copy until BibTeX is supplied; no date or citation is invented. Once populated, Copy writes the displayed citation and announces success, with manual-copy guidance if the clipboard is unavailable.
 
 The two-paragraph Home introduction summarizes the memorization/generalization concern from the original upstream website's Abstract, then describes the current 22-static / 20-dynamic protocol. The original study's numerical results are not presented as results of this benchmark.
 
