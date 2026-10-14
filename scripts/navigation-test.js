@@ -455,7 +455,7 @@ const tests = [
     click('.site-links a[href="community.html"]');
     await waitFor(() => query('h1')?.textContent === 'Community' && query('a[aria-current="page"]')?.textContent === 'Community');
     assert(query('a[aria-current="page"]').textContent === 'Community', 'Community active link is missing');
-    assert(doc().querySelectorAll('.community-section').length === 4, 'Community sections are missing');
+    assert(doc().querySelectorAll('.community-section').length === 5, 'Community sections are missing');
     assert(doc().documentElement.scrollWidth <= win().innerWidth, 'Community overflows the viewport');
     if (win().matchMedia('(max-width:760px)').matches) {
       click('.menu-button');
