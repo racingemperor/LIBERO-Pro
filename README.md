@@ -56,7 +56,9 @@ Open `scripts/taxonomy-test.html` for chart interaction checks, including exact 
 - Report and Community are standalone HTML so public papers and contacts remain available without loading model results or JavaScript. `eval.html` redirects old bookmarks to Report; the old Eval renderer is removed.
 - `data/task-designs.json`: eight task designs and applicability exclusions, checked against the BASE scene definitions and paper. This editorial file is separate from the generated task manifest.
 
-Document typography uses RoboDojo's self-hosted Google Sans Flex and emphasis style with a more compact scale: 16px body text with 1.6 line height, 26px page headings (24px on mobile), 22px section headings and 16px task-list headings. Headings use weight 600 and semantic emphasis uses 700. Long explanations highlight selected concepts in bold; identifiers and formulas use compact gray inline code. The existing font file includes real weights 400–700 and retains its OFL license. Emphasis is added only when rendering documents, preserving the underlying instructions, descriptions, support matrix and scores. The top navigation and other pages keep their existing typography.
+All public pages use self-hosted **Manrope**, including headings, body text, navigation, buttons, model chips, News, SVG capability charts and the taxonomy ring. The shared `--font-sans` token in `assets/site.css` provides one font stack. Latin and Greek WOFF2 subsets cover English content and π model names; both contain real variable weights 200–800, use `font-display: swap` and retain the SIL Open Font License in `assets/fonts/OFL-Manrope.txt`. Fonts are served with the site, without a third-party font request. Brand artwork and text inside images retain their original lettering; code, predicates and BibTeX retain their monospace fonts.
+
+Document typography retains its compact scale: 16px body text with 1.6 line height, 26px page headings (24px on mobile), 22px section headings and 16px task-list headings. Headings use weight 600 and semantic emphasis uses 700. Long explanations highlight selected concepts in bold; identifiers and formulas use compact gray inline code. Emphasis is added only when rendering documents, preserving the underlying instructions, descriptions, support matrix and scores.
 
 ## Display data and private evaluation inputs
 
@@ -127,7 +129,7 @@ The two-paragraph Home introduction summarizes the memorization/generalization c
 
 `data/leaderboard-news.json` is independent and announces support for 18 models on October 9, 2026, using the same timeline component and styles as Home. Leaderboard does not load or display Home news. Add English entries to the appropriate file newest first with an ISO `date`, `text` (or `title`) and optional `link: {label, url}`.
 
-Both News panels use the same Google Sans Flex family as the reference, self-hosted as a Latin WOFF2 subset from Google Fonts (weights 400–600), with the SIL Open Font License in `assets/fonts/OFL-GoogleSansFlex.txt`. Other sections retain their existing typography.
+Both News panels inherit the same Manrope family as the rest of the website; their scrolling timeline layout and separate content feeds are unchanged.
 
 Home's Repository row links only to `Zxy-MLlab/LIBERO-Pro2.0` (Latest). The original paper's resources remain on Report. The GitHub mark is from Primer Octicons, with its source and MIT notice in `assets/icons/LICENSE-octicons.txt`.
 
