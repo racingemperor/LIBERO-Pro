@@ -195,6 +195,9 @@ body[data-page=leaderboard] .capability-data th a{display:inline-flex;align-item
 .paper-overview figure{margin:0 auto;max-width:1080px}
 .paper-overview figure img{display:block;width:100%;height:auto;background:white;border:1px solid var(--line);border-radius:10px}
 .paper-overview .caption{max-width:780px;margin:16px auto 0;text-align:center}
+.home-film{padding:0 0 48px;scroll-margin-top:112px}
+.home-film figure{width:min(1080px,100%);margin:0 auto}
+.home-film video{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;background:#0c1317;border:1px solid var(--line);border-radius:10px}
 .home-centered>.section-head{justify-content:center;text-align:center}
 .home-centered>.section-head h2:after{margin-left:auto;margin-right:auto}
 .home-section-intro{max-width:700px;margin:0 auto 30px;text-align:center}
