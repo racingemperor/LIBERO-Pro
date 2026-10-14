@@ -129,6 +129,7 @@ for(const name of ['news','leaderboard-news']){
     assert((entry.title||entry.text)?.trim(),'News entries need readable text');
     if(index)assert(announcements[index-1].date>=entry.date,'News must be newest first');
     if(entry.link){assert(entry.link.label?.trim());assert(['https:','http:'].includes(new URL(entry.link.url).protocol),'News links must use HTTP(S)');}
+    if(entry.textAfterLink!==undefined)assert(typeof entry.textAfterLink==='string'&&entry.link,'News textAfterLink requires a link and plain text');
   }
 }
 const clips=read('home-rollouts').clips;

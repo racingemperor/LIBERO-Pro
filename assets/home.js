@@ -31,7 +31,7 @@ export function homeNews(entries) {
     <h2 id="home-news-title">News</h2>
     <div class="home-news-card"><div class="home-news-scroll" tabindex="0" role="region" aria-label="Project news, scroll for earlier updates"><ul class="home-news-timeline">${entries.map((entry,index)=>`<li class="home-news-item${index===0?' is-latest':''}">
       <time class="home-news-date" datetime="${escape(entry.date)}"><span>${dateFormat.format(new Date(entry.date+'T00:00:00Z'))}</span><small>${escape(entry.date.slice(0,4))}</small></time>
-      <div class="home-news-body"><p>${escape(entry.title||entry.text)}${link(entry)}</p></div>
+      <div class="home-news-body"><p>${escape(entry.title||entry.text)}${link(entry)}${escape(entry.textAfterLink||'')}</p></div>
     </li>`).join('')}</ul></div></div>
   </div></section>`;
 }

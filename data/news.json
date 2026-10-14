@@ -1,6 +1,18 @@
 {
   "entries": [
     {
+      "date": "2026-10-14",
+      "text": "The",
+      "link": {"label": "native HDF5 training dataset", "url": "https://huggingface.co/datasets/zhouxueyang/LIBERO-Pro2.0"},
+      "textAfterLink": " is available on Hugging Face, with trajectory previews and review videos."
+    },
+    {
+      "date": "2026-10-14",
+      "text": "Added the paper's static and runtime",
+      "link": {"label": "leaderboards", "url": "https://github.com/Zxy-MLlab/LIBERO-Pro2.0#-leaderboard"},
+      "textAfterLink": ", covering 17 robot policies."
+    },
+    {
       "date": "2025-11-05",
       "text": "All bddl and init files have been uploaded to Huggingface (supports fast parallel evaluation):",
       "link": {"label": "Dataset", "url": "https://huggingface.co/datasets/zhouxueyang/LIBERO-Pro"}
