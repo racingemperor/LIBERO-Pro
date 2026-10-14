@@ -1,5 +1,29 @@
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+export function homeFilm() {
+  return `<section class="home-film" id="benchmark-video" aria-label="LIBERO-Pro2.0 benchmark video"><figure>
+    <video data-home-video controls playsinline preload="none" width="2560" height="1440" poster="https://racingemperor.github.io/LIBERO-Pro-media/assets/promo/libero-pro2.0-overview.webp" aria-label="LIBERO-Pro2.0: A Benchmark for Evaluating Robust Embodied Intelligence, 90-second overview"><source src="https://racingemperor.github.io/LIBERO-Pro-media/assets/promo/libero-pro2.0-overview-1440p.mp4" type="video/mp4"></video>
+    <button class="home-film-play" data-home-film-play hidden aria-label="Play LIBERO-Pro2.0 video"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 5v14l11-7z"/></svg></span></button>
+  </figure></section>`;
+}
+
+export function bindHomeFilm() {
+  const video=document.querySelector('[data-home-video]');
+  const button=document.querySelector('[data-home-film-play]');
+  if(!video||!button)return;
+  const sync=()=>{
+    if(!video.paused&&document.activeElement===button)video.focus({preventScroll:true});
+    button.hidden=!video.paused;
+    button.setAttribute('aria-label',video.ended?'Replay LIBERO-Pro2.0 video':'Play LIBERO-Pro2.0 video');
+  };
+  button.addEventListener('click',()=>{
+    if(video.ended)video.currentTime=0;
+    video.play().catch(sync);
+  });
+  for(const event of ['play','pause','ended','error'])video.addEventListener(event,sync);
+  sync();
+}
+
 export function homeNews(entries) {
   const dateFormat = new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric',timeZone:'UTC'});
   const link = entry => /^https?:\/\//.test(entry.link?.url||'') ? ` <a href="${escape(entry.link.url)}" target="_blank" rel="noopener">${escape(entry.link.label)}</a>` : '';

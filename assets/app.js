@@ -1,5 +1,5 @@
 import './site-navigation.js';
-import {homeShowcase, homeGallery, homeModels, homeNews, perturbationClip, bindHomeNews, bindHomeMotion, bindHomePresentation} from './home.js';
+import {homeShowcase, homeGallery, homeModels, homeNews, homeFilm, perturbationClip, bindHomeFilm, bindHomeNews, bindHomeMotion, bindHomePresentation} from './home.js';
 import {taxonomyFigure, bindTaxonomy} from './taxonomy.js';
 import {updateView, isLocalViewLink} from './navigation.js';
 import {createCapabilities} from './capabilities.js';
@@ -49,7 +49,7 @@ function homePage() {
     ${homeShowcase(catalogue)}
     <section class="paper-intro" id="overview"><h2>LIBERO-Pro2.0: A Benchmark for Evaluating Robust Embodied Intelligence</h2>${peopleSection()}</section>
     ${homeNews(news.entries)}
-    <section class="home-film" id="benchmark-video" aria-label="LIBERO-Pro2.0 benchmark video"><figure><video data-home-video controls playsinline preload="none" width="2560" height="1440" poster="https://racingemperor.github.io/LIBERO-Pro-media/assets/promo/libero-pro2.0-overview.webp" aria-label="LIBERO-Pro2.0: A Benchmark for Evaluating Robust Embodied Intelligence, 90-second overview"><source src="https://racingemperor.github.io/LIBERO-Pro-media/assets/promo/libero-pro2.0-overview-1440p.mp4" type="video/mp4"></video></figure></section>
+    ${homeFilm()}
     <section class="section home-centered" id="benchmark">${sectionHead('Beyond familiar scenes')}<div class="home-summary"><p>High success rates on LIBERO do not always reveal how a policy will behave when familiar conditions change. The original LIBERO-Pro study highlighted that models can rely on memorized action sequences and scene layouts, leaving weaknesses in visual grounding and instruction understanding hidden by standard evaluation.</p><p>LIBERO-Pro evaluates robustness under 42 controlled perturbations: 22 static shifts at reset and 20 dynamic interventions during execution. Across eight tasks from four LIBERO suites, it varies conditions, environments, observations, execution, robot state and language while preserving the original task goals. This tests both generalization to changed scenes and recovery when an ongoing task is disturbed.</p></div></section>
     <section class="section paper-overview home-centered" id="paper-overview">${sectionHead('Benchmark overview')}<figure><a href="assets/paper/overview-centered.webp" target="_blank" rel="noopener" aria-label="Open the full LIBERO-Pro overview figure"><img src="assets/paper/overview-centered.webp" width="2200" height="1280" loading="lazy" alt="LIBERO-Pro overview showing 22 static and 20 dynamic perturbations across six domains"></a><figcaption class="caption">LIBERO-Pro evaluates robustness across 22 static shifts and 20 runtime interventions in six perturbation domains.</figcaption></figure></section>
     <section class="section home-centered" id="domains">${sectionHead('Perturbation domains')}<p class="home-section-intro">Six domains organize the benchmark. Each perturbation has a mechanism illustration and a gallery for the eight evaluation tasks.</p><div class="home-domains"><div class="home-domain-column home-domain-left">${catalogue.categories.slice(0,3).map(domainLink).join('')}</div>${taxonomyFigure(catalogue)}<div class="home-domain-column home-domain-right">${catalogue.categories.slice(3).map(domainLink).join('')}</div></div><a class="text-link home-domains-explore" href="docs.html#taxonomy">Explore all 42 perturbations ↗</a></section>
@@ -570,6 +570,7 @@ try {
     if(old){location.replace(modelUrl(old,{mode:params.get('metric')==='dynamic'?'dynamic':'static'}));}
   }
   app.innerHTML=(renderers[page]||homePage)();bindInteractions();bindHomeMotion();bindHomePresentation();bindHomeNews();bindTaxonomy(catalogue);
+  bindHomeFilm();
   if(page==='docs')bindDocumentDemo();
   bindRolloutPlayers();
   if(page==='leaderboard'){
