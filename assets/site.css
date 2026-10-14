@@ -259,10 +259,11 @@ body[data-page=leaderboard] .capability-data th a{display:inline-flex;align-item
 .slide-count{font-size:12px;color:var(--muted);margin:0 10px;min-width:30px;font-variant-numeric:tabular-nums}
 .paper-intro{max-width:1080px;margin:52px auto 30px;text-align:center}
 .paper-intro h2{font-size:clamp(18px,2.3vw,27px);line-height:1.35;letter-spacing:-.03em;white-space:nowrap}
-.paper-meta{margin:38px 0 0;text-align:left}
+.paper-meta{margin:38px 0 0;text-align:left;font-family:var(--font-sans)}
 .paper-meta-row{display:grid;grid-template-columns:145px minmax(0,1fr);gap:28px;align-items:baseline;padding:9px 0;min-height:48px}
 .paper-meta dt{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.085em;color:var(--muted);padding-top:5px}
-.paper-meta dd{margin:0;min-width:0;font-size:17px;line-height:1.8;overflow-wrap:anywhere}
+.paper-meta dd{margin:0;min-width:0;font-size:17px;line-height:1.8;overflow-wrap:anywhere;font-weight:500}
+.paper-meta :is(.authors,a){font-family:inherit;font-weight:500}
 .paper-meta dd>a{display:inline-block;color:var(--blue);padding:4px 0;min-height:40px}
 .paper-meta dd>a:hover{text-decoration:underline;text-underline-offset:4px}
 .paper-meta a[href="leaderboard.html"],.paper-meta-contact dd>a{font-size:13px;line-height:1.6}
@@ -314,8 +315,8 @@ body[data-page=leaderboard] .capability-data th a{display:inline-flex;align-item
 .paper-meta-contact dd{display:grid;grid-template-columns:repeat(2,minmax(0,max-content));gap:0 16px;align-items:start}
 .authors{font-size:16px;line-height:2;color:var(--ink)}
 .author-name{white-space:nowrap}
-.authors sup{color:var(--muted);font-size:11px;margin-left:2px}
-.author-notes{display:flex;flex-wrap:wrap;gap:4px 20px;margin-top:8px;font-size:13px;line-height:1.6;color:var(--muted)}
+.authors sup{color:var(--muted);font-size:11px;margin-left:2px;font-weight:400}
+.author-notes{display:flex;flex-wrap:wrap;gap:4px 20px;margin-top:8px;font-size:13px;line-height:1.6;color:var(--muted);font-weight:400}
 .institution-logos{display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;padding:4px 0}
 .institution-logos figure{flex:none;min-width:0;text-align:center}
 .institution-logos a{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:4px}
