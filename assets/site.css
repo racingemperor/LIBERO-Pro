@@ -270,7 +270,7 @@ body[data-page=leaderboard] .capability-data th a{display:inline-flex;align-item
 .slide-count{font-size:12px;color:var(--muted);margin:0 10px;min-width:30px;font-variant-numeric:tabular-nums}
 .paper-intro{max-width:1080px;margin:52px auto 30px;text-align:center}
 .paper-intro h2{font-size:clamp(18px,2.3vw,27px);line-height:1.35;letter-spacing:-.03em;white-space:nowrap}
-.paper-meta{margin:38px 0 0;text-align:left;font-family:var(--font-sans);font-size:18px}
+.paper-meta{margin:38px 0 0;text-align:left;font-family:var(--font-sans);font-size:inherit}
 .paper-meta-row{display:grid;grid-template-columns:160px minmax(0,1fr);gap:28px;align-items:baseline;padding:9px 0;min-height:48px}
 .paper-meta dt{font-size:inherit;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding-top:5px}
 .paper-meta dd{margin:0;min-width:0;font-size:inherit;line-height:1.8;overflow-wrap:anywhere;font-weight:500}
@@ -481,7 +481,7 @@ a.doc-perturbation-chip:focus-visible{outline:2px solid #215e52;outline-offset:3
   .slide-count{margin:0 7px}
   .paper-intro{margin-top:30px}
   .paper-intro h2{font-size:24px;white-space:normal;text-wrap:balance}
-  .paper-meta{margin-top:26px;font-size:16px}
+  .paper-meta{margin-top:26px}
   .paper-meta-row{grid-template-columns:128px minmax(0,1fr);gap:14px;padding:8px 0}
   .paper-meta dd>a{min-height:44px}
   .paper-meta-repositories{grid-template-columns:1fr;gap:2px}
