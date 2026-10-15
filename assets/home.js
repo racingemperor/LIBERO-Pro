@@ -2,7 +2,7 @@ const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp
 
 export function homeFilm() {
   return `<section class="home-film" id="benchmark-video" aria-label="LIBERO-Pro2.0 benchmark video"><figure>
-    <video data-home-video controls playsinline preload="none" width="2560" height="1440" poster="https://racingemperor.github.io/LIBERO-Pro-media/assets/promo/libero-pro2.0-overview.webp" aria-label="LIBERO-Pro2.0: A Benchmark for Evaluating Robust Embodied Intelligence, 90-second overview"><source src="https://racingemperor.github.io/LIBERO-Pro-media/assets/promo/libero-pro2.0-overview-1440p.mp4" type="video/mp4"></video>
+    <video data-home-video controls playsinline preload="none" width="1920" height="1080" poster="https://racingemperor.github.io/LIBERO-Pro-media/assets/promo/libero-pro2.0-overview.webp" aria-label="LIBERO-Pro2.0: A Benchmark for Evaluating Robust Embodied Intelligence, 90-second overview"><source src="https://racingemperor.github.io/LIBERO-Pro-media/assets/promo/libero-pro2.0-overview-1080p.mp4" type="video/mp4"></video>
     <button class="home-film-play" data-home-film-play hidden aria-label="Play LIBERO-Pro2.0 video"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 5v14l11-7z"/></svg></span></button>
   </figure></section>`;
 }
@@ -11,12 +11,32 @@ export function bindHomeFilm() {
   const video=document.querySelector('[data-home-video]');
   const button=document.querySelector('[data-home-film-play]');
   if(!video||!button)return;
+  let warmed=false,observer;
+  const warm=()=>{
+    if(warmed)return;
+    warmed=true;
+    observer?.disconnect();
+    video.preload='auto';
+    // Loading a video already playing would reset its position and cancel play().
+    if(video.paused&&video.readyState===0)video.load();
+  };
+  if('IntersectionObserver' in window&&!navigator.connection?.saveData){
+    observer=new IntersectionObserver(entries=>{
+      if(entries.some(entry=>entry.isIntersecting))warm();
+    },{rootMargin:'800px 0px'});
+    observer.observe(video);
+  }
+  const figure=video.closest('figure');
+  figure.addEventListener('pointerenter',warm,{once:true});
+  figure.addEventListener('focusin',warm,{once:true});
+  video.addEventListener('play',warm,{once:true});
   const sync=()=>{
     if(!video.paused&&document.activeElement===button)video.focus({preventScroll:true});
     button.hidden=!video.paused;
     button.setAttribute('aria-label',video.ended?'Replay LIBERO-Pro2.0 video':'Play LIBERO-Pro2.0 video');
   };
   button.addEventListener('click',()=>{
+    warm();
     if(video.ended)video.currentTime=0;
     video.play().catch(sync);
   });
