@@ -47,7 +47,6 @@ export function taxonomyFigure(catalogue) {
       </svg>
       <div class="taxonomy-center" aria-hidden="true"><strong data-taxonomy-value>42</strong><span data-taxonomy-name>Perturbations</span><small data-taxonomy-meta>22 static · 20 dynamic</small></div>
     </div>
-    <figcaption class="caption">S01–S22, then D01–D20 · clockwise. Select a code to read its design.</figcaption>
   </figure>`;
 }
 

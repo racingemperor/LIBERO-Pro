@@ -350,7 +350,6 @@ a.home-model-chip:focus-visible{outline:2px solid #215e52;outline-offset:3px}
 @media(max-width:760px){.home-model-chip{gap:6px;min-height:44px;padding-right:10px}.home-models-upcoming{margin-top:26px;padding-top:22px}}
 @media(prefers-reduced-motion:reduce){.home-model-chip{transition:none}}
 .citation-section{max-width:1080px;margin:0 auto;border-bottom:0}
-.citation-intro{margin:0 0 20px;font-size:14px;line-height:1.65}
 .citation-card{border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .citation-header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:14px 22px;background:white}
 .citation-header h3{font-size:17px;letter-spacing:-.015em}
