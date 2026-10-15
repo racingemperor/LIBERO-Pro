@@ -73,6 +73,8 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
 .capability-data thead th{font-weight:600;background:#f8fafc}
 .capability-data .table-scroll{margin-top:10px}
 
+body[data-page=leaderboard] .page-head p{max-width:none}
+
 /* Keep all Leaderboard tables dense without shrinking the score text. */
 body[data-page=leaderboard] #perturbation-rankings{border-bottom:0}
 body[data-page=leaderboard] .leaderboard-table{font-size:12px;line-height:1.4}
