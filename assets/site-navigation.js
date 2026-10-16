@@ -22,7 +22,7 @@ document.addEventListener('click', event => {
 export function updateSiteNavigation(page) {
   const navPage = page === 'model' ? 'leaderboard' : ['task', 'perturbation'].includes(page) ? 'docs' : page;
   header?.querySelectorAll('a[aria-current]').forEach(link=>link.removeAttribute('aria-current'));
-  header?.querySelector(`a[href="${navPage}.html"]`)?.setAttribute('aria-current', 'page');
+  header?.querySelector(`.site-nav a[href="${navPage}.html"],.site-links a[href="${navPage}.html"]`)?.setAttribute('aria-current', 'page');
   closeMenu();
 }
 updateSiteNavigation(document.body.dataset.page);

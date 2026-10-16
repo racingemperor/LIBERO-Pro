@@ -65,7 +65,10 @@ const tests = [
       assert(doc().activeElement===query('#content h1'),'New page heading did not receive keyboard focus');
       assert(win().scrollY===0,'New section did not start at the top');
     }
-    for(const page of ['report','leaderboard','docs','index'])await navigate(()=>win().history.back(),()=>doc().body.dataset.page===page,{push:false});
+    for(const page of ['report','leaderboard','docs','index']){
+      await navigate(()=>win().history.back(),()=>doc().body.dataset.page===page,{push:false});
+      assert(query('.site-header [aria-current="page"]').textContent===({index:'Home',docs:'Document',report:'Report',leaderboard:'Leaderboard'}[page]),'Back did not restore the active section');
+    }
     for(const [page] of pages)await navigate(()=>win().history.forward(),()=>doc().body.dataset.page===page,{push:false});
     await change(()=>click('.site-header a[href="community.html"]'),()=>doc().body.dataset.page==='community');
     assert(doc().documentElement.scrollWidth<=win().innerWidth,'Routed content overflows the viewport');
