@@ -63,6 +63,7 @@ const tests = [
       assert(query('.site-header [aria-current="page"]').textContent===label,'Active navigation did not follow the page');
       assert(doc().title.includes(label),'Page title was not updated');
       assert(doc().activeElement===query('#content h1'),'New page heading did not receive keyboard focus');
+      assert(win().getComputedStyle(query('#content h1')).outlineStyle==='none','Route focus added a visible frame around the heading');
       assert(win().scrollY===0,'New section did not start at the top');
     }
     for(const page of ['report','leaderboard','docs','index']){
