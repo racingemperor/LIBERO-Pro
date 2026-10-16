@@ -13,7 +13,7 @@ export function createCapabilities(models, assets, profiles, {esc, pct, modelUrl
   const ordered = [...models].sort((a,b)=>(b.scores.overall??-1)-(a.scores.overall??-1));
   const defaults = ordered.map(m=>m.id);
   let selected = new Set(defaults), width = 960, active = null, hideTimer;
-  let position = {left:12,top:60};
+  let position = {left:12,top:60}, release=()=>{};
   const mark = m => `<img src="assets/models/${esc(assets[m.id].asset)}" width="24" height="24" alt="">`;
   const scoreText = m => values(m).map((v,i)=>`${metrics[i]} ${pct(v)}`).join(', ');
 
@@ -71,6 +71,7 @@ export function createCapabilities(models, assets, profiles, {esc, pct, modelUrl
   }
 
   function bind(onSelect) {
+    release();
     const root=document.querySelector('.capability-chart');
     if(!root)return;
     const preview=()=>root.querySelector('#capability-preview');
@@ -174,14 +175,21 @@ export function createCapabilities(models, assets, profiles, {esc, pct, modelUrl
     root.addEventListener('keydown',event=>{
       if(event.key==='Escape')hide();
     });
-    document.addEventListener('pointerdown',event=>{if(!event.target.closest('.capability-plot'))hide();});
+    const outside=event=>{if(!event.target.closest('.capability-plot'))hide();};
+    document.addEventListener('pointerdown',outside);
     function resize() {
       const next=Math.round(root.getBoundingClientRect().width);
       if(next>0&&next!==width){width=next;hide();updateView(root,content());}
     }
     resize();
-    if('ResizeObserver' in window)new ResizeObserver(resize).observe(root);
+    let observer;
+    if('ResizeObserver' in window){observer=new ResizeObserver(resize);observer.observe(root);}
     else window.addEventListener('resize',resize);
+    release=()=>{
+      clearTimeout(hideTimer);observer?.disconnect();
+      document.removeEventListener('pointerdown',outside);
+      window.removeEventListener('resize',resize);
+    };
   }
-  return {render,bind};
+  return {render,bind,dispose:()=>{release();release=()=>{};}};
 }

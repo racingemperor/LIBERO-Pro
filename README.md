@@ -17,7 +17,9 @@ For browser navigation regression checks, open http://127.0.0.1:8765/scripts/nav
 
 ## Navigation behavior
 
-Selections within a page (model perturbations, static/dynamic settings, domains, model filters and sorting) update in place. The URL is replaced with the current selection so it remains shareable without adding a browser Back stop for each click. Back returns to the previous page; Forward restores the final selection. Cross-page links, downloads and opening links in new tabs keep native browser behavior.
+Home, Document, Leaderboard, Report, Community and model/task details switch within the same document. `assets/site-router.js` adds one browser history entry per page change; Back and Forward restore the visited page, selected filters and page/table/directory scroll. The header stays mounted, its active link follows the current page, and focus moves to the new page heading. Page HTML and JSON are loaded once per session; leaving a page releases its animation observers, listeners and video buffers. Direct links, refresh and GitHub Pages subpaths continue to work without server rewrites.
+
+Selections within a page (model perturbations, static/dynamic settings, domains, model filters and sorting) update in place. The URL is replaced with the current selection so it remains shareable without adding a browser Back stop for each click. Back returns to the previous page; Forward restores the final selection. External links, downloads, modified clicks and opening links in new tabs keep native browser behavior.
 
 The shared updater in `assets/navigation.js` keeps unchanged DOM elements, controls and scroll containers. Document selection updates the reading panel and preserves the expanded directory; a new document starts at the top of its content. Section anchors also replace the current URL instead of filling navigation history.
 

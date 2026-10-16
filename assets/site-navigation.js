@@ -2,7 +2,7 @@
 const header = document.querySelector('.site-header');
 const menu = header?.querySelector('.menu-button');
 const navigation = header?.querySelector('.site-nav');
-const closeMenu = () => {
+export const closeMenu = () => {
   navigation?.classList.remove('open');
   menu?.setAttribute('aria-expanded', 'false');
 };
@@ -19,6 +19,10 @@ document.addEventListener('keydown', event => {
 document.addEventListener('click', event => {
   if (!header?.contains(event.target) || event.target.closest('.site-nav a')) closeMenu();
 });
-const page = document.body.dataset.page;
-const navPage = page === 'model' ? 'leaderboard' : ['task', 'perturbation'].includes(page) ? 'docs' : page;
-header?.querySelector(`a[href="${navPage}.html"]`)?.setAttribute('aria-current', 'page');
+export function updateSiteNavigation(page) {
+  const navPage = page === 'model' ? 'leaderboard' : ['task', 'perturbation'].includes(page) ? 'docs' : page;
+  header?.querySelectorAll('a[aria-current]').forEach(link=>link.removeAttribute('aria-current'));
+  header?.querySelector(`a[href="${navPage}.html"]`)?.setAttribute('aria-current', 'page');
+  closeMenu();
+}
+updateSiteNavigation(document.body.dataset.page);

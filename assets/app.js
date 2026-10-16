@@ -1,22 +1,24 @@
-import './site-navigation.js';
+import {updateSiteNavigation} from './site-navigation.js';
 import {homeShowcase, homeGallery, homeModels, homeNews, homeFilm, perturbationClip, bindHomeFilm, bindHomeNews, bindHomeMotion, bindHomePresentation} from './home.js';
 import {taxonomyFigure, bindTaxonomy} from './taxonomy.js';
-import {updateView, isLocalViewLink} from './navigation.js';
+import {updateView} from './navigation.js';
+import {createSiteRouter,siteRoute,isSiteLink} from './site-router.js';
 import {createCapabilities} from './capabilities.js';
 import {bindRolloutPlayers} from './rollout-players.js';
 import {rolloutMediaPaths} from './rollout-media.js';
 
 const app = document.querySelector('#app');
-const page = document.body.dataset.page;
+let page = document.body.dataset.page;
 let params = new URLSearchParams(location.search);
-const defaultTitle = document.title;
+let defaultTitle = document.title;
+let router,releasePage=()=>{};
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pct = value => Number.isFinite(value) ? `${(value * 100).toFixed(1)}%` : '—';
 const mean = values => { const valid = values.filter(Number.isFinite); return valid.length ? valid.reduce((a,b)=>a+b,0)/valid.length : null; };
 const modeLabel = mode => mode === 'overall' ? 'Overall' : mode === 'dynamic' ? 'Dynamic' : 'Static';
 const typeClass = type => type === 'World Action Models' ? 'wam' : type === 'Robustness-oriented' ? 'robust' : 'vla';
 const typeLabel = type => type === 'World Action Models' ? 'World Action' : type === 'Robustness-oriented' ? 'Robustness' : 'VLA';
-let catalogue, results, tasks, assets, news, leaderboardNews, designs, people, publication, upcomingModels;
+let catalogue, results, tasks, assets, news, leaderboardNews, designs, people, publication, upcomingModels, modelProfiles;
 let capabilities;
 let modelRollouts={models:{}};
 const baseRollout={id:'BASE',mode:'base',category:'all',name:'Base tasks'};
@@ -455,6 +457,7 @@ function revealPerturbationColumn() {
 }
 
 function updateCurrentView(next, {anchor=false, top=false, replace=true}={}) {
+  router.cancel();
   const changed=params.toString()!==next.searchParams.toString();
   const perturbationChanged=['perturbationMode','perturbationSort'].some(key=>params.get(key)!==next.searchParams.get(key));
   const comparisonChanged=params.get('compare')!==next.searchParams.get('compare');
@@ -462,7 +465,7 @@ function updateCurrentView(next, {anchor=false, top=false, replace=true}={}) {
   const focused=document.activeElement;
   // A filter/task choice is state of this view, not another stop in Back history.
   if(replace)history.replaceState(history.state,'',next);
-  if(changed){
+  if(changed&&renderers[page]){
     params=new URLSearchParams(next.search);
     document.title=defaultTitle;
     updateView(app,(renderers[page]||homePage)());
@@ -491,16 +494,17 @@ function updateCurrentView(next, {anchor=false, top=false, replace=true}={}) {
   if(anchor)scrollToAnchor(next.hash);
   if(top)window.scrollTo({top:0,left:0,behavior:'instant'});
   updateSectionIndicator();
+  router.updated();
 }
 
 function bindInteractions() {
-  prepareDirectories(true);
   const status=document.createElement('div');
   status.id='view-status';status.className='sr-only';status.setAttribute('role','status');status.setAttribute('aria-live','polite');document.body.append(status);
   document.addEventListener('click',event=>{
     const link=event.target.closest('a[href]');
-    if(isLocalViewLink(event,link,location.href)){
+    if(isSiteLink(event,link)){
       const next=new URL(link.getAttribute('href'),location.href);
+      if(siteRoute(next).page!==page){event.preventDefault();router.navigate(next);return;}
       const changed=next.search!==location.search;
       event.preventDefault();
       updateCurrentView(next,{
@@ -523,7 +527,7 @@ function bindInteractions() {
       updateCurrentView(next);return;
     }
     const row=event.target.closest('[data-href]');
-    if(row&&!event.target.closest('a,button')&&!window.getSelection().toString())location.assign(row.dataset.href);
+    if(row&&!event.target.closest('a,button')&&!window.getSelection().toString()&&event.button===0&&!event.ctrlKey&&!event.metaKey&&!event.shiftKey&&!event.altKey&&siteRoute(row.dataset.href))router.navigate(new URL(row.dataset.href,location.href));
   });
   document.addEventListener('change',event=>{
     const select=event.target.closest('[data-query],#model-select');
@@ -533,44 +537,62 @@ function bindInteractions() {
     if(select.dataset.anchor)next.hash=select.dataset.anchor;
     updateCurrentView(next);
   });
-  window.addEventListener('popstate',()=>updateCurrentView(new URL(location.href),{replace:false}));
   window.addEventListener('scroll',updateSectionIndicator,{passive:true});
-  updateSectionIndicator();
-  if(location.hash&&performance.getEntriesByType('navigation')[0]?.type!=='back_forward')requestAnimationFrame(()=>scrollToAnchor(location.hash));
 }
 
-try {
-  [catalogue,results,{tasks},assets,designs,people,publication]=await Promise.all(['catalogue','results','tasks','model-assets','task-designs','people','publication'].map(async name=>{
-    const response=await fetch(`data/${name}.json`);if(!response.ok)throw new Error(`Unable to load ${name}`);return response.json();
-  }));
-  if(page==='index') {
-    [upcomingModels,news]=await Promise.all(['upcoming-models','news'].map(async name=>{
-      const response=await fetch(`data/${name}.json`);
-      if(!response.ok)throw new Error(`Unable to load ${name}`);
-      return response.json();
-    }));
+const dataCache=new Map();
+function loadData(name) {
+  if(!dataCache.has(name))dataCache.set(name,fetch(`data/${name}.json`).then(response=>{
+    if(!response.ok)throw new Error(`Unable to load ${name}`);
+    return response.json();
+  }).catch(error=>{dataCache.delete(name);throw error;}));
+  return dataCache.get(name);
+}
+
+const pageTemplate=doc=>({title:doc.title,description:doc.querySelector('meta[name="description"]')?.content||'',markup:doc.querySelector('#app').innerHTML});
+const templates=new Map([[page,Promise.resolve(pageTemplate(document))]]);
+function loadTemplate(route) {
+  if(!templates.has(route.page))templates.set(route.page,fetch(new URL(`${route.page}.html`,route.url)).then(async response=>{
+    if(!response.ok)throw new Error(`Unable to load ${route.page}`);
+    return pageTemplate(new DOMParser().parseFromString(await response.text(),'text/html'));
+  }).catch(error=>{templates.delete(route.page);throw error;}));
+  return templates.get(route.page);
+}
+
+async function preparePage(route) {
+  const template=loadTemplate(route);
+  if(['report','community'].includes(route.page))return template;
+  [catalogue,results,{tasks},assets,designs,people,publication]=await Promise.all(['catalogue','results','tasks','model-assets','task-designs','people','publication'].map(loadData));
+  if(route.page==='index')[upcomingModels,news]=await Promise.all(['upcoming-models','news'].map(loadData));
+  if(['model','perturbation','task'].includes(route.page))modelRollouts=await loadData('model-rollouts');
+  if(route.page==='leaderboard')[modelProfiles,leaderboardNews]=await Promise.all(['model-profiles','leaderboard-news'].map(loadData));
+  return template;
+}
+
+function mountPage(route,template) {
+  releasePage();releaseDocumentDemo();capabilities?.dispose();
+  releaseDocumentDemo=()=>{};
+  // Detach first so the rollout manager can release the old players' buffers.
+  const oldVideos=[...app.querySelectorAll('video')];
+  app.replaceChildren();bindRolloutPlayers();
+  for(const video of oldVideos){
+    video.pause();video.removeAttribute('src');
+    video.querySelectorAll('source').forEach(source=>source.removeAttribute('src'));
+    video.load();
   }
-  if(['model','perturbation','task'].includes(page)) {
-    const response=await fetch('data/model-rollouts.json');
-    if(!response.ok)throw new Error('Unable to load model videos');
-    modelRollouts=await response.json();
+  page=route.page;params=new URLSearchParams(route.url.search);
+  defaultTitle=template.title;document.title=defaultTitle;
+  document.querySelector('meta[name="description"]').content=template.description;
+  document.body.dataset.page=page;
+  app.className=['report','community'].includes(page)?'':'container';
+  if(page==='leaderboard'){
+    capabilities=createCapabilities(results.models,assets,modelProfiles,{esc,pct,modelUrl,updateView});
   }
-  if(page==='leaderboard') {
-    const [profiles,announcements]=await Promise.all(['model-profiles','leaderboard-news'].map(async name=>{
-      const response=await fetch(`data/${name}.json`);
-      if(!response.ok)throw new Error(`Unable to load ${name}`);
-      return response.json();
-    }));
-    leaderboardNews=announcements;
-    capabilities=createCapabilities(results.models,assets,profiles,{esc,pct,modelUrl,updateView});
-  }
-  // Accept the previous public model deep link while the new profile route settles.
-  if(page==='leaderboard'&&params.get('model')){
-    const old=results.models.find(m=>m.name===params.get('model')||m.id===params.get('model'));
-    if(old){location.replace(modelUrl(old,{mode:params.get('metric')==='dynamic'?'dynamic':'static'}));}
-  }
-  app.innerHTML=(renderers[page]||homePage)();bindInteractions();bindHomeMotion();bindHomePresentation();bindHomeNews();bindTaxonomy(catalogue);
-  bindHomeFilm();
+  app.innerHTML=renderers[page]?renderers[page]():template.markup;
+  updateSiteNavigation(page);prepareDirectories(true);
+  const releases=[bindHomeMotion(),bindHomePresentation(),bindHomeNews(),bindHomeFilm()];
+  releasePage=()=>releases.forEach(release=>release?.());
+  if(page==='index')bindTaxonomy(catalogue);
   if(page==='docs')bindDocumentDemo();
   bindRolloutPlayers();
   if(page==='leaderboard'){
@@ -580,6 +602,20 @@ try {
     });
     revealPerturbationColumn();
   }
+  updateSectionIndicator();
+}
+
+bindInteractions();
+const initialPosition=history.state?.liberoNavigation;
+router=createSiteRouter({prepare:preparePage,render:mountPage,anchor:scrollToAnchor});
+try {
+  // Accept the previous public model deep link while the new profile route settles.
+  if(page==='leaderboard'&&params.get('model')){
+    await preparePage(siteRoute(location.href));
+    const old=results.models.find(m=>m.name===params.get('model')||m.id===params.get('model'));
+    if(old)history.replaceState(history.state,'',modelUrl(old,{mode:params.get('metric')==='dynamic'?'dynamic':'static'}));
+  }
+  if(await router.navigate(location.href,{replace:true,position:initialPosition})===false)throw new Error('Initial page could not be loaded');
 } catch(error) {
   console.error(error);
   app.innerHTML='<main id="content"><div class="error"><h1>Results could not be loaded</h1><p>Please reload the page to try again.</p><a class="text-link" href="leaderboard.html">Return to the leaderboard ↗</a></div></main>';

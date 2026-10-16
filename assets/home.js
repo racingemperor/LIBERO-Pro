@@ -13,7 +13,7 @@ export function bindHomeFilm() {
   if(!video||!button)return;
   let warmed=false,observer;
   const warm=()=>{
-    if(warmed)return;
+    if(warmed||!video.isConnected)return;
     warmed=true;
     observer?.disconnect();
     video.preload='auto';
@@ -42,6 +42,7 @@ export function bindHomeFilm() {
   });
   for(const event of ['play','pause','ended','error'])video.addEventListener(event,sync);
   sync();
+  return ()=>{observer?.disconnect();video.pause();};
 }
 
 export function homeNews(entries) {
@@ -66,6 +67,7 @@ export function bindHomeNews() {
   resize.observe(scroller);
   resize.observe(scroller.querySelector('ul'));
   updateFade();
+  return ()=>resize.disconnect();
 }
 
 export function homeShowcase(catalogue) {
@@ -135,6 +137,9 @@ export function homeModels(models, upcoming, assets, modelUrl) {
 
 export function bindHomePresentation() {
   if (!document.querySelector('.home-showcase')) return;
+  const controller=new AbortController();
+  let copyTimer,observer;
+  const release=()=>{controller.abort();clearTimeout(copyTimer);observer?.disconnect();};
   const copy = document.querySelector('[data-copy-citation]');
   copy?.addEventListener('click', async () => {
     const text = document.querySelector('.citation-code code')?.textContent.trim();
@@ -144,20 +149,21 @@ export function bindHomePresentation() {
       await navigator.clipboard.writeText(text);
       copy.textContent = 'Copied';
       status.textContent = 'Citation copied to clipboard.';
-      setTimeout(() => { copy.textContent = 'Copy'; status.textContent = ''; }, 2500);
+      if(controller.signal.aborted)return;
+      copyTimer=setTimeout(() => { copy.textContent = 'Copy'; status.textContent = ''; }, 2500);
     } catch {
       status.classList.remove('sr-only');
       status.classList.add('caption');
       status.textContent = 'Select the citation text and copy it manually.';
     }
-  });
+  },{signal:controller.signal});
 
   const preference = matchMedia('(prefers-reduced-motion: reduce)');
   // Content remains visible if motion is disabled or observation is unavailable.
-  if (preference.matches || !('IntersectionObserver' in window)) return;
+  if (preference.matches || !('IntersectionObserver' in window)) return release;
   const blocks = [...document.querySelectorAll('#content > .section, .paper-intro > h2, .paper-meta')];
   const reveal = block => { block.classList.add('is-revealed'); observer.unobserve(block); };
-  const observer = new IntersectionObserver(entries => {
+  observer = new IntersectionObserver(entries => {
     for (const entry of entries) if (entry.isIntersecting) reveal(entry.target);
   }, {rootMargin: '0px 0px -40px 0px', threshold: 0});
   for (const block of blocks) {
@@ -168,10 +174,11 @@ export function bindHomePresentation() {
   document.querySelector('#content').addEventListener('focusin', event => {
     const block = event.target.closest('.home-reveal');
     if (block) reveal(block);
-  });
+  },{signal:controller.signal});
   preference.addEventListener('change', event => {
     if (event.matches) { blocks.forEach(reveal); observer.disconnect(); }
-  });
+  },{signal:controller.signal});
+  return release;
 }
 
 export function bindHomeMotion() {
@@ -180,7 +187,7 @@ export function bindHomeMotion() {
   const preference = matchMedia('(prefers-reduced-motion: reduce)');
   const slides = [...root.querySelectorAll('.showcase-slide')];
   const dots = [...root.querySelectorAll('[data-slide]')];
-  let current = 0, elapsed = 0, last = 0;
+  let current = 0, elapsed = 0, last = 0, frame;
   const galleries = [...document.querySelectorAll('[data-gallery]')].map(section => ({
     rows: [...section.querySelectorAll('[data-gallery-row]')].map(view=>({view, visible:false, position:0, span:0, holdUntil:0})),
     videos: [...section.querySelectorAll('video')].map(video=>({video, visible:false, requested:false}))
@@ -247,7 +254,8 @@ export function bindHomeMotion() {
     }
   }
   document.addEventListener('visibilitychange',syncVideos);
-  preference.addEventListener('change',()=>{elapsed=0;syncVideos();});
+  const onPreference=()=>{elapsed=0;syncVideos();};
+  preference.addEventListener('change',onPreference);
   const tick = now => {
     const dt = last ? Math.min(now-last,100) : 0;last=now;
     if (!document.hidden) {
@@ -265,7 +273,13 @@ export function bindHomeMotion() {
         }
       }
     }
-    requestAnimationFrame(tick);
+    frame=requestAnimationFrame(tick);
   };
-  syncVideos();requestAnimationFrame(tick);
+  syncVideos();frame=requestAnimationFrame(tick);
+  return ()=>{
+    cancelAnimationFrame(frame);observer.disconnect();resize.disconnect();
+    document.removeEventListener('visibilitychange',syncVideos);
+    preference.removeEventListener('change',onPreference);
+    videos.forEach(item=>item.video.pause());
+  };
 }

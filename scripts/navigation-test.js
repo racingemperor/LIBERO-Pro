@@ -3,13 +3,13 @@ const frame = document.querySelector('iframe');
 if(new URLSearchParams(location.search).get('width')==='375'){frame.style.width='375px';frame.style.height='812px';}
 const report = document.querySelector('#results');
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
-const waitFor = async predicate => {
+const waitFor = async (predicate,message='the updated view') => {
   const deadline = Date.now() + 8000;
   while (Date.now() < deadline) {
     if (predicate()) return;
     await new Promise(resolve => setTimeout(resolve, 30));
   }
-  throw new Error('Timed out waiting for the updated view');
+  throw new Error('Timed out waiting for '+message);
 };
 const doc = () => frame.contentDocument;
 const win = () => frame.contentWindow;
@@ -23,13 +23,13 @@ const load = async path => {
   if(win().location.href === target.href)win().location.reload();
   else frame.src = target;
   await loaded;
-  await waitFor(() => query('#content h1') && !query('.loading'));
+  await waitFor(() => query('#content h1') && !query('.loading') && query('#view-status') && !query('#app[aria-busy="true"]'));
 };
 const click = selector => {
   assert(query(selector), 'Missing control: ' + selector);
   const target=query(selector);
   if(typeof target.click==='function')target.click();
-  else target.dispatchEvent(new (win().MouseEvent)('click',{bubbles:true,button:0}));
+  else target.dispatchEvent(new (win().MouseEvent)('click',{bubbles:true,cancelable:true,button:0}));
 };
 const select = (selector, value) => {
   query(selector).value = value;
@@ -44,7 +44,75 @@ async function change(action, ready) {
   assert(win().history.length === before.history, 'A selection added a browser history entry');
 }
 
+async function navigate(action,ready,{push=true}={}) {
+  const before={document:doc(),header:query('.site-header'),origin:win().performance.timeOrigin,history:win().history.length,entry:win().history.state.liberoNavigation.entry};
+  action();await waitFor(()=>ready()&&!query('#app[aria-busy="true"]'));
+  assert(doc()===before.document&&win().performance.timeOrigin===before.origin,'Cross-page navigation reloaded the document');
+  assert(query('.site-header')===before.header,'Cross-page navigation replaced the header');
+  // Chromium caps session history at 50 entries, including earlier iframe test loads.
+  if(push)assert(win().history.state.liberoNavigation.entry!==before.entry&&win().history.length>=before.history&&win().history.length<=before.history+1,'A section switch did not create a new history entry');
+  else assert(win().history.length===before.history,'Back/Forward added a history entry');
+}
+
 const tests = [
+  ['All top-level sections switch in one document and Back/Forward follows their order', async()=>{
+    await load('index.html');
+    const pages=[['docs','Document'],['leaderboard','Leaderboard'],['report','Report'],['community','Community']];
+    for(const [page,label] of pages){
+      await navigate(()=>click(`.site-header a[href="${page}.html"]`),()=>doc().body.dataset.page===page);
+      assert(query('.site-header [aria-current="page"]').textContent===label,'Active navigation did not follow the page');
+      assert(doc().title.includes(label),'Page title was not updated');
+      assert(doc().activeElement===query('#content h1'),'New page heading did not receive keyboard focus');
+      assert(win().scrollY===0,'New section did not start at the top');
+    }
+    for(const page of ['report','leaderboard','docs','index'])await navigate(()=>win().history.back(),()=>doc().body.dataset.page===page,{push:false});
+    for(const [page] of pages)await navigate(()=>win().history.forward(),()=>doc().body.dataset.page===page,{push:false});
+    await change(()=>click('.site-header a[href="community.html"]'),()=>doc().body.dataset.page==='community');
+    assert(doc().documentElement.scrollWidth<=win().innerWidth,'Routed content overflows the viewport');
+  }],
+  ['Back restores filters and page/table scroll; new sections release old media', async()=>{
+    await load('leaderboard.html?mode=dynamic&type=World+Action+Models#perturbation-rankings');
+    const table=query('.perturbation-table').closest('.table-scroll');
+    table.scrollLeft=420;win().scrollTo({top:650,behavior:'instant'});
+    await new Promise(resolve=>win().requestAnimationFrame(()=>win().requestAnimationFrame(resolve)));
+    const position={top:win().scrollY,left:table.scrollLeft};
+    await navigate(()=>click('.site-nav a[href="docs.html"]'),()=>doc().body.dataset.page==='docs');
+    await navigate(()=>win().history.back(),()=>!!query('.perturbation-table'),{push:false});
+    await waitFor(()=>Math.abs(win().scrollY-position.top)<2&&Math.abs(query('.perturbation-table').closest('.table-scroll').scrollLeft-position.left)<2);
+    assert(query('[data-query="type"]').value==='World Action Models','Back lost the model filter');
+    assert(query('#rankings .tab.active').textContent.includes('Dynamic'),'Back lost the selected benchmark');
+    click('a[aria-label^="View "][aria-label$=" details"]');
+    await waitFor(()=>doc().body.dataset.page==='model');
+    const videos=[...doc().querySelectorAll('video[data-rollout]')];
+    await navigate(()=>click('.site-nav a[href="report.html"]'),()=>doc().body.dataset.page==='report');
+    assert(videos.every(video=>!video.isConnected&&video.paused&&!video.querySelector('source').hasAttribute('src')),'Leaving a model retained media playback or sources');
+    await navigate(()=>win().history.back(),()=>doc().body.dataset.page==='model',{push:false});
+    assert([...doc().querySelectorAll('video[data-rollout]')].every(video=>video.playbackRate===2),'Returning to a model lost 2× playback');
+    await navigate(()=>click('.brand'),()=>doc().body.dataset.page==='index',{push:false});
+    const homeVideos=[...doc().querySelectorAll('video')];
+    // Returning from Back replaces the forward branch; history length need not grow.
+    click('.site-nav a[href="report.html"]');await waitFor(()=>doc().body.dataset.page==='report');
+    assert(homeVideos.every(video=>!video.isConnected&&video.paused&&!video.hasAttribute('src')),'Leaving Home retained a video source');
+  }],
+  ['Rapid navigation keeps the final requested page and preserves native link behavior', async()=>{
+    await load('index.html');
+    const before={document:doc(),history:win().history.length};
+    click('.site-nav a[href="leaderboard.html"]');click('.site-nav a[href="docs.html"]');
+    await waitFor(()=>doc().body.dataset.page==='docs'&&!query('#app[aria-busy="true"]'));
+    await new Promise(resolve=>setTimeout(resolve,150));
+    assert(doc()===before.document&&doc().body.dataset.page==='docs','An outdated request replaced the final destination');
+    win().history.back();await waitFor(()=>doc().body.dataset.page==='index');
+    assert(doc()===before.document,'Back after rapid navigation reloaded the document');
+    win().history.forward();await waitFor(()=>doc().body.dataset.page==='docs');
+    const {isSiteLink,siteRoute}=await import('../assets/site-router.js');
+    const normal={button:0,defaultPrevented:false};
+    assert(isSiteLink(normal,query('.brand')),'Home should be a routed link');
+    assert(!isSiteLink({...normal,ctrlKey:true},query('.brand')),'Ctrl-click must remain native');
+    assert(!isSiteLink({...normal,button:1},query('.brand')),'Middle-click must remain native');
+    assert(!isSiteLink(normal,query('.site-links a[target="_blank"]')),'External new-tab link was intercepted');
+    assert(!siteRoute(new URL('../outside.html',win().location.href))&&!siteRoute(new URL('assets/favicon.svg',win().location.href)),'Router accepted a non-page URL');
+    await change(()=>click('.footer a[href="docs.html#protocol"]'),()=>win().location.hash==='#protocol');
+  }],
   ['Model galleries autoplay visible videos, resume after scrolling, and switch in place', async () => {
     await load('model.html?id=anchor-align&perturbation=S01');
     assert(doc().querySelectorAll('video[data-rollout]').length===8,'Eight matched videos expected');
@@ -269,7 +337,7 @@ const tests = [
     win().scrollBy(0,touch.y-win().innerHeight/2);
     touch=localTouch.matrixTransform(touchSeries.getScreenCTM());
     doc().elementFromPoint(touch.x,touch.y).dispatchEvent(new (win().MouseEvent)('click',{bubbles:true,cancelable:true,button:0,detail:1,clientX:touch.x,clientY:touch.y}));
-    await waitFor(()=>query('.model-title')?.textContent.includes('Lingbot-VA'));
+    await waitFor(()=>query('.model-title')?.textContent.includes('Lingbot-VA'),'nearest-line touch navigation');
     assert(new URL(win().location).searchParams.get('id')==='lingbot-va','Tap without hover followed the overlapping model');
     await load('leaderboard.html?compare=lingbot-va,pi0#capabilities');
     const card=()=>query('#capability-preview');
@@ -301,14 +369,13 @@ const tests = [
     assert(card().hidden&&doc().activeElement===pi,'Escape moved focus away from the model line');
     pi.dispatchEvent(new (win().PointerEvent)('pointerover',{bubbles:true,pointerType:'touch'}));
     const previous=win().location.href;
-    click('[data-series="pi0"] .capability-hit');
-    await waitFor(()=>query('.model-title')?.textContent.includes('π0'));
+    await navigate(()=>click('[data-series="pi0"] .capability-hit'),()=>query('.model-title')?.textContent.includes('π0'));
     assert(new URL(win().location).searchParams.get('id')==='pi0','A single line click did not open the correct profile');
     win().history.back();
-    await waitFor(()=>win().location.href===previous&&!!query('.capability-chart'));
+    await waitFor(()=>win().location.href===previous&&!!query('.capability-chart'),'chart Back restoration');
     assert(doc().querySelectorAll('[data-chart-model][aria-pressed="true"]').length===2,'Back lost selected models');
     win().history.forward();
-    await waitFor(()=>query('.model-title')?.textContent.includes('π0'));
+    await waitFor(()=>query('.model-title')?.textContent.includes('π0'),'model Forward restoration');
   }],
   ['Model S01 → S02 keeps the document, profile, directory and scroll position', async () => {
     await load('model.html?id=openvla-oft-m&perturbation=S01');
@@ -475,7 +542,9 @@ const tests = [
 ];
 
 let failed = 0;
-for (const [name, run] of tests) {
+const requested=new URLSearchParams(location.search).get('test');
+const selectedTests=requested?tests.filter(([name])=>name.includes(requested)):tests;
+for (const [name, run] of selectedTests) {
   const item = document.createElement('li');
   try {
     await run();
@@ -488,4 +557,4 @@ for (const [name, run] of tests) {
   }
   report.append(item);
 }
-document.querySelector('#status').textContent = `${tests.length - failed}/${tests.length} passed; ${failed} failed.`;
+document.querySelector('#status').textContent = `${selectedTests.length - failed}/${selectedTests.length} passed; ${failed} failed.`;
