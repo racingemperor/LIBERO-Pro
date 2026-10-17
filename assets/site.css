@@ -33,9 +33,10 @@ html{scroll-behavior:auto}.section{scroll-margin-top:0}.news-section{padding:25p
 .capability-chart{min-width:0}
 .capability-selection-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:12px;font-size:13px;font-weight:600}
 .capability-count{margin-left:8px;font-size:12px;font-weight:400;color:var(--muted);font-variant-numeric:tabular-nums}
-.capability-selection-head>div{display:flex;gap:18px}
-.capability-selection-head button{padding:6px 0;border:0;background:none;font:inherit;font-weight:400;color:var(--muted);cursor:pointer}
-.capability-selection-head button:hover{color:var(--blue);text-decoration:underline;text-underline-offset:4px}
+.capability-selection-head>div{display:flex;gap:8px}
+.capability-selection-head button{min-height:36px;padding:6px 12px;border:1px solid #8d9aaa;border-radius:6px;background:white;font:inherit;font-weight:400;color:var(--ink);cursor:pointer;white-space:nowrap}
+.capability-selection-head button:hover{border-color:var(--blue);background:var(--wash);color:var(--blue)}
+.capability-selection-head button:active{background:#e6edf7}
 .capability-models{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
 .model-chip{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:5px 12px 5px 7px;border:1px solid #dce2e8;border-radius:30px;background:#fff;color:#495664;font:600 12px var(--font-sans);cursor:pointer;transition:background .15s,border-color .15s}
 .model-chip img,.capability-preview-head>img{width:26px;height:26px;object-fit:contain;background:white;border-radius:50%;padding:3px}

@@ -143,7 +143,7 @@ function leaderboardPage() {
   return layout(`${head('Leaderboard','Success rates under static shifts and dynamic interventions. Select a model or a domain score to inspect its tasks.')}
     ${homeNews(leaderboardNews.entries)}
     <section class="section" id="capabilities">${sectionHead('Model capabilities')}${capabilities.render(params)}</section>
-    <section class="section" id="rankings">${sectionHead('Model comparison',`<span class="count-label">${entries.length} models · success rate (%)</span>`)}<div class="controls">${tabs(mode,m=>url('leaderboard',{...Object.fromEntries(params),mode:m,type,sort,order:asc?'asc':'desc'},'rankings'),['overall','static','dynamic'])}<label class="control">Model type <select data-query="type" data-anchor="rankings"><option value="all">All models</option>${['Mainstream VLA','World Action Models','Robustness-oriented'].map(t=>`<option ${type===t?'selected':''}>${t}</option>`).join('')}</select></label></div>${leaderboardTable(mode,entries,sort,asc)}</section>
+    <section class="section" id="rankings">${sectionHead('Model comparison')}<div class="controls">${tabs(mode,m=>url('leaderboard',{...Object.fromEntries(params),mode:m,type,sort,order:asc?'asc':'desc'},'rankings'),['overall','static','dynamic'])}<label class="control">Model type <select data-query="type" data-anchor="rankings"><option value="all">All models</option>${['Mainstream VLA','World Action Models','Robustness-oriented'].map(t=>`<option ${type===t?'selected':''}>${t}</option>`).join('')}</select></label></div>${leaderboardTable(mode,entries,sort,asc)}</section>
     ${perturbationRankings()}`,[['news','News'],['capabilities','Capabilities'],['rankings','Model comparison'],['perturbation-rankings','By perturbation']]);
 }
 
@@ -162,7 +162,7 @@ function perturbationRankings() {
     perturbationSort:nextMode===mode?sort:'average',perturbationOrder:nextMode===mode?(asc?'asc':'desc'):'desc'
   },'perturbation-rankings');
   return `<section class="section" id="perturbation-rankings">
-    ${sectionHead('Perturbation comparison',`<span class="count-label">${entries.length} models · ${perturbations.length} perturbations · success rate (%)</span>`)}
+    ${sectionHead('Perturbation comparison')}
     <div class="controls">${tabs(mode,modeHref)}
       <label class="control">Model type <select data-query="perturbationType" data-anchor="perturbation-rankings"><option value="all">All models</option>${types.map(t=>`<option ${type===t?'selected':''}>${t}</option>`).join('')}</select></label>
     </div>
