@@ -17,7 +17,6 @@ def private_directory(path):
 
 
 def public_results(data):
-    reported = json.loads((ROOT / 'scripts/paper-scores.json').read_text(encoding='utf-8'))['models']
     models = []
     for model in data['models']:
         scores = {key: model['scores'][key] for key in ('base', 'overall')}
@@ -38,7 +37,6 @@ def public_results(data):
                           for case in model['cases'] if case['direction'] != 'BASE'],
             'updated': model['source']['date'],
             'granularity': model['source']['granularity'],
-            **({'reportedScores': reported[model['id']]} if model['id'] in reported else {}),
         })
     return {key: data[key] for key in ('metric', 'aggregation')} | {'models': models}
 

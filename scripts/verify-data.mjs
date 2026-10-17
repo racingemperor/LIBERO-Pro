@@ -3,11 +3,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {rolloutMediaPaths} from '../assets/rollout-media.js';
-import {baseScore, summaryScore, deltaScore} from '../assets/scores.js';
 const read = name => JSON.parse(fs.readFileSync(new URL('../data/'+name+'.json',import.meta.url),'utf8'));
 const {categories,perturbations}=read('catalogue');
 const {models}=read('results');
-const reported=JSON.parse(fs.readFileSync(new URL('paper-scores.json',import.meta.url),'utf8')).models;
 const {tasks}=read('tasks');
 const assets=read('model-assets');
 const profiles=read('model-profiles');
@@ -68,15 +66,7 @@ for(const institution of people.affiliations){
 }
 for(const author of people.authors)for(const id of author.affiliations||[])assert(people.affiliations.some(a=>a.id===id));
 for(const m of models){
-  assert.deepEqual(Object.keys(m).sort(),['id','name','type','scores','cells','taskRates','updated','granularity',...(reported[m.id]?['reportedScores']:[])].sort(),'Unexpected public model fields');
-  if(reported[m.id]){
-    assert.deepEqual(m.reportedScores,reported[m.id],'Published summaries must survive rebuilding from private inputs');
-    assert.equal(baseScore(m),reported[m.id].base);
-    for(const mode of ['static','dynamic']){
-      assert.deepEqual(summaryScore(m,mode),reported[m.id][mode]);
-      assert.equal(deltaScore(m,summaryScore(m,mode)),reported[m.id][mode].delta,'Use the paper delta calculated before rounding');
-    }
-  }
+  assert.deepEqual(Object.keys(m).sort(),['id','name','type','scores','cells','taskRates','updated','granularity'].sort(),'Unexpected public model fields');
   assert(profiles[m.id]?.description&&/^https:\/\//.test(profiles[m.id].source),`Missing sourced model introduction ${m.id}`);
   assert(assets[m.id],`Missing model image ${m.id}`);
   assert(fs.existsSync(new URL('../assets/models/'+assets[m.id].asset,import.meta.url)));
@@ -130,10 +120,8 @@ for(const m of models){
 }
 // Independent displayed-value controls transcribed from the supplied paper table.
 for(const [name,s,d] of [['OpenVLA-OFT',58.9,64.6],['Lingbot-VA',68.7,81.8],['MolmoAct2',71.2,76.9],['Cosmos Policy',70.8,72.2],['FastWAM',55.9,70.1]]){
-  const m=models.find(m=>m.name===name);assert.equal((summaryScore(m,'static').average*100).toFixed(1),s.toFixed(1));assert.equal((summaryScore(m,'dynamic').average*100).toFixed(1),d.toFixed(1));
+  const m=models.find(m=>m.name===name);assert.equal((m.scores.static.average*100).toFixed(1),s.toFixed(1));assert.equal((m.scores.dynamic.average*100).toFixed(1),d.toFixed(1));
 }
-assert.equal(Object.keys(reported).length,17,'The paper covers 17 models; NORA keeps its evaluation summaries');
-assert.equal(models.find(m=>m.id==='nora').reportedScores,undefined);
 for(const name of ['news','leaderboard-news']){
   const announcements=read(name).entries;
   for(const [index,entry] of announcements.entries()){

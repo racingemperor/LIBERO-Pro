@@ -873,34 +873,7 @@
       ],
       "taskRates": [],
       "updated": "2026-10-07",
-      "granularity": "suite",
-      "reportedScores": {
-        "base": 0.985,
-        "static": {
-          "average": 0.687,
-          "categories": {
-            "condition": 0.522,
-            "environment": 0.861,
-            "observation": 0.35700000000000004,
-            "execution": 0.867,
-            "robot": 0.983,
-            "language": 0.971
-          },
-          "delta": -0.297
-        },
-        "dynamic": {
-          "average": 0.818,
-          "categories": {
-            "condition": 0.773,
-            "environment": 0.815,
-            "observation": 0.905,
-            "execution": 0.968,
-            "robot": 0.593,
-            "language": 0.9670000000000001
-          },
-          "delta": -0.16699999999999998
-        }
-      }
+      "granularity": "suite"
     },
     {
       "id": "molmoact2",
@@ -1773,34 +1746,7 @@
       ],
       "taskRates": [],
       "updated": "2026-10-07",
-      "granularity": "suite",
-      "reportedScores": {
-        "base": 0.972,
-        "static": {
-          "average": 0.7120000000000001,
-          "categories": {
-            "condition": 0.638,
-            "environment": 0.85,
-            "observation": 0.6509999999999999,
-            "execution": 0.0,
-            "robot": 0.85,
-            "language": 0.946
-          },
-          "delta": -0.26
-        },
-        "dynamic": {
-          "average": 0.769,
-          "categories": {
-            "condition": 0.586,
-            "environment": 0.742,
-            "observation": 0.903,
-            "execution": 0.904,
-            "robot": 0.79,
-            "language": 0.9420000000000001
-          },
-          "delta": -0.203
-        }
-      }
+      "granularity": "suite"
     },
     {
       "id": "cosmos-policy",
@@ -2673,34 +2619,7 @@
       ],
       "taskRates": [],
       "updated": "2026-10-07",
-      "granularity": "suite",
-      "reportedScores": {
-        "base": 0.975,
-        "static": {
-          "average": 0.708,
-          "categories": {
-            "condition": 0.569,
-            "environment": 0.893,
-            "observation": 0.708,
-            "execution": 0.042,
-            "robot": 0.825,
-            "language": 0.9329999999999999
-          },
-          "delta": -0.267
-        },
-        "dynamic": {
-          "average": 0.722,
-          "categories": {
-            "condition": 0.456,
-            "environment": 0.847,
-            "observation": 0.879,
-            "execution": 0.856,
-            "robot": 0.706,
-            "language": 0.958
-          },
-          "delta": -0.253
-        }
-      }
+      "granularity": "suite"
     },
     {
       "id": "pi0-5",
@@ -3573,34 +3492,7 @@
       ],
       "taskRates": [],
       "updated": "2026-10-07",
-      "granularity": "suite",
-      "reportedScores": {
-        "base": 0.9329999999999999,
-        "static": {
-          "average": 0.667,
-          "categories": {
-            "condition": 0.607,
-            "environment": 0.8390000000000001,
-            "observation": 0.433,
-            "execution": 0.008,
-            "robot": 0.85,
-            "language": 0.9329999999999999
-          },
-          "delta": -0.266
-        },
-        "dynamic": {
-          "average": 0.738,
-          "categories": {
-            "condition": 0.605,
-            "environment": 0.581,
-            "observation": 0.866,
-            "execution": 0.889,
-            "robot": 0.775,
-            "language": 0.9420000000000001
-          },
-          "delta": -0.195
-        }
-      }
+      "granularity": "suite"
     },
     {
       "id": "xvla",
@@ -4473,34 +4365,7 @@
       ],
       "taskRates": [],
       "updated": "2026-10-07",
-      "granularity": "suite",
-      "reportedScores": {
-        "base": 0.95,
-        "static": {
-          "average": 0.612,
-          "categories": {
-            "condition": 0.42100000000000004,
-            "environment": 0.8170000000000001,
-            "observation": 0.493,
-            "execution": 0.7170000000000001,
-            "robot": 0.617,
-            "language": 0.9079999999999999
-          },
-          "delta": -0.33799999999999997
-        },
-        "dynamic": {
-          "average": 0.66,
-          "categories": {
-            "condition": 0.41700000000000004,
-            "environment": 0.597,
-            "observation": 0.9359999999999999,
-            "execution": 0.701,
-            "robot": 0.701,
-            "language": 0.95
-          },
-          "delta": -0.29
-        }
-      }
+      "granularity": "suite"
     },
     {
       "id": "fastwam",
@@ -5373,34 +5238,7 @@
       ],
       "taskRates": [],
       "updated": "2026-10-07",
-      "granularity": "suite",
-      "reportedScores": {
-        "base": 0.978,
-        "static": {
-          "average": 0.5589999999999999,
-          "categories": {
-            "condition": 0.43799999999999994,
-            "environment": 0.847,
-            "observation": 0.052000000000000005,
-            "execution": 0.027999999999999997,
-            "robot": 0.875,
-            "language": 0.903
-          },
-          "delta": -0.418
-        },
-        "dynamic": {
-          "average": 0.701,
-          "categories": {
-            "condition": 0.436,
-            "environment": 0.6709999999999999,
-            "observation": 0.907,
-            "execution": 0.899,
-            "robot": 0.7140000000000001,
-            "language": 0.932
-          },
-          "delta": -0.276
-        }
-      }
+      "granularity": "suite"
     },
     {
       "id": "gr00t-n1-7",
@@ -6273,34 +6111,7 @@
       ],
       "taskRates": [],
       "updated": "2026-10-07",
-      "granularity": "suite",
-      "reportedScores": {
-        "base": 0.904,
-        "static": {
-          "average": 0.6,
-          "categories": {
-            "condition": 0.466,
-            "environment": 0.792,
-            "observation": 0.485,
-            "execution": 0.0,
-            "robot": 0.779,
-            "language": 0.888
-          },
-          "delta": -0.304
-        },
-        "dynamic": {
-          "average": 0.639,
-          "categories": {
-            "condition": 0.41700000000000004,
-            "environment": 0.66,
-            "observation": 0.779,
-            "execution": 0.8240000000000001,
-            "robot": 0.603,
-            "language": 0.8959999999999999
-          },
-          "delta": -0.266
-        }
-      }
+      "granularity": "suite"
     },
     {
       "id": "openvla-oft-m",
@@ -8829,34 +8640,7 @@
         }
       ],
       "updated": "2026-10-08",
-      "granularity": "task",
-      "reportedScores": {
-        "base": 0.925,
-        "static": {
-          "average": 0.593,
-          "categories": {
-            "condition": 0.45899999999999996,
-            "environment": 0.7829999999999999,
-            "observation": 0.49700000000000005,
-            "execution": 0.0,
-            "robot": 0.721,
-            "language": 0.9209999999999999
-          },
-          "delta": -0.332
-        },
-        "dynamic": {
-          "average": 0.643,
-          "categories": {
-            "condition": 0.396,
-            "environment": 0.614,
-            "observation": 0.804,
-            "execution": 0.857,
-            "robot": 0.636,
-            "language": 0.938
-          },
-          "delta": -0.282
-        }
-      }
+      "granularity": "task"
     },
     {
       "id": "openvla-oft",
@@ -9729,34 +9513,7 @@
       ],
       "taskRates": [],
       "updated": "2026-10-07",
-      "granularity": "suite",
-      "reportedScores": {
-        "base": 0.971,
-        "static": {
-          "average": 0.589,
-          "categories": {
-            "condition": 0.441,
-            "environment": 0.82,
-            "observation": 0.46299999999999997,
-            "execution": 0.0,
-            "robot": 0.665,
-            "language": 0.946
-          },
-          "delta": -0.382
-        },
-        "dynamic": {
-          "average": 0.6459999999999999,
-          "categories": {
-            "condition": 0.428,
-            "environment": 0.631,
-            "observation": 0.804,
-            "execution": 0.853,
-            "robot": 0.5760000000000001,
-            "language": 0.9540000000000001
-          },
-          "delta": -0.325
-        }
-      }
+      "granularity": "suite"
     },
     {
       "id": "openvla-oft-plus",
@@ -12285,34 +12042,7 @@
         }
       ],
       "updated": "2026-10-08",
-      "granularity": "task",
-      "reportedScores": {
-        "base": 0.9209999999999999,
-        "static": {
-          "average": 0.5920000000000001,
-          "categories": {
-            "condition": 0.47200000000000003,
-            "environment": 0.785,
-            "observation": 0.45,
-            "execution": 0.0,
-            "robot": 0.738,
-            "language": 0.9
-          },
-          "delta": -0.32899999999999996
-        },
-        "dynamic": {
-          "average": 0.638,
-          "categories": {
-            "condition": 0.413,
-            "environment": 0.569,
-            "observation": 0.7979999999999999,
-            "execution": 0.8420000000000001,
-            "robot": 0.64,
-            "language": 0.938
-          },
-          "delta": -0.28300000000000003
-        }
-      }
+      "granularity": "task"
     },
     {
       "id": "anchor-align",
@@ -13185,34 +12915,7 @@
       ],
       "taskRates": [],
       "updated": "2026-10-07",
-      "granularity": "suite",
-      "reportedScores": {
-        "base": 0.9129999999999999,
-        "static": {
-          "average": 0.5589999999999999,
-          "categories": {
-            "condition": 0.43200000000000005,
-            "environment": 0.743,
-            "observation": 0.386,
-            "execution": 0.008,
-            "robot": 0.765,
-            "language": 0.9079999999999999
-          },
-          "delta": -0.354
-        },
-        "dynamic": {
-          "average": 0.616,
-          "categories": {
-            "condition": 0.424,
-            "environment": 0.474,
-            "observation": 0.774,
-            "execution": 0.875,
-            "robot": 0.588,
-            "language": 0.883
-          },
-          "delta": -0.297
-        }
-      }
+      "granularity": "suite"
     },
     {
       "id": "openvla-oft-w",
@@ -15741,34 +15444,7 @@
         }
       ],
       "updated": "2026-10-08",
-      "granularity": "task",
-      "reportedScores": {
-        "base": 0.892,
-        "static": {
-          "average": 0.5379999999999999,
-          "categories": {
-            "condition": 0.401,
-            "environment": 0.649,
-            "observation": 0.6759999999999999,
-            "execution": 0.004,
-            "robot": 0.5539999999999999,
-            "language": 0.9
-          },
-          "delta": -0.354
-        },
-        "dynamic": {
-          "average": 0.619,
-          "categories": {
-            "condition": 0.349,
-            "environment": 0.778,
-            "observation": 0.746,
-            "execution": 0.81,
-            "robot": 0.54,
-            "language": 0.917
-          },
-          "delta": -0.273
-        }
-      }
+      "granularity": "task"
     },
     {
       "id": "ript-vla",
@@ -18297,34 +17973,7 @@
         }
       ],
       "updated": "2026-10-08",
-      "granularity": "task",
-      "reportedScores": {
-        "base": 0.879,
-        "static": {
-          "average": 0.5479999999999999,
-          "categories": {
-            "condition": 0.406,
-            "environment": 0.76,
-            "observation": 0.428,
-            "execution": 0.0,
-            "robot": 0.65,
-            "language": 0.867
-          },
-          "delta": -0.331
-        },
-        "dynamic": {
-          "average": 0.601,
-          "categories": {
-            "condition": 0.39399999999999996,
-            "environment": 0.586,
-            "observation": 0.745,
-            "execution": 0.7959999999999999,
-            "robot": 0.5429999999999999,
-            "language": 0.8959999999999999
-          },
-          "delta": -0.278
-        }
-      }
+      "granularity": "task"
     },
     {
       "id": "pi0",
@@ -19197,34 +18846,7 @@
       ],
       "taskRates": [],
       "updated": "2026-10-07",
-      "granularity": "suite",
-      "reportedScores": {
-        "base": 0.638,
-        "static": {
-          "average": 0.386,
-          "categories": {
-            "condition": 0.25,
-            "environment": 0.5379999999999999,
-            "observation": 0.6,
-            "execution": 0.05,
-            "robot": 0.192,
-            "language": 0.46299999999999997
-          },
-          "delta": -0.251
-        },
-        "dynamic": {
-          "average": 0.353,
-          "categories": {
-            "condition": 0.249,
-            "environment": 0.569,
-            "observation": 0.527,
-            "execution": 0.308,
-            "robot": 0.07200000000000001,
-            "language": 0.613
-          },
-          "delta": -0.284
-        }
-      }
+      "granularity": "suite"
     },
     {
       "id": "openvla",
@@ -21753,34 +21375,7 @@
         }
       ],
       "updated": "2026-10-08",
-      "granularity": "task",
-      "reportedScores": {
-        "base": 0.6459999999999999,
-        "static": {
-          "average": 0.33899999999999997,
-          "categories": {
-            "condition": 0.252,
-            "environment": 0.376,
-            "observation": 0.344,
-            "execution": 0.0,
-            "robot": 0.54,
-            "language": 0.675
-          },
-          "delta": -0.307
-        },
-        "dynamic": {
-          "average": 0.364,
-          "categories": {
-            "condition": 0.20600000000000002,
-            "environment": 0.419,
-            "observation": 0.413,
-            "execution": 0.536,
-            "robot": 0.299,
-            "language": 0.638
-          },
-          "delta": -0.282
-        }
-      }
+      "granularity": "task"
     },
     {
       "id": "nora",
@@ -26838,34 +26433,7 @@
         }
       ],
       "updated": "2026-10-08",
-      "granularity": "task",
-      "reportedScores": {
-        "base": 0.9209999999999999,
-        "static": {
-          "average": 0.529,
-          "categories": {
-            "condition": 0.39799999999999996,
-            "environment": 0.595,
-            "observation": 0.581,
-            "execution": 0.0,
-            "robot": 0.7959999999999999,
-            "language": 0.917
-          },
-          "delta": -0.392
-        },
-        "dynamic": {
-          "average": 0.61,
-          "categories": {
-            "condition": 0.309,
-            "environment": 0.7170000000000001,
-            "observation": 0.789,
-            "execution": 0.815,
-            "robot": 0.562,
-            "language": 0.9079999999999999
-          },
-          "delta": -0.311
-        }
-      }
+      "granularity": "task"
     },
     {
       "id": "pi0-fast",
@@ -29394,34 +28962,7 @@
         }
       ],
       "updated": "2026-10-08",
-      "granularity": "task",
-      "reportedScores": {
-        "base": 0.804,
-        "static": {
-          "average": 0.532,
-          "categories": {
-            "condition": 0.43799999999999994,
-            "environment": 0.715,
-            "observation": 0.39899999999999997,
-            "execution": 0.0,
-            "robot": 0.5770000000000001,
-            "language": 0.812
-          },
-          "delta": -0.273
-        },
-        "dynamic": {
-          "average": 0.5589999999999999,
-          "categories": {
-            "condition": 0.456,
-            "environment": 0.45399999999999996,
-            "observation": 0.609,
-            "execution": 0.7,
-            "robot": 0.583,
-            "language": 0.792
-          },
-          "delta": -0.245
-        }
-      }
+      "granularity": "task"
     }
   ]
 }
