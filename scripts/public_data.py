@@ -16,8 +16,22 @@ def private_directory(path):
     return path
 
 
+def paper_scores():
+    rows = json.loads((ROOT / 'scripts/paper-scores.json').read_text(encoding='utf-8'))['rows']
+    published = {}
+    for row in rows:
+        score = published.setdefault(row['id'], {'base': round(row['base'] / 100, 3)})
+        score[row['mode']] = {
+            'average': round(row['average'] / 100, 3),
+            'delta': round(row['delta'] / 100, 3),
+            'categories': {key: round(row[key] / 100, 3) for key in DOMAINS},
+        }
+    return published
+
+
 def public_results(data):
     models = []
+    reported = paper_scores()
     for model in data['models']:
         scores = {key: model['scores'][key] for key in ('base', 'overall')}
         for mode in ('static', 'dynamic'):
@@ -37,6 +51,7 @@ def public_results(data):
                           for case in model['cases'] if case['direction'] != 'BASE'],
             'updated': model['source']['date'],
             'granularity': model['source']['granularity'],
+            **({'reportedScores': reported[model['id']]} if model['id'] in reported else {}),
         })
     return {key: data[key] for key in ('metric', 'aggregation')} | {'models': models}
 

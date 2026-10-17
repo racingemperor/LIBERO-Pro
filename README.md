@@ -73,6 +73,8 @@ Document typography retains its compact scale: 16px body text with 1.6 line heig
 
 `data/results.json` contains only the rates and labels needed to render 18 models on the website. Average success rates include S22 and average available suite × perturbation cells, pooling task counts privately before calculating the displayed rates. Missing data is never zero-filled. Δ is Average − Base.
 
+`reportedScores` holds summary values from the active release-paper tables, as transcribed in `scripts/paper-scores.json`. Static/dynamic tables, charts and model summaries display these paper values. `scores`, `cells` and `taskRates` retain the original evaluation rates; Overall remains a website-only aggregation. `assets/scores.js` centralizes the selection, including explicitly reported Δ values, so rounding is consistent across views. Regenerating public data reapplies the paper values. The verifier checks all 306 published summary numbers as well as the original aggregates.
+
 The site has no evaluation snapshot or raw-data download links. Internal trial counts, source worksheet cells, historical evaluation files and rollout provenance are kept outside this public repository. Public task entries contain success rates only; suite-level results are not used to infer unavailable task rates.
 
 `scripts/public_data.py` applies explicit field allowlists to the private input before writing the display files. Displayed values necessarily reach the visitor's browser; the generated files must never contain internal records. The data verifier checks this separation before publishing.

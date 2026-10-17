@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {rolloutMediaPaths} from '../assets/rollout-media.js';
+import {baseScore, summaryScore, deltaScore} from '../assets/scores.js';
 const read = name => JSON.parse(fs.readFileSync(new URL('../data/'+name+'.json',import.meta.url),'utf8'));
 const {categories,perturbations}=read('catalogue');
 const {models}=read('results');
@@ -66,7 +67,7 @@ for(const institution of people.affiliations){
 }
 for(const author of people.authors)for(const id of author.affiliations||[])assert(people.affiliations.some(a=>a.id===id));
 for(const m of models){
-  assert.deepEqual(Object.keys(m).sort(),['id','name','type','scores','cells','taskRates','updated','granularity'].sort(),'Unexpected public model fields');
+  assert.deepEqual(Object.keys(m).sort(),['id','name','type','scores','cells','taskRates','updated','granularity',...(m.reportedScores?['reportedScores']:[])].sort(),'Unexpected public model fields');
   assert(profiles[m.id]?.description&&/^https:\/\//.test(profiles[m.id].source),`Missing sourced model introduction ${m.id}`);
   assert(assets[m.id],`Missing model image ${m.id}`);
   assert(fs.existsSync(new URL('../assets/models/'+assets[m.id].asset,import.meta.url)));
@@ -118,6 +119,23 @@ for(const m of models){
     for(const cell of m.cells){const raw=sheet.cells.find(c=>c.model===m.name&&c.suite===cell.suite&&c.direction===cell.direction);assert(raw);close(cell.rate,raw.rate);}
   }
 }
+// Independently transcribed active release tables; verify all 306 summary values.
+const paper=JSON.parse(fs.readFileSync(new URL('./paper-scores.json',import.meta.url),'utf8'));
+assert.equal(paper.rows.length,34);
+assert.equal(models.filter(m=>m.reportedScores).length,17);
+for(const row of paper.rows){
+  const model=models.find(m=>m.id===row.id);assert(model?.reportedScores);
+  assert.deepEqual(Object.keys(model.reportedScores).sort(),['base','dynamic','static']);
+  const summary=summaryScore(model,row.mode);
+  assert.deepEqual(Object.keys(summary).sort(),['average','categories','delta']);
+  assert.deepEqual(Object.keys(summary.categories).sort(),categories.map(c=>c.id).sort());
+  const actual={...summary.categories,average:summary.average,base:baseScore(model),delta:deltaScore(model,row.mode)};
+  for(const [field,value] of Object.entries(actual)){
+    assert(Number.isFinite(value));
+    assert.equal((value*100).toFixed(1),row[field].toFixed(1),`${row.id}/${row.mode}/${field} differs from release paper`);
+  }
+}
+assert.equal(baseScore(models.find(m=>m.id==='nora')),models.find(m=>m.id==='nora').scores.base);
 // Independent displayed-value controls transcribed from the supplied paper table.
 for(const [name,s,d] of [['OpenVLA-OFT',58.9,64.6],['Lingbot-VA',68.7,81.8],['MolmoAct2',71.2,76.9],['Cosmos Policy',70.8,72.2],['FastWAM',55.9,70.1]]){
   const m=models.find(m=>m.name===name);assert.equal((m.scores.static.average*100).toFixed(1),s.toFixed(1));assert.equal((m.scores.dynamic.average*100).toFixed(1),d.toFixed(1));

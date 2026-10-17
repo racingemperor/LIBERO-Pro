@@ -1,6 +1,7 @@
+import {baseScore, summaryScore} from './scores.js';
 // All four categorical success rates share the same 0–100% scale.
 const metrics = ['Base', 'Overall', 'Dynamic', 'Static'];
-const values = model => [model.scores.base, model.scores.overall, model.scores.dynamic.average, model.scores.static.average];
+const values = model => [baseScore(model), model.scores.overall, summaryScore(model,'dynamic').average, summaryScore(model,'static').average];
 const colors = {
   'lingbot-va':'#2064ce', 'molmoact2':'#b74379', 'cosmos-policy':'#25856c',
   'pi0-5':'#965616', 'xvla':'#7753b5', 'fastwam':'#007e9b', 'gr00t-n1-7':'#677c19',
