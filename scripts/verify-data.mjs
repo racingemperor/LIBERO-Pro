@@ -214,4 +214,18 @@ for(const file of ['assets/app.js',...['index','docs','leaderboard','report','co
   const content=fs.readFileSync(new URL('../'+file,import.meta.url),'utf8');
   assert(!/href=["']data\/|\sdownload(?:[\s=>])/.test(content),`Data download link remains in ${file}`);
 }
-console.log('PASS: display-only fields; no snapshots or data download links; 18 models; 42 perturbations and Home clips; eight tasks; aggregate rates; paper controls.'+(privateRoot?' Private source comparisons passed.':''));
+const officialRepository='https://github.com/LIBERO-Pro-Team/LIBERO-Pro2.0';
+for(const page of ['index','docs','leaderboard','model','perturbation','task','findings','report','community']){
+  const html=fs.readFileSync(new URL('../'+page+'.html',import.meta.url),'utf8');
+  const projectLinks=html.match(/<nav class="site-links"[^>]*>([\s\S]*?)<\/nav>/)?.[1];
+  const footer=html.match(/<footer\b[^>]*>([\s\S]*?)<\/footer>/)?.[1];
+  assert(projectLinks?.includes(`href="${officialRepository}"`),`${page}: Code must use the official repository`);
+  assert(footer?.includes(`href="${officialRepository}"`),`${page}: footer GitHub must use the official repository`);
+  assert(!html.includes('https://github.com/Zxy-MLlab/LIBERO-Pro2.0'),`${page}: obsolete 2.0 repository link`);
+}
+const appSource=fs.readFileSync(new URL('../assets/app.js',import.meta.url),'utf8');
+assert(appSource.includes(`class="repository-link" href="${officialRepository}"`),'Home repository link is outdated');
+assert(appSource.includes('class="repository-name">LIBERO-Pro-Team/LIBERO-Pro2.0</span>'),'Home repository label is outdated');
+assert(read('publication').bibtex.includes(`url = {${officialRepository}}`),'Citation must use the official repository');
+assert.equal(read('news').entries.find(entry=>entry.link?.label==='leaderboards')?.link.url,officialRepository,'News must link to the new repository without a missing anchor');
+console.log('PASS: display-only fields; no snapshots or data download links; 18 models; 42 perturbations and Home clips; eight tasks; aggregate rates; paper controls; official repository links.'+(privateRoot?' Private source comparisons passed.':''));

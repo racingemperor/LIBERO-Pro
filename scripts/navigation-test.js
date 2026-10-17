@@ -519,7 +519,7 @@ const tests = [
     await load('report.html');
     const links = [...doc().querySelectorAll('.site-nav a')].map(a => a.textContent);
     assert(links.join(',') === 'Home,Document,Leaderboard,Report', 'Main navigation still includes Eval');
-    assert(query('.site-links a').href === 'https://github.com/Zxy-MLlab/LIBERO-Pro2.0', 'Code has the wrong repository');
+    assert(query('.site-links a').href === 'https://github.com/LIBERO-Pro-Team/LIBERO-Pro2.0', 'Code has the wrong repository');
     assert(query('a[aria-current="page"]').textContent === 'Report', 'Report active link is missing');
     assert(doc().querySelectorAll('.publication-row').length === 2, 'Both paper editions must be present');
     assert(doc().documentElement.scrollWidth <= win().innerWidth, 'Report overflows the viewport');

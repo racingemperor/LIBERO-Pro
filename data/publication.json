@@ -2,5 +2,5 @@
   "published": "",
   "report": { "label": "", "url": "" },
   "emails": ["d202480819@hust.edu.cn", "racingemperor@outlook.com"],
-  "bibtex": "@misc{zhou2026liberopro2,\n  title = {LIBERO-Pro2.0: A Benchmark for Evaluating the Robustness of Embodied Foundation Models},\n  author = {Xueyang Zhou and Yangming Xu and Qianjiang Li and Guiyao Tie and Junhao Wu and Ziheng Huang and Guowen Zhang and Zhijie Yuan and Di Wu and Duanfeng Chu and Pan Zhou and Lichao Sun and Yongchao Chen},\n  year = {2026},\n  howpublished = {GitHub repository},\n  url = {https://github.com/Zxy-MLlab/LIBERO-Pro2.0}\n}"
+  "bibtex": "@misc{zhou2026liberopro2,\n  title = {LIBERO-Pro2.0: A Benchmark for Evaluating the Robustness of Embodied Foundation Models},\n  author = {Xueyang Zhou and Yangming Xu and Qianjiang Li and Guiyao Tie and Junhao Wu and Ziheng Huang and Guowen Zhang and Zhijie Yuan and Di Wu and Duanfeng Chu and Pan Zhou and Lichao Sun and Yongchao Chen},\n  year = {2026},\n  howpublished = {GitHub repository},\n  url = {https://github.com/LIBERO-Pro-Team/LIBERO-Pro2.0}\n}"
 }
