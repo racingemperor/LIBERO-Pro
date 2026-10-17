@@ -297,14 +297,14 @@ const tests = [
     await change(()=>click('[data-chart-model="molmoact2"]'),()=>chosen().length===1);
     assert(doc().documentElement.scrollWidth<=win().innerWidth,'Chart causes horizontal page overflow');
   }],
-  ['All chart points and accessible table scores match the original aggregate data', async () => {
+  ['All chart points and accessible table scores match published summaries and the original Overall aggregate', async () => {
     await load('leaderboard.html');
     click('[data-chart-select="all"]');
     const {models}=await (await fetch('../data/results.json')).json();
     const rows=[...doc().querySelectorAll('.capability-data tbody tr')];
     for(const m of models){
       const series=query(`[data-series="${m.id}"]`),points=[...series.querySelectorAll('[data-metric]')];
-      const expected=[m.scores.base,m.scores.overall,m.scores.dynamic.average,m.scores.static.average];
+      const expected=[m.reportedScores?.base??m.scores.base,m.scores.overall,m.reportedScores?.dynamic.average??m.scores.dynamic.average,m.reportedScores?.static.average??m.scores.static.average];
       const available=['base','overall','dynamic','static'].filter((_,i)=>Number.isFinite(expected[i]));
       assert(points.map(p=>p.dataset.metric).join(',')===available.join(','),'Wrong metric order or missing Base treated as zero');
       points.forEach((point,i)=>assert(Math.abs(Number(point.dataset.value)-expected.filter(Number.isFinite)[i])<1e-10,m.name+' chart point is wrong'));
