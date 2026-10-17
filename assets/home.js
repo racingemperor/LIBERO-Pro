@@ -148,7 +148,7 @@ export function bindHomePresentation() {
     try {
       await navigator.clipboard.writeText(text);
       copy.textContent = 'Copied';
-      status.textContent = 'Citation copied to clipboard.';
+      status.textContent = 'Citations copied to clipboard.';
       if(controller.signal.aborted)return;
       copyTimer=setTimeout(() => { copy.textContent = 'Copy'; status.textContent = ''; }, 2500);
     } catch {

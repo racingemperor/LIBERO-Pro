@@ -81,7 +81,7 @@ function peopleSection() {
 
 function citationSection() {
   const bibtex=publication.bibtex?.trim()||'';
-  return `<section class="section citation-section" id="citation">${sectionHead('Citation')}<div class="citation-card"><div class="citation-header"><h3>LIBERO-Pro2.0</h3><button class="citation-copy" data-copy-citation aria-label="Copy BibTeX"${bibtex?'':' disabled'}>Copy</button></div><pre class="citation-code"${bibtex?' tabindex="0" aria-label="BibTeX citation"':' aria-label="Citation reserved for the forthcoming paper"'}><code>${esc(bibtex)}</code></pre></div>${bibtex?'':'<p class="caption">Citation details will be added with the paper.</p>'}<p class="sr-only" data-copy-status role="status"></p></section>`;
+  return `<section class="section citation-section" id="citation">${sectionHead('Citation')}<div class="citation-card"><div class="citation-header"><h3>LIBERO-Pro2.0 &amp; LIBERO-Pro</h3><button class="citation-copy" data-copy-citation aria-label="Copy BibTeX"${bibtex?'':' disabled'}>Copy</button></div><pre class="citation-code"${bibtex?' tabindex="0" aria-label="BibTeX citation"':' aria-label="Citation reserved for the forthcoming paper"'}><code>${esc(bibtex)}</code></pre></div>${bibtex?'':'<p class="caption">Citation details will be added with the paper.</p>'}<p class="sr-only" data-copy-status role="status"></p></section>`;
 }
 
 const overallScores = new WeakMap();

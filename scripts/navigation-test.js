@@ -55,6 +55,18 @@ async function navigate(action,ready,{push=true}={}) {
 }
 
 const tests = [
+  ['Citation retains both official BibTeX entries with an accessible Copy control', async()=>{
+    await load('index.html');
+    const publication=await (await fetch('../data/publication.json')).json();
+    const code=query('#citation .citation-code code');
+    assert(code?.textContent===publication.bibtex.trim(),'The citation text was changed or truncated');
+    assert(code.textContent.includes('@misc{zhou2026liberopro2,')&&code.textContent.includes('@article{zhou2025liberopro,'),'Both versions need their own BibTeX entry');
+    assert(query('#citation h3').textContent==='LIBERO-Pro2.0 & LIBERO-Pro','Citation heading must name both editions');
+    const copy=query('[data-copy-citation]');
+    assert(copy&&!copy.disabled&&copy.getAttribute('aria-label')==='Copy BibTeX','Copy is not available or labelled');
+    assert(query('.citation-code').tabIndex===0,'Citation cannot be reached by keyboard');
+    assert(doc().documentElement.scrollWidth<=win().innerWidth,'Citation causes whole-page overflow');
+  }],
   ['All top-level sections switch in one document and Back/Forward follows their order', async()=>{
     await load('index.html');
     const pages=[['docs','Document'],['leaderboard','Leaderboard'],['report','Report'],['community','Community']];

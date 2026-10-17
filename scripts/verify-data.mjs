@@ -227,5 +227,16 @@ const appSource=fs.readFileSync(new URL('../assets/app.js',import.meta.url),'utf
 assert(appSource.includes(`class="repository-link" href="${officialRepository}"`),'Home repository link is outdated');
 assert(appSource.includes('class="repository-name">LIBERO-Pro-Team/LIBERO-Pro2.0</span>'),'Home repository label is outdated');
 assert(read('publication').bibtex.includes(`url = {${officialRepository}}`),'Citation must use the official repository');
+const bibtex=read('publication').bibtex;
+assert.equal((bibtex.match(/^@\w+\{/gm)||[]).length,2,'Citation must retain both paper editions');
+assert(bibtex.indexOf('@misc{zhou2026liberopro2,')<bibtex.indexOf('@article{zhou2025liberopro,'),'Show the 2.0 citation before 1.0');
+const earlierCitation=bibtex.slice(bibtex.indexOf('@article{zhou2025liberopro,'));
+for(const field of [
+  'title = {LIBERO-PRO: Towards Robust and Fair Evaluation of Vision-Language-Action Models Beyond Memorization}',
+  'author = {Xueyang Zhou and Yangming Xu and Guiyao Tie and Yongchao Chen and Guowen Zhang and Duanfeng Chu and Pan Zhou and Lichao Sun}',
+  'journal = {arXiv preprint arXiv:2510.03827}',
+  'year = {2025}',
+  'url = {https://arxiv.org/abs/2510.03827}'
+])assert(earlierCitation.includes(field),'1.0 citation differs from the official README: '+field);
 assert.equal(read('news').entries.find(entry=>entry.link?.label==='leaderboards')?.link.url,officialRepository,'News must link to the new repository without a missing anchor');
 console.log('PASS: display-only fields; no snapshots or data download links; 18 models; 42 perturbations and Home clips; eight tasks; aggregate rates; paper controls; official repository links.'+(privateRoot?' Private source comparisons passed.':''));
