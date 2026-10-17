@@ -127,7 +127,7 @@ const tests = [
     assert(!isSiteLink({...normal,button:1},query('.brand')),'Middle-click must remain native');
     assert(!isSiteLink(normal,query('.site-links a[target="_blank"]')),'External new-tab link was intercepted');
     assert(!siteRoute(new URL('../outside.html',win().location.href))&&!siteRoute(new URL('assets/favicon.svg',win().location.href)),'Router accepted a non-page URL');
-    await change(()=>click('.footer a[href="docs.html#protocol"]'),()=>win().location.hash==='#protocol');
+    assert([...doc().querySelectorAll('.footer a')].every(link=>!isSiteLink(normal,link)),'External footer links must remain native');
   }],
   ['Model galleries autoplay visible videos, resume after scrolling, and switch in place', async () => {
     await load('model.html?id=anchor-align&perturbation=S01');

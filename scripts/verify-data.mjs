@@ -221,6 +221,14 @@ for(const page of ['index','docs','leaderboard','model','perturbation','task','f
   const footer=html.match(/<footer\b[^>]*>([\s\S]*?)<\/footer>/)?.[1];
   assert(projectLinks?.includes(`href="${officialRepository}"`),`${page}: Code must use the official repository`);
   assert(footer?.includes(`href="${officialRepository}"`),`${page}: footer GitHub must use the official repository`);
+  assert.equal(footer?.match(/<span>([^<]*)<\/span>/)?.[1],'LIBEROpro 2.0',`${page}: footer brand`);
+  const footerLinks=[...footer.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map(([,href,label])=>({href,label}));
+  assert.deepEqual(footerLinks,[
+    {href:officialRepository,label:'GitHub'},
+    {href:'https://huggingface.co/datasets/zhouxueyang/LIBERO-Pro2.0-Eval',label:'Eval'},
+    {href:'https://huggingface.co/datasets/zhouxueyang/LIBERO-Pro2.0-Train',label:'Train'}
+  ],`${page}: footer must show only the three plain text links in order`);
+  assert(!/<(?:svg|img|i)\b|Evaluation protocol|Sources|&nbsp;|\s\/\s/.test(footer),`${page}: no footer icons, old links or separators`);
   assert(!html.includes('https://github.com/Zxy-MLlab/LIBERO-Pro2.0'),`${page}: obsolete 2.0 repository link`);
 }
 const appSource=fs.readFileSync(new URL('../assets/app.js',import.meta.url),'utf8');
