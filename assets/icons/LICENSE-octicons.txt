@@ -1,5 +1,8 @@
 github.svg is the mark-github-16 icon from GitHub Octicons.
 Source: https://github.com/primer/octicons/blob/main/icons/mark-github-16.svg
+The Citation button also uses copy-16 and check-16 inline from GitHub Octicons.
+Sources: https://github.com/primer/octicons/blob/main/icons/copy-16.svg
+         https://github.com/primer/octicons/blob/main/icons/check-16.svg
 
 MIT License
 

@@ -147,11 +147,26 @@ export function bindHomePresentation() {
     const status = document.querySelector('[data-copy-status]');
     try {
       await navigator.clipboard.writeText(text);
-      copy.textContent = 'Copied';
-      status.textContent = 'Citations copied to clipboard.';
       if(controller.signal.aborted)return;
-      copyTimer=setTimeout(() => { copy.textContent = 'Copy'; status.textContent = ''; }, 2500);
+      clearTimeout(copyTimer);
+      copy.dataset.copied = 'true';
+      copy.setAttribute('aria-label','Citations copied');
+      copy.title = 'Copied';
+      status.classList.remove('caption');
+      status.classList.add('sr-only');
+      status.textContent = 'Citations copied to clipboard.';
+      copyTimer=setTimeout(() => {
+        delete copy.dataset.copied;
+        copy.setAttribute('aria-label','Copy BibTeX');
+        copy.title = 'Copy BibTeX';
+        status.textContent = '';
+      }, 2500);
     } catch {
+      if(controller.signal.aborted)return;
+      clearTimeout(copyTimer);
+      delete copy.dataset.copied;
+      copy.setAttribute('aria-label','Copy BibTeX');
+      copy.title = 'Copy BibTeX';
       status.classList.remove('sr-only');
       status.classList.add('caption');
       status.textContent = 'Select the citation text and copy it manually.';

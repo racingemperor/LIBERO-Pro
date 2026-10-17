@@ -354,13 +354,15 @@ a.home-model-chip:focus-visible{outline:2px solid #215e52;outline-offset:3px}
 @media(max-width:760px){.home-model-chip{gap:6px;min-height:44px;padding-right:10px}.home-models-upcoming{margin-top:26px;padding-top:22px}}
 @media(prefers-reduced-motion:reduce){.home-model-chip{transition:none}}
 .citation-section{max-width:1080px;margin:0 auto;border-bottom:0}
-.citation-card{border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.citation-header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:14px 22px;background:white}
-.citation-header h3{font-size:17px;letter-spacing:-.015em}
-.citation-copy{font-size:13px;min-width:70px;min-height:44px;padding:7px 14px;border:1px solid var(--line);border-radius:5px}
-.citation-copy:hover:enabled{border-color:var(--blue);color:var(--blue)}
+.citation-card{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--wash)}
+.citation-copy{position:absolute;top:8px;right:8px;z-index:1;display:grid;place-items:center;width:44px;min-width:44px;height:44px;padding:0;border:1px solid transparent;border-radius:6px;background:var(--wash);color:var(--muted)}
+.citation-copy:hover:enabled{border-color:var(--line);color:var(--ink)}
+.citation-copy[data-copied]{color:#1a7f37}
+.citation-copy svg{grid-area:1/1}
+.citation-copy .citation-check-symbol,.citation-copy[data-copied] .citation-copy-symbol{display:none}
+.citation-copy[data-copied] .citation-check-symbol{display:block}
 .citation-copy:disabled{color:var(--muted);background:var(--wash)}
-.citation-code{margin:0;padding:22px;background:var(--wash);border-top:1px solid var(--line);overflow:auto;min-height:160px;font:13px/1.75 Consolas,monospace;tab-size:2}
+.citation-code{margin:0;padding:22px 66px 22px 22px;background:var(--wash);overflow:auto;min-height:160px;font:13px/1.75 Consolas,monospace;tab-size:2}
 .citation-code code{font:inherit}
 @media(prefers-reduced-motion:no-preference){
   .home-reveal{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s cubic-bezier(.2,.7,.2,1)}
@@ -495,8 +497,7 @@ a.doc-perturbation-chip:focus-visible{outline:2px solid #215e52;outline-offset:3
   .institution-logos img{height:30px}
   .institution-logos figure{max-width:100%}
   .home-summary{font-size:16px;line-height:1.8}
-  .citation-header{padding:12px 16px}
-  .citation-code{padding:16px;font-size:12px;min-height:140px}
+  .citation-code{padding:16px 60px 16px 16px;font-size:12px;min-height:140px}
   .gallery-section .section-head{gap:5px}
   .gallery-item{width:120px}
   .gallery-group{gap:8px;padding-right:8px}

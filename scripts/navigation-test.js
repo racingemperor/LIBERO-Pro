@@ -61,7 +61,7 @@ const tests = [
     const code=query('#citation .citation-code code');
     assert(code?.textContent===publication.bibtex.trim(),'The citation text was changed or truncated');
     assert(code.textContent.includes('@misc{zhou2026liberopro2,')&&code.textContent.includes('@article{zhou2025liberopro,'),'Both versions need their own BibTeX entry');
-    assert(query('#citation h3').textContent==='LIBERO-Pro2.0 & LIBERO-Pro','Citation heading must name both editions');
+    assert(!query('#citation h3')&&!query('.citation-header'),'Citation must not have an inner title or header row');
     const copy=query('[data-copy-citation]');
     assert(copy&&!copy.disabled&&copy.getAttribute('aria-label')==='Copy BibTeX','Copy is not available or labelled');
     assert(query('.citation-code').tabIndex===0,'Citation cannot be reached by keyboard');
